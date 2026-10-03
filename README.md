@@ -8,6 +8,12 @@ BLFX qui les joue. Vos propres animations personnalisées sont conservées.
 
 ## Installation
 
+Dans Foundry (ou sur The Forge), *Installer un module* → coller l'URL de manifeste :
+
+```
+https://github.com/Darshyne/darsh-animations/releases/latest/download/module.json
+```
+
 - Requiert **BLFX Animation Editor Premium** (`boss-loot-assets-premium`), donc Sequencer et le pack d'assets BLFX.
 - Dans les paramètres du module Boss Loot, cocher **« BLFX Custom Auto-Rec Updates »**, puis recharger.
 - Activer « darsh-dnd · Animations ». Au chargement suivant, la console indique ce qui a été versé.
