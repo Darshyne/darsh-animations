@@ -1,0 +1,11 @@
+{
+  "name": "darsh-animations",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "catalogue": "node tools/catalogue.mjs",
+    "inventaire": "node tools/inventaire.mjs"
+  },
+  "devDependencies": { "vitest": "^3.0.0" }
+}

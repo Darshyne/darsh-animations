@@ -1,0 +1,52 @@
+{
+  "id": "darsh-animations",
+  "title": "darsh-dnd · Animations",
+  "description": "Animations BLFX pour les capacités que Boss Loot ne reconnaît pas d'elles-mêmes (Ravenloft, créatures tierces, sorts de haut niveau) : une table par identifiant dnd5e, versée dans l'Auto-Rec personnalisée de BLFX sans écraser celle du MJ. D'autres modules peuvent y ajouter leurs propres entrées.",
+  "version": "0.3.0",
+  "authors": [
+    {
+      "name": "Darshyne"
+    }
+  ],
+  "url": "https://github.com/Darshyne/darsh-animations",
+  "license": "https://github.com/Darshyne/darsh-animations/blob/main/LICENSE",
+  "compatibility": {
+    "minimum": "14",
+    "verified": "14.367"
+  },
+  "relationships": {
+    "systems": [
+      {
+        "id": "dnd5e",
+        "type": "system",
+        "compatibility": {
+          "minimum": "6.0.0"
+        }
+      }
+    ],
+    "requires": [
+      {
+        "id": "boss-loot-assets-premium",
+        "type": "module",
+        "compatibility": {
+          "minimum": "3.5.0"
+        }
+      }
+    ]
+  },
+  "esmodules": [
+    "scripts/darsh-animations.mjs"
+  ],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    },
+    {
+      "lang": "fr",
+      "name": "Français",
+      "path": "lang/fr.json"
+    }
+  ]
+}

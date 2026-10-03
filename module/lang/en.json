@@ -1,0 +1,5 @@
+{
+  "DARSHANIM.Sync.Interdit": "darsh-dnd · Animations: enable the BLFX setting \"BLFX Custom Auto-Rec Updates\" (Boss Loot module settings), then reload. It lets this module add its animations to the Custom Auto-Rec; yours are kept.",
+  "DARSHANIM.Sync.Problemes": "darsh-dnd · Animations: {n} animation(s) not sent to BLFX — see the console.",
+  "DARSHANIM.Sync.Echec": "darsh-dnd · Animations: BLFX did not confirm the Custom Auto-Rec import — see the console."
+}
