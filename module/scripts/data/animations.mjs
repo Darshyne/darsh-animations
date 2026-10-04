@@ -81,6 +81,12 @@ export const ANIMATIONS = Object.freeze({
   /* ---- Prêtre (Monster Manual 2024) ---- */
   "radiant-flame": [strike("spell.guiding-bolt", { note: "trait radiant à distance" })],
 
+  /* ---- Dretch (Monster Manual 2024) ---- */
+  // Nuage fétide : l'émanation de 3 m que le moteur pose d'office autour du Dretch, retirée dès les sauvegardes jouées — une bouffée
+  // de gaz qui se joue une fois (l'animation de Nuage puant de BLFX est une boucle, coupée avec la région).
+  "fetid-cloud": [burst("blfx.spell.template.circle.dust.puff.poison.gas.smoke.radial.1.color1", "blfx.sound.ability.breath.1",
+    { note: "bouffée de gaz empoisonné sur l'émanation" })],
+
   /* ---- Sorts sans animation BLFX (Xanathar's, haut niveau) ---- */
   "absorb-elements": [onSelf("blfx.spell.misc.shield5.magic.protection.energy.fire1.loop.color1", "blfx.sound.spell.resistance.1", 1.5)],
   "cause-fear": [onTargets("blfx.condition.frightened1.dread.fear.skull.loop.red", "blfx.sound.spell.cast.bane.1")],
