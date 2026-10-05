@@ -1,53 +1,56 @@
-# darsh-dnd · Animations
+# DAS · Animations (`darsh-animations`)
 
-Animations BLFX (Boss Loot) pour les capacités que BLFX ne reconnaît pas de lui-même : Ravenloft: The Horrors Within,
-créatures tierces, sorts de haut niveau du Manuel des joueurs.
+Part of **Darshyne's Automation Suite (DAS)**. BLFX (Boss Loot) animations for the abilities BLFX does not
+recognise by itself: Ravenloft: The Horrors Within, third-party creatures, high-level Player's Handbook spells.
 
-Le module ajoute ses animations à l'**Auto-Rec personnalisée** de BLFX, au chargement du monde, chez le MJ ; c'est ensuite
-BLFX qui les joue. Vos propres animations personnalisées sont conservées.
+The module adds its animations to BLFX's **Custom Auto-Rec** when the world loads, on the GM's client; BLFX then
+plays them. Your own custom animations are kept.
 
 ## Installation
 
-Dans Foundry (ou sur The Forge), *Installer un module* → coller l'URL de manifeste :
+In Foundry (or on The Forge), *Install Module* → paste the manifest URL:
 
 ```
 https://github.com/Darshyne/darsh-animations/releases/latest/download/module.json
 ```
 
-- Requiert **BLFX Animation Editor Premium** (`boss-loot-assets-premium`), donc Sequencer et le pack d'assets BLFX.
-- Dans les paramètres du module Boss Loot, cocher **« BLFX Custom Auto-Rec Updates »**, puis recharger.
-- Activer « darsh-dnd · Animations ». Au chargement suivant, la console indique ce qui a été versé.
+- Requires **BLFX Animation Editor Premium** (`boss-loot-assets-premium`), and therefore Sequencer and the BLFX
+  asset pack.
+- In the Boss Loot module settings, tick **"BLFX Custom Auto-Rec Updates"**, then reload.
+- Enable "darsh-dnd · Animations". On the next load, the console reports what was added.
 
-## Ajouter les animations d'un autre module
+## Adding animations from another module
 
-Un module (créatures d'une campagne, supplément) peut verser ses propres entrées avec celles-ci, sans toucher à ce dépôt :
+A module (campaign creatures, a supplement) can add its own entries alongside these, without touching this
+repository:
 
 ```js
 Hooks.once("init", () => {
-  Hooks.once("darsh-animations.register", register => register("mon-module", {
-    animations: { "mon-identifiant": [{ trigger: "afterAttack", activity: "attack", alias: "weapon.claw" }] },
-    without: { "autre-identifiant": "rien à montrer" },     // facultatif
-    sources: ["mon-module.creatures"]                       // facultatif : compendiums où chercher ces items
+  Hooks.once("darsh-animations.register", register => register("my-module", {
+    animations: { "my-identifier": [{ trigger: "afterAttack", activity: "attack", alias: "weapon.claw" }] },
+    without: { "other-identifier": "nothing to show" },     // optional
+    sources: ["my-module.creatures"]                        // optional: compendiums to search for these items
   }));
 });
 ```
 
-Le hook est appelé une fois, à `setup` (donc avant la synchronisation de `ready`). La même chose existe en appel direct :
-`game.modules.get("darsh-animations")?.api.register(source, table)`, suivi de `api.sync()` s'il vient après `ready` ;
-`api.registered()` dit ce qui est enregistré. La forme d'une animation est décrite en tête de
-`module/scripts/data/animations.mjs` ; une animation mal formée est écartée et signalée dans la console.
+The hook is called once, at `setup` (so before the `ready` sync). The same is available as a direct call:
+`game.modules.get("darsh-animations")?.api.register(source, table)`, followed by `api.sync()` if it comes after
+`ready`; `api.registered()` tells what is registered. The shape of an animation is documented at the top of
+`module/scripts/data/animations.mjs`; a malformed animation is dropped and reported in the console.
 
-## Développement
+## Development
 
-- `npm test` — cœur, registre et table. Les vérifications contre le catalogue BLFX (alias existants, animations et sons
-  présents) lisent `prive/docs/` et sont sautées si ces fichiers manquent.
-- `npm run catalogue` — régénère `prive/docs/catalogue-blfx.json` et `prive/docs/blfx-autorec.json` depuis l'installation
-  locale de BLFX (`FOUNDRY_DATA` pour un autre chemin que `F:/Foundry V14/Data`). Index d'un module premium : non publiés.
-- `npm run inventaire` — régénère `prive/docs/inventaire.md` et `prive/docs/table.md` (ce qui est couvert, ce qui manque),
-  à partir des dépôts frères.
+- `npm test` — core, registry and table. Checks against the BLFX catalogue (existing aliases, animations and
+  sounds) read `prive/docs/` and are skipped when those files are missing.
+- `npm run catalogue` — regenerates `prive/docs/catalogue-blfx.json` and `prive/docs/blfx-autorec.json` from the
+  local BLFX install (`FOUNDRY_DATA` for a path other than `F:/Foundry V14/Data`). Indexes of a premium module:
+  not published.
+- `npm run inventaire` — regenerates `prive/docs/inventaire.md` and `prive/docs/table.md` (what is covered, what
+  is missing), from the sibling repositories.
 
-## Licence
+## License
 
-Code sous licence MIT (voir `LICENSE`). Requiert le module premium Boss Loot (BLFX), qui n'est pas fourni : ce module
-ne contient aucun de ses fichiers, seulement des noms d'animations à lui demander. Ni affilié à Wizards of the Coast
-ni approuvé par elle.
+Code under the MIT license (see `LICENSE`). Requires the premium Boss Loot (BLFX) module, which is not provided:
+this module contains none of its files, only names of animations to request from it. Not affiliated with, nor
+endorsed by, Wizards of the Coast.
