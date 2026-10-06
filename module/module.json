@@ -1,8 +1,8 @@
 {
   "id": "darsh-animations",
-  "title": "darsh-dnd · Animations",
+  "title": "DAS · Animations",
   "description": "Animations BLFX pour les capacités que Boss Loot ne reconnaît pas d'elles-mêmes (Ravenloft, créatures tierces, sorts de haut niveau) : une table par identifiant dnd5e, versée dans l'Auto-Rec personnalisée de BLFX sans écraser celle du MJ. D'autres modules peuvent y ajouter leurs propres entrées. Joue aussi les pièges annoncés par le hook darsh-loot.trapFired (pièges du DMG 2024), que BLFX ne sait pas jouer sans token.",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "authors": [
     {
       "name": "Darshyne"
