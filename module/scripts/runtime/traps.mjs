@@ -31,8 +31,9 @@ function areaOf(region) {
  */
 export function playTrap({ actor, activity=null, targets=[], region=null, effectRegion=null }={}) {
   if ( !globalThis.Sequence ) return { skipped: "Sequencer absent" };
-  const parts = trapParts({ id: actor?.id, sourceId: actor?._stats?.compendiumSource, damageTypes: damageTypes(activity) },
-    TRAPS, BY_DAMAGE);
+  // Source de compendium : `_stats.compendiumSource`, ou l'ancien drapeau `core.sourceId` (acteur copié à la main).
+  const sourceId = actor?._stats?.compendiumSource ?? actor?.flags?.core?.sourceId;
+  const parts = trapParts({ id: actor?.id, sourceId, damageTypes: damageTypes(activity) }, TRAPS, BY_DAMAGE);
   if ( !parts.length ) return { skipped: "aucune animation pour ce piège" };
   const area = areaOf(effectRegion ?? region);
   const onScene = targets.map(t => t?.object).filter(Boolean);

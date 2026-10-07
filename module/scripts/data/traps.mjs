@@ -71,6 +71,14 @@ export const TRAPS = Object.freeze({
       sound: "blfx.sound.misc.impact.ground.hit.1" },
     impact("piercing", { delay: 500, sound: "blfx.sound.misc.bone_cracking" })
   ],
+  // Vapeurs toxiques (danger) : une bouffée verte jaillit, puis la nappe de gaz stagne sur toute la zone.
+  dmgPoisonousGas0: [
+    { at: "area", animation: "blfx.spell.template.circle.dust.puff.poison.gas.smoke.radial.1.color1", scale: 1.2,
+      sound: "blfx.sound.ability.breath.1" },
+    { at: "area", animation: "blfx.spell.template.circle.smoke1.mist1.storm1.color3", delay: 500, duration: 12000, scale: 1.4,
+      below: true },
+    impact("poison", { delay: 900 })
+  ],
   // Le sable s'ouvre et aspire : tourbillon sous la zone.
   dmgQuicksandPit0: [
     { at: "area", animation: "blfx.spell.template.circle.hole1.crack1.dust1.black", below: true, sound: "blfx.sound.misc.wave.1" },
