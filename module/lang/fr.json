@@ -1,5 +1,6 @@
 {
-  "DARSHANIM.Sync.Interdit": "darsh-dnd · Animations : cochez le réglage BLFX « BLFX Custom Auto-Rec Updates » (Paramètres du module Boss Loot), puis rechargez. Il permet à ce module d'ajouter ses animations à l'Auto-Rec personnalisée ; les vôtres sont conservées.",
-  "DARSHANIM.Sync.Problemes": "darsh-dnd · Animations : {n} animation(s) non versée(s) dans BLFX — détail dans la console.",
-  "DARSHANIM.Sync.Echec": "darsh-dnd · Animations : BLFX n'a pas confirmé l'import de l'Auto-Rec — détail dans la console."
+  "DARSHANIM.Sync.Interdit": "DAS · Animations : cochez le réglage BLFX « BLFX Custom Auto-Rec Updates » (Paramètres du module Boss Loot), puis rechargez. Il permet à ce module d'ajouter ses animations à l'Auto-Rec personnalisée ; les vôtres sont conservées.",
+  "DARSHANIM.Sync.Problemes": "DAS · Animations : {n} animation(s) non versée(s) dans BLFX — détail dans la console.",
+  "DARSHANIM.Sync.Echec": "DAS · Animations : BLFX n'a pas confirmé l'import de l'Auto-Rec — détail dans la console.",
+  "DARSHANIM.Preview.Region": "DAS · Animations · aperçu"
 }

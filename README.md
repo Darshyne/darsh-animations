@@ -19,7 +19,13 @@ https://github.com/Darshyne/darsh-animations/releases/latest/download/module.jso
 - Requires **BLFX Animation Editor Premium** (`boss-loot-assets-premium`), and therefore Sequencer and the BLFX
   asset pack.
 - In the Boss Loot module settings, tick **"BLFX Custom Auto-Rec Updates"**, then reload.
-- Enable "darsh-dnd · Animations". On the next load, the console reports what was added.
+- Enable "DAS · Animations". On the next load, the console reports what was added.
+
+## Translations
+
+The module ships in English and French. To add a language, copy `module/lang/en.json` to
+`module/lang/<code>.json`, translate the values (keep the keys and the `{placeholders}` as they are), and add an
+entry to `languages` in `module/module.json`. Any key missing from a translation falls back to English.
 
 ## Adding animations from another module
 

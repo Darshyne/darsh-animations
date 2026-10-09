@@ -79,13 +79,13 @@ const strike = (alias, extra={}) => ({ trigger: "afterAttack", activity: "attack
 export const ANIMATIONS = Object.freeze({
 
   /* ---- Prêtre (Monster Manual 2024) ---- */
-  "radiant-flame": [strike("spell.guiding-bolt", { note: "trait radiant à distance" })],
+  "radiant-flame": [strike("spell.guiding-bolt", { note: "ranged radiant bolt" })],
 
   /* ---- Dretch (Monster Manual 2024) ---- */
   // Nuage fétide : l'émanation de 3 m que le moteur pose d'office autour du Dretch, retirée dès les sauvegardes jouées — une bouffée
   // de gaz qui se joue une fois (l'animation de Nuage puant de BLFX est une boucle, coupée avec la région).
   "fetid-cloud": [burst("blfx.spell.template.circle.dust.puff.poison.gas.smoke.radial.1.color1", "blfx.sound.ability.breath.1",
-    { note: "bouffée de gaz empoisonné sur l'émanation" })],
+    { note: "puff of poison gas over the emanation" })],
 
   /* ---- Sorts sans animation BLFX (Xanathar's, haut niveau) ---- */
   "absorb-elements": [onSelf("blfx.spell.misc.shield5.magic.protection.energy.fire1.loop.color1", "blfx.sound.spell.resistance.1", 1.5)],
@@ -102,5 +102,5 @@ export const ANIMATIONS = Object.freeze({
  * plus qu'elle n'aide. `npm run inventaire` les compte comme traitées.
  */
 export const WITHOUT = Object.freeze({
-  "mask-of-the-wild": "trait d'espèce (se cacher), rien à montrer"
+  "mask-of-the-wild": "species trait (hiding), nothing to show"
 });

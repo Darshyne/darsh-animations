@@ -53,7 +53,7 @@ function literal(value) {
   if ( typeof value === "string" ) return `'${value.replace(/\\/g, "\\\\").replace(/'/g, "\\'")}'`;
   if ( (typeof value === "number") && Number.isFinite(value) ) return String(value);
   if ( typeof value === "boolean" ) return String(value);
-  throw new Error(`valeur non prise en charge : ${JSON.stringify(value)}`);
+  throw new Error(`unsupported value: ${JSON.stringify(value)}`);
 }
 
 /**
@@ -67,7 +67,7 @@ export function applyParams(command, params={}) {
   let out = command;
   for ( const [key, value] of Object.entries(params) ) {
     const pattern = new RegExp(`^(const ${key} = )(.*?);([^\\n]*)$`, "m");
-    if ( !pattern.test(out) ) throw new Error(`le modèle ne déclare pas ${key}`);
+    if ( !pattern.test(out) ) throw new Error(`the template does not declare ${key}`);
     out = out.replace(pattern, (_, head, _old, tail) => `${head}${literal(value)};${tail}`);
   }
   return out;
@@ -86,13 +86,13 @@ export const ANIMATION_MAP_PATH = "modules/boss-loot-assets-premium/scripts/anim
  */
 export function aliasCommand(alias, trigger) {
   const [type, key, ...rest] = String(alias).split(".");
-  if ( !type || !key || rest.length ) throw new Error(`alias « ${alias} » : attendu « type.clé »`);
+  if ( !type || !key || rest.length ) throw new Error(`alias "${alias}": expected "type.key"`);
   const path = JSON.stringify([type, key, trigger]);
-  return `// ${TAG} : animation BLFX « ${alias} » (${trigger})
+  return `// ${TAG}: BLFX animation "${alias}" (${trigger})
 const { ANIMATION_MAP } = await import(foundry.utils.getRoute(${JSON.stringify(ANIMATION_MAP_PATH)}));
 const [type, key, trigger] = ${path};
 const anim = ANIMATION_MAP?.dnd5e?.[type]?.[key]?.[trigger];
-if ( !(anim?.macro instanceof Function) ) return console.warn("${TAG} | animation BLFX introuvable :", ${JSON.stringify(`${alias}.${trigger}`)});
+if ( !(anim?.macro instanceof Function) ) return console.warn("${TAG} | BLFX animation not found:", ${JSON.stringify(`${alias}.${trigger}`)});
 await anim.macro({ sourceToken, targetTokens, templateDocument, item, roll, activity, effect, data, ...(anim.defaultParams ?? {}) });`;
 }
 
@@ -112,19 +112,19 @@ export function buildEntries({ items, table, templates, version }) {
     const animations = table[item.identifier];
     if ( !animations ) continue;
     const itemSlug = slugify(item.name);
-    if ( !itemSlug ) { problems.push(`${item.identifier} : nom vide`); continue; }
+    if ( !itemSlug ) { problems.push(`${item.identifier}: empty name`); continue; }
     for ( const animation of animations ) {
       const activities = item.activities.filter(a => !animation.activity || (a.type === animation.activity));
-      if ( !activities.length ) { problems.push(`${item.name} (${item.identifier}) : aucune activité « ${animation.activity} »`); continue; }
+      if ( !activities.length ) { problems.push(`${item.name} (${item.identifier}): no "${animation.activity}" activity`); continue; }
       let command;
       try {
         if ( animation.alias ) command = aliasCommand(animation.alias, animation.aliasTrigger ?? animation.trigger);
         else {
           const template = templates[animation.template];
-          if ( !template ) throw new Error(`modèle BLFX « ${animation.template} » introuvable`);
+          if ( !template ) throw new Error(`BLFX template "${animation.template}" not found`);
           command = applyParams(template, animation.params);
         }
-      } catch(err) { problems.push(`${item.name} : ${err.message}`); continue; }
+      } catch(err) { problems.push(`${item.name}: ${err.message}`); continue; }
       for ( const activity of activities ) {
         const activitySlug = slugify(activity.name);
         ((entries[itemSlug] ??= {})[activitySlug] ??= {})[animation.trigger] = {

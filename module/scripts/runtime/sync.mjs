@@ -55,13 +55,13 @@ export async function loadTemplates() {
  * @returns {Promise<object>}  Le compte rendu (aussi écrit dans la console).
  */
 export async function sync({ force=false }={}) {
-  if ( !game.user.isActiveGM ) return { skipped: "pas le MJ actif" };
-  if ( !game.modules.get(BLFX)?.active ) return { skipped: "BLFX inactif" };
+  if ( !game.user.isActiveGM ) return { skipped: "not the active GM" };
+  if ( !game.modules.get(BLFX)?.active ) return { skipped: "BLFX inactive" };
   const signature = currentSignature();
-  if ( !force && (game.settings.get(MODULE_ID, "applied") === signature) ) return { skipped: "à jour", signature };
+  if ( !force && (game.settings.get(MODULE_ID, "applied") === signature) ) return { skipped: "up to date", signature };
   if ( !game.settings.get(BLFX, "blfxCustomAutoRecUpdates") ) {
     ui.notifications.warn(loc("Sync.Interdit"), { permanent: true });
-    return { skipped: "réglage BLFX « Custom Auto-Rec Updates » décoché" };
+    return { skipped: "BLFX setting \"Custom Auto-Rec Updates\" is off" };
   }
 
   const items = await collectItems();
@@ -83,7 +83,7 @@ export async function sync({ force=false }={}) {
 
   const report = { items: items.length, added, removed, kept, problems, imported: !!changed };
   if ( changed ) await game.settings.set(MODULE_ID, "applied", signature);
-  log("synchronisation BLFX", report);
+  log("BLFX sync", report);
   if ( problems.length ) ui.notifications.warn(loc("Sync.Problemes", { n: problems.length }));
   if ( !changed ) ui.notifications.error(loc("Sync.Echec"));
   return report;

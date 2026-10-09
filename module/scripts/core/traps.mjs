@@ -28,11 +28,11 @@ export function trapParts(trap, table, byDamage) {
 /** Les erreurs de forme d'une partie (vide si elle est bonne). */
 export function checkTrapPart(part, label) {
   const errors = [];
-  if ( !TRAP_PLACES.includes(part?.at) ) errors.push(`${label} : « at » doit valoir ${TRAP_PLACES.join(" ou ")}`);
-  if ( typeof part?.animation !== "string" || !part.animation.startsWith("blfx.") ) errors.push(`${label} : animation BLFX attendue`);
-  if ( (part?.sound !== undefined) && !String(part.sound).startsWith("blfx.sound.") ) errors.push(`${label} : son BLFX attendu`);
+  if ( !TRAP_PLACES.includes(part?.at) ) errors.push(`${label}: "at" must be ${TRAP_PLACES.join(" or ")}`);
+  if ( typeof part?.animation !== "string" || !part.animation.startsWith("blfx.") ) errors.push(`${label}: BLFX animation expected`);
+  if ( (part?.sound !== undefined) && !String(part.sound).startsWith("blfx.sound.") ) errors.push(`${label}: BLFX sound expected`);
   for ( const key of ["scale", "delay", "duration"] ) {
-    if ( (part?.[key] !== undefined) && !(Number.isFinite(part[key]) && (part[key] >= 0)) ) errors.push(`${label} : ${key} invalide`);
+    if ( (part?.[key] !== undefined) && !(Number.isFinite(part[key]) && (part[key] >= 0)) ) errors.push(`${label}: invalid ${key}`);
   }
   return errors;
 }

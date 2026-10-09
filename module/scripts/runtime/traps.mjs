@@ -30,11 +30,11 @@ function areaOf(region) {
  * @param {{ actor: Actor, activity?: object, targets?: TokenDocument[], region?: Region, effectRegion?: Region }} payload
  */
 export function playTrap({ actor, activity=null, targets=[], region=null, effectRegion=null }={}) {
-  if ( !globalThis.Sequence ) return { skipped: "Sequencer absent" };
+  if ( !globalThis.Sequence ) return { skipped: "Sequencer missing" };
   // Source de compendium : `_stats.compendiumSource`, ou l'ancien drapeau `core.sourceId` (acteur copié à la main).
   const sourceId = actor?._stats?.compendiumSource ?? actor?.flags?.core?.sourceId;
   const parts = trapParts({ id: actor?.id, sourceId, damageTypes: damageTypes(activity) }, TRAPS, BY_DAMAGE);
-  if ( !parts.length ) return { skipped: "aucune animation pour ce piège" };
+  if ( !parts.length ) return { skipped: "no animation for this trap" };
   const area = areaOf(effectRegion ?? region);
   const onScene = targets.map(t => t?.object).filter(Boolean);
   const sequence = new Sequence({ moduleName: MODULE_ID });
@@ -59,7 +59,7 @@ export function playTrap({ actor, activity=null, targets=[], region=null, effect
       played.push(part.sound);
     }
   }
-  if ( !played.length ) return { skipped: "ni zone ni cible sur la scène affichée" };
+  if ( !played.length ) return { skipped: "no area or target on the viewed scene" };
   sequence.play();
   return { played };
 }
@@ -68,7 +68,7 @@ export function playTrap({ actor, activity=null, targets=[], region=null, effect
 export function registerTraps() {
   Hooks.on(TRAP_HOOK, payload => {
     try { playTrap(payload); }
-    catch(err) { console.error(`${MODULE_ID} | animation de piège`, err); }
+    catch(err) { console.error(`${MODULE_ID} | trap animation`, err); }
   });
 }
 
@@ -78,7 +78,7 @@ export function registerTraps() {
  */
 export async function previewTrap({ actor, regionId=null, targets=[] }={}) {
   const doc = String(actor).includes(".") ? await fromUuid(actor) : game.actors.get(actor);
-  if ( !doc ) return { error: `acteur introuvable : ${actor}` };
+  if ( !doc ) return { error: `actor not found: ${actor}` };
   const activity = doc.items.find(i => i.system.activities?.size)?.system.activities.contents[0] ?? null;
   const tokens = targets.map(ref => canvas.scene.tokens.get(ref) ?? canvas.scene.tokens.find(t => t.name === ref)).filter(Boolean);
   const region = regionId ? canvas.scene.regions.get(regionId) : null;

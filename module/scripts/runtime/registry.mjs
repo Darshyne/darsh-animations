@@ -27,12 +27,12 @@ let current = combine({ animations: ANIMATIONS, without: WITHOUT, sources: SOURC
  * @returns {{source: string, animations: string[], errors: string[]}}
  */
 export function register(source, data) {
-  if ( (typeof source !== "string") || !source ) throw new Error(`${MODULE_ID} | register : l'id du module source est requis`);
+  if ( (typeof source !== "string") || !source ) throw new Error(`${MODULE_ID} | register: the source module id is required`);
   const { table, errors } = checkRegistration(data);
   REGISTERED.set(source, table);
   current = combine({ animations: ANIMATIONS, without: WITHOUT, sources: SOURCES }, REGISTERED.values());
-  if ( errors.length ) console.error(`${MODULE_ID} | animations de ${source} : écartées`, errors);
-  log(`${Object.keys(table.animations).length} animation(s) enregistrée(s) par ${source}`);
+  if ( errors.length ) console.error(`${MODULE_ID} | animations from ${source}: rejected`, errors);
+  log(`${Object.keys(table.animations).length} animation(s) registered by ${source}`);
   return { source, animations: Object.keys(table.animations), errors };
 }
 

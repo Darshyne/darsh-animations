@@ -29,5 +29,5 @@ Hooks.once("setup", collectRegistrations);
 
 Hooks.once("ready", () => {
   // BLFX enregistre ses écouteurs au `init` : à `ready`, il entend notre hook.
-  sync().catch(err => console.error(`${MODULE_ID} | synchronisation impossible`, err));
+  sync().catch(err => console.error(`${MODULE_ID} | sync failed`, err));
 });

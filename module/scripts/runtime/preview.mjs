@@ -12,6 +12,7 @@ import { aliasCommand, applyParams } from "../core/blfx.mjs";
 import { animations } from "./registry.mjs";
 import { loadTemplates } from "./sync.mjs";
 import { startRecording, stopRecording } from "./recorder.mjs";
+import { loc } from "./shared.mjs";
 
 const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -38,7 +39,7 @@ async function temporaryRegion(template, sourceToken, target) {
   if ( !shapes ) return null;
   const ft = canvas.scene.grid.distance;
   const [region] = await canvas.scene.createEmbeddedDocuments("Region", [{
-    name: "darsh-animations · aperçu", shapes, visibility: CONST.REGION_VISIBILITY.ALWAYS,
+    name: loc("Preview.Region"), shapes, visibility: CONST.REGION_VISIBILITY.ALWAYS,
     ...(canvas.level?.id ? { levels: [canvas.level.id] } : {}),
     flags: { dnd5e: { dimensions: { size: (template === "circle" ? 2 : 6) * ft, width: ft, units: canvas.scene.grid.units } } }
   }]);
@@ -55,9 +56,9 @@ async function temporaryRegion(template, sourceToken, target) {
  */
 export async function preview({ identifier, index=0, source, targets=[] }={}) {
   const animation = animations()[identifier]?.[index];
-  if ( !animation ) return { error: `pas d'animation ${index} pour « ${identifier} »` };
+  if ( !animation ) return { error: `no animation ${index} for "${identifier}"` };
   const sourceToken = tokenOf(source);
-  if ( !sourceToken ) return { error: `token source introuvable : ${source}` };
+  if ( !sourceToken ) return { error: `source token not found: ${source}` };
   const targetTokens = targets.map(tokenOf).filter(Boolean);
   let region = null;
   startRecording();
