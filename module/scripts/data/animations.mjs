@@ -87,6 +87,14 @@ export const ANIMATIONS = Object.freeze({
   "fetid-cloud": [burst("blfx.spell.template.circle.dust.puff.poison.gas.smoke.radial.1.color1", "blfx.sound.ability.breath.1",
     { note: "puff of poison gas over the emanation" })],
 
+  /* ---- Dhampir (Ravenloft) ---- */
+  // Morsure vampirique : les crocs et le son de morsure de BLFX sur la cible, à l'attaque seulement (pas sur les activités Absorption
+  // et Vigueur). Pas d'alias vers « blfx-bite-vampire » : sa partie afterDamage pose un effet de PV max réduits (Morsure infectieuse
+  // du vampire de Boss Loot), le moteur s'occupe du drain. L'item du module premium n'a pas d'identifiant : dnd5e le tire du nom à
+  // la création, traduit ou non — d'où les deux clés.
+  ...Object.fromEntries(["vampiric-bite", "morsure-vampirique"].map(id => [id, [{ ...onTargets("blfx.ability.bite1.fangs1.attack1.color1",
+    "blfx.sound.ability.bite.1", { scale: 1.5, trigger: "afterAttack" }), activity: "attack", note: "dhampir bite: fangs on the target" }]])),
+
   /* ---- Sorts sans animation BLFX (Xanathar's, haut niveau) ---- */
   "absorb-elements": [onSelf("blfx.spell.misc.shield5.magic.protection.energy.fire1.loop.color1", "blfx.sound.spell.resistance.1", 1.5)],
   "cause-fear": [onTargets("blfx.condition.frightened1.dread.fear.skull.loop.red", "blfx.sound.spell.cast.bane.1")],
