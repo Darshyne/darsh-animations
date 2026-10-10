@@ -2,7 +2,7 @@
   "id": "darsh-animations",
   "title": "DAS · Animations",
   "description": "BLFX animations for the abilities Boss Loot does not recognise by itself (Ravenloft, third-party creatures, high-level spells): a table keyed by dnd5e identifier, added to the BLFX Custom Auto-Rec without overwriting the GM's own entries. Other modules can add their own entries. Also plays the traps announced by the darsh-loot.trapFired hook (DMG 2024 traps), which BLFX cannot play without a token.",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "authors": [
     {
       "name": "Darshyne"

@@ -35,7 +35,10 @@ export const SOURCES = Object.freeze([
   "dnd-ravenloft-horrors-within.options",
   "dnd-ravenloft-horrors-within.items",
   "dnd-ravenloft-horrors-within.bastions",
-  "dnd-players-handbook.spells"
+  "dnd-players-handbook.spells",
+  // Les lanternes (PHB 2024, SRD de dnd5e) : leurs entrées remplacent la macro intégrée de BLFX dès qu'une fiche en reçoit une.
+  "dnd-players-handbook.equipment",
+  "dnd5e.items"
 ]);
 
 /* -------------------------------------------- */
@@ -86,6 +89,15 @@ export const ANIMATIONS = Object.freeze({
   // de gaz qui se joue une fois (l'animation de Nuage puant de BLFX est une boucle, coupée avec la région).
   "fetid-cloud": [burst("blfx.spell.template.circle.dust.puff.poison.gas.smoke.radial.1.color1", "blfx.sound.ability.breath.1",
     { note: "puff of poison gas over the emanation" })],
+
+  /* ---- Lanternes (Manuel des joueurs, SRD) ---- */
+  // Le moteur de combat les allume (effet lumineux, durée, huile, main libre : son SPEC §121). L'Auto-Rec intégrée de BLFX les
+  // reconnaît par leur identifiant et ÉCRIT la lumière du token (`EquipmentMacros.lanternBullseyeUse`, macros/equipment/
+  // equipmentMacros.js:150) : en double avec l'effet du moteur. L'Auto-Rec personnalisée passe avant l'intégrée
+  // (BlfxMacroExecutor.js:194) — ces entrées la remplacent par un simple éclat de lumière sur le porteur, sans rien écrire.
+  ...Object.fromEntries(["lantern-hooded", "lantern-bullseye", "bullseye-lantern"].map(id => [id, [{
+    ...onSelf("blfx.spell.cast.light_flare.1.center.color1", null, 1), activity: "utility",
+    note: "replaces BLFX's built-in lantern macro, which writes the token light (the combat engine owns it)" }]])),
 
   /* ---- Dhampir (Ravenloft) ---- */
   // Morsure vampirique : les crocs et le son de morsure de BLFX sur la cible, à l'attaque seulement (pas sur les activités Absorption
