@@ -2,6 +2,8 @@
 
 [![Tests](https://github.com/Darshyne/darsh-animations/actions/workflows/tests.yml/badge.svg)](https://github.com/Darshyne/darsh-animations/actions/workflows/tests.yml)
 
+**[Website](https://darshyne.github.io)** · **[Discord](https://discord.gg/PDSq8dYdTP)** (questions, bugs, ideas)
+
 Part of **Darshyne's Automation Suite (DAS)**. BLFX (Boss Loot) animations for the abilities BLFX does not
 recognise by itself: Ravenloft: The Horrors Within, third-party creatures, high-level Player's Handbook spells.
 
