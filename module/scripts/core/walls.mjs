@@ -48,3 +48,25 @@ export function soundSpots(shape, reach) {
   if ( shape?.ring ) return [{ x: shape.ring.x, y: shape.ring.y, radius: shape.ring.radius + reach }];
   return (shape?.segments ?? []).map(([a, b]) => ({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2, radius: (Math.hypot(b.x - a.x, b.y - a.y) / 2) + reach }));
 }
+
+/**
+ * Les centres des cases d'un mur épais (posé sur les cases) : le long de chaque segment, une case tous les `cell` pixels, au milieu de
+ * chacune (les segments du moteur vont de bord de case à bord de case) ; autour d'un anneau, tous les `cell` pixels du cercle. Sans
+ * doublon (aux coins, deux segments se recouvrent).
+ * @returns {Array<{x: number, y: number}>}
+ */
+export function cellCenters(shape, cell) {
+  const out = new Map();
+  const add = (x, y) => out.set(`${Math.round(x)},${Math.round(y)}`, { x: Math.round(x), y: Math.round(y) });
+  if ( shape?.ring ) {
+    const { x, y, radius } = shape.ring;
+    const n = Math.max(6, Math.round((2 * Math.PI * radius) / cell));
+    for ( let i = 0; i < n; i++ ) add(x + (radius * Math.cos((2 * Math.PI * i) / n)), y + (radius * Math.sin((2 * Math.PI * i) / n)));
+  }
+  for ( const [a, b] of shape?.segments ?? [] ) {
+    const len = Math.hypot(b.x - a.x, b.y - a.y);
+    const n = Math.max(1, Math.round(len / cell));
+    for ( let k = 0; k < n; k++ ) add(a.x + (((b.x - a.x) * (k + 0.5)) / n), a.y + (((b.y - a.y) * (k + 0.5)) / n));
+  }
+  return [...out.values()];
+}

@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { lineEnds, wallShape, ringSegments, animationFor, soundSpots } from "../module/scripts/core/walls.mjs";
+import { lineEnds, wallShape, ringSegments, animationFor, soundSpots, cellCenters } from "../module/scripts/core/walls.mjs";
 import { WALLS } from "../module/scripts/data/walls.mjs";
 
 // Le catalogue du pack BLFX (premium) n'est pas publié : vérifié seulement là où `npm run catalogue` l'a écrit.
@@ -28,14 +28,24 @@ describe("murs posés par points", () => {
     expect(animationFor(a, 5)).toBe(a[10]);
     expect(lineEnds({ x: 1, y: 2, rotation: 0, length: 3 })[1]).toEqual({ x: 4, y: 2 });
   });
+  it("un mur épais : le centre de chaque case, sans doublon aux coins", () => {
+    // Une rangée de 3 cases (de bord à bord) puis 2 vers le bas, depuis la dernière : le coin recouvert une seule fois.
+    const shape = { segments: [[{ x: 0, y: 50 }, { x: 300, y: 50 }], [{ x: 250, y: 0 }, { x: 250, y: 200 }]] };
+    expect(cellCenters(shape, 100)).toEqual([{ x: 50, y: 50 }, { x: 150, y: 50 }, { x: 250, y: 50 }, { x: 250, y: 150 }]);
+    expect(cellCenters({ ring: { x: 0, y: 0, radius: 100 } }, 100).length).toBe(6);
+  });
+  it("chaque entrée se dessine d'une façon : un mur fin ou des cases", () => {
+    for ( const [key, entry] of Object.entries(WALLS) ) expect(!!entry.animations !== !!entry.tile, key).toBe(true);
+  });
   it("les sons : au milieu des segments, au centre de l'anneau", () => {
     expect(soundSpots({ segments: [[{ x: 0, y: 0 }, { x: 200, y: 0 }]] }, 50)).toEqual([{ x: 100, y: 0, radius: 150 }]);
     expect(soundSpots({ ring: { x: 5, y: 5, radius: 100 } }, 50)).toEqual([{ x: 5, y: 5, radius: 150 }]);
   });
   it.skipIf(!names)("chaque animation de mur existe dans le pack BLFX (prive/docs)", () => {
-    for ( const entry of Object.values(WALLS) ) for ( const name of Object.values(entry.animations) ) expect(names.has(name), name).toBe(true);
+    for ( const entry of Object.values(WALLS) ) for ( const name of Object.values(entry.animations ?? {}) ) expect(names.has(name), name).toBe(true);
+    for ( const entry of Object.values(WALLS) ) if ( entry.tile ) expect(names.has(entry.tile.animation), entry.tile.animation).toBe(true);
     for ( const entry of Object.values(WALLS) ) if ( entry.sound ) expect(names.has(entry.sound.name), entry.sound.name).toBe(true);
-    for ( const part of Object.values(WALLS).flatMap(e => e.burn ?? []) ) {
+    for ( const part of Object.values(WALLS).flatMap(e => e.hit ?? []) ) {
       expect(names.has(part.animation), part.animation).toBe(true);
       if ( part.sound ) expect(names.has(part.sound), part.sound).toBe(true);
     }

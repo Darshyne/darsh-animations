@@ -3,12 +3,13 @@
  * région du mur est là. Deuxième exception à « BLFX déclenche, pas nous » (SPEC §7, après les pièges) : le moteur de combat pose ces
  * murs en régions, sans gabarit, et BLFX ne les voit pas. Le MJ actif joue (les effets persistants de Sequencer sont gardés par la
  * scène et vus de tous) ; la région redessinée (anneau, mur déplacé), on rejoue ; la région partie, on arrête. Le bruit (facultatif) :
- * des sons d'ambiance du cœur posés le long du mur, retirés avec lui. Et chaque créature visée par un jet de dégâts du sort brûle un instant.
+ * des sons d'ambiance du cœur posés le long du mur, retirés avec lui. Et chaque créature visée par un jet de dégâts du sort est touchée
+ * (flammes, épines, lames). Un mur épais (posé sur les cases) : une boucle sur chaque case.
  * On ne lit que les régions : leurs formes et l'item qui les a posées (`flags.dnd5e.item`) — aucun lien avec le moteur.
  */
 
 import { MODULE_ID } from "./shared.mjs";
-import { wallShape, ringSegments, animationFor, soundSpots } from "../core/walls.mjs";
+import { wallShape, ringSegments, animationFor, soundSpots, cellCenters } from "../core/walls.mjs";
 import { WALLS } from "../data/walls.mjs";
 
 const nameOf = region => `${MODULE_ID}.wall.${region.id}`;
@@ -74,8 +75,17 @@ export async function drawWall(region) {
   const name = nameOf(region);
   const sequence = new Sequence({ moduleName: MODULE_ID });
   const played = [];
-  const ring = shape.ring ? readyRing(entry) : null;
-  if ( ring ) {
+  const ring = (shape.ring && !entry.tile) ? readyRing(entry) : null;
+  if ( entry.tile ) {
+    // Un mur épais : la boucle sur chaque case qu'il couvre.
+    const size = cell * (entry.tile.scale ?? 1);
+    for ( const at of cellCenters(shape, cell) ) {
+      sequence.effect().file(entry.tile.animation).atLocation(at).size({ width: size, height: size }).belowTokens()
+        .persist().name(name).fadeIn(500);
+      played.push(entry.tile.animation);
+    }
+  }
+  else if ( ring ) {
     const size = (2 * shape.ring.radius) + (cell * entry.thickness);
     sequence.effect().file(ring.animation).atLocation({ x: shape.ring.x, y: shape.ring.y }).size({ width: size, height: size })
       .persist().name(name).fadeIn(500);
@@ -96,14 +106,14 @@ export async function drawWall(region) {
 }
 
 /**
- * Un jet de dégâts du sort (à l'apparition du mur, en le traversant, en finissant son tour du côté brûlant) : la créature visée brûle —
- * les parties `burn` de la table, sur chaque cible du jet présente sur la scène affichée.
+ * Un jet de dégâts du sort (à l'apparition du mur, en le traversant, en finissant son tour dedans ou du côté brûlant) : la créature
+ * visée est touchée — les parties `hit` de la table, sur chaque cible du jet présente sur la scène affichée.
  */
-export function burnTargets(message) {
+export function hitTargets(message) {
   if ( (message?.type !== "damage") || !globalThis.Sequence ) return { skipped: "not a damage roll" };
   const item = message.getAssociatedActivity?.()?.item ?? message.getAssociatedItem?.() ?? null;
-  const parts = WALLS[item?.system?.identifier]?.burn;
-  if ( !parts?.length ) return { skipped: "no burn for this item" };
+  const parts = WALLS[item?.system?.identifier]?.hit;
+  if ( !parts?.length ) return { skipped: "no hit for this item" };
   const tokens = (message.system?.targets ?? []).map(t => fromUuidSync(t.token ?? "", { strict: false })?.object).filter(Boolean);
   if ( !tokens.length ) return { skipped: "no target on the viewed scene" };
   const sequence = new Sequence({ moduleName: MODULE_ID });
@@ -139,6 +149,6 @@ export function registerWalls() {
   Hooks.on("deleteRegion", region => { if ( isExecutor() ) queued(region, () => stopWall(region)); });
   Hooks.on("createChatMessage", message => {
     if ( !isExecutor() ) return;
-    try { burnTargets(message); } catch(err) { console.error(`${MODULE_ID} | wall burn`, err); }
+    try { hitTargets(message); } catch(err) { console.error(`${MODULE_ID} | wall hit`, err); }
   });
 }
