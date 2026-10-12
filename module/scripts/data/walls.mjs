@@ -11,6 +11,9 @@
  *               de segments
  *   sound       facultatif : { name, volume, reach } — un son d'ambiance en boucle (nom Sequencer d'un son du pack BLFX) au milieu de
  *               chaque segment, ou au centre de l'anneau, entendu jusqu'à `reach` pieds au-delà du mur
+
+ *   burn        facultatif : sur chaque créature visée par un jet de dégâts du sort (à l'apparition, en traversant, en finissant son tour
+ *               du côté brûlant) — des parties comme celles des pièges : { animation, scale?, delay?, duration?, sound? }
  */
 
 const fireWall = n => `blfx.spell.template.line.wall_of_fire1.loop.orange.width-${n}ft`;
@@ -22,6 +25,11 @@ export const WALLS = Object.freeze({
     thickness: 2,
     // JB2A (gratuit), anneau de 20 ft de diamètre dans une image de 400 px.
     ring: { module: "JB2A_DnD5e", animation: "jb2a.wall_of_fire.ring.yellow", native: 400 },
-    sound: { name: "blfx.sound.spell.loop_channel.fire_burning1.1", volume: 0.5, reach: 30 }
+    sound: { name: "blfx.sound.spell.loop_channel.fire_burning1.1", volume: 0.5, reach: 30 },
+    // L'impact du feu, puis la créature qui brûle quelques secondes.
+    burn: [
+      { animation: "blfx.spell.impact.damage.fire.1.color1", scale: 1.5, sound: "blfx.sound.misc.fire.ignite1.1" },
+      { animation: "blfx.misc.fire2.flame.burning.loop.color1", scale: 1.1, delay: 300, duration: 3000 }
+    ]
   }
 });

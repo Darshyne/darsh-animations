@@ -35,5 +35,9 @@ describe("murs posés par points", () => {
   it.skipIf(!names)("chaque animation de mur existe dans le pack BLFX (prive/docs)", () => {
     for ( const entry of Object.values(WALLS) ) for ( const name of Object.values(entry.animations) ) expect(names.has(name), name).toBe(true);
     for ( const entry of Object.values(WALLS) ) if ( entry.sound ) expect(names.has(entry.sound.name), entry.sound.name).toBe(true);
+    for ( const part of Object.values(WALLS).flatMap(e => e.burn ?? []) ) {
+      expect(names.has(part.animation), part.animation).toBe(true);
+      if ( part.sound ) expect(names.has(part.sound), part.sound).toBe(true);
+    }
   });
 });

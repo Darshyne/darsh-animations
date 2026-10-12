@@ -3,7 +3,7 @@
  * région du mur est là. Deuxième exception à « BLFX déclenche, pas nous » (SPEC §7, après les pièges) : le moteur de combat pose ces
  * murs en régions, sans gabarit, et BLFX ne les voit pas. Le MJ actif joue (les effets persistants de Sequencer sont gardés par la
  * scène et vus de tous) ; la région redessinée (anneau, mur déplacé), on rejoue ; la région partie, on arrête. Le bruit (facultatif) :
- * des sons d'ambiance du cœur posés le long du mur, retirés avec lui.
+ * des sons d'ambiance du cœur posés le long du mur, retirés avec lui. Et chaque créature visée par un jet de dégâts du sort brûle un instant.
  * On ne lit que les régions : leurs formes et l'item qui les a posées (`flags.dnd5e.item`) — aucun lien avec le moteur.
  */
 
@@ -95,6 +95,33 @@ export async function drawWall(region) {
   return { played, sounds };
 }
 
+/**
+ * Un jet de dégâts du sort (à l'apparition du mur, en le traversant, en finissant son tour du côté brûlant) : la créature visée brûle —
+ * les parties `burn` de la table, sur chaque cible du jet présente sur la scène affichée.
+ */
+export function burnTargets(message) {
+  if ( (message?.type !== "damage") || !globalThis.Sequence ) return { skipped: "not a damage roll" };
+  const item = message.getAssociatedActivity?.()?.item ?? message.getAssociatedItem?.() ?? null;
+  const parts = WALLS[item?.system?.identifier]?.burn;
+  if ( !parts?.length ) return { skipped: "no burn for this item" };
+  const tokens = (message.system?.targets ?? []).map(t => fromUuidSync(t.token ?? "", { strict: false })?.object).filter(Boolean);
+  if ( !tokens.length ) return { skipped: "no target on the viewed scene" };
+  const sequence = new Sequence({ moduleName: MODULE_ID });
+  for ( const part of parts ) {
+    for ( const token of tokens ) {
+      const effect = sequence.effect().file(part.animation).atLocation(token).scaleToObject(part.scale ?? 1.5);
+      if ( part.duration ) effect.attachTo(token).duration(part.duration).fadeOut(500);
+      if ( part.delay ) effect.delay(part.delay);
+    }
+    if ( part.sound ) {
+      const sound = sequence.sound().file(part.sound);
+      if ( part.delay ) sound.delay(part.delay);
+    }
+  }
+  sequence.play();
+  return { burnt: tokens.map(t => t.name) };
+}
+
 /** Les tracés d'un même mur, l'un après l'autre : la région créée puis aussitôt redessinée (anneau) ne laisse pas deux feux. */
 const queues = new Map();
 function queued(region, task) {
@@ -110,4 +137,8 @@ export function registerWalls() {
     if ( isExecutor() && ("shapes" in changes) && entryOf(region) ) queued(region, () => drawWall(region));
   });
   Hooks.on("deleteRegion", region => { if ( isExecutor() ) queued(region, () => stopWall(region)); });
+  Hooks.on("createChatMessage", message => {
+    if ( !isExecutor() ) return;
+    try { burnTargets(message); } catch(err) { console.error(`${MODULE_ID} | wall burn`, err); }
+  });
 }
