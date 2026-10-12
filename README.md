@@ -4,6 +4,10 @@
 
 **[Website](https://darshyne.github.io)** · **[Discord](https://discord.gg/PDSq8dYdTP)** (questions, bugs, ideas)
 
+> **Beta.** Darshyne's Automation Suite is still in beta: not every spell and feature is covered yet, and things may change
+> between versions. If something doesn't behave as it should, tell us on [Discord](https://discord.gg/PDSq8dYdTP) or
+> [open an issue](https://github.com/Darshyne/darsh-animations/issues).
+
 Part of **Darshyne's Automation Suite (DAS)**. BLFX (Boss Loot) animations for the abilities BLFX does not
 recognise by itself: Ravenloft: The Horrors Within, third-party creatures, high-level Player's Handbook spells.
 
