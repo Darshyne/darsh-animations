@@ -1,7 +1,8 @@
 /**
  * darsh-dnd · Animations : la table d'animations (data/animations.mjs, plus celles que d'autres modules enregistrent —
  * runtime/registry.mjs) versée dans l'Auto-Rec personnalisée de BLFX. Le module ne joue rien lui-même en partie : c'est BLFX
- * qui déclenche, avec ses propres hooks — sauf les pièges, que BLFX ne sait pas jouer sans token (runtime/traps.mjs).
+ * qui déclenche, avec ses propres hooks — sauf les pièges, que BLFX ne sait pas jouer sans token (runtime/traps.mjs), et les murs
+ * de sort posés par points, qu'il ne voit pas (runtime/walls.mjs).
  */
 
 import { MODULE_ID } from "./runtime/shared.mjs";
@@ -10,6 +11,7 @@ import { preview, previewAll } from "./runtime/preview.mjs";
 import { startRecording, stopRecording } from "./runtime/recorder.mjs";
 import { animations, collectRegistrations, register, registered } from "./runtime/registry.mjs";
 import { playTrap, previewTrap, registerTraps } from "./runtime/traps.mjs";
+import { drawWall, registerWalls } from "./runtime/walls.mjs";
 
 Hooks.once("init", () => {
   // La dernière table versée (empreinte) : on ne revient vers BLFX que si elle a changé.
@@ -18,10 +20,13 @@ Hooks.once("init", () => {
     // Les animations d'autres modules (voir runtime/registry.mjs) : `register(source, { animations, without, sources })`.
     register, registered, table: animations,
     // Pièges : joués par nous au hook `darsh-loot.trapFired` ; `previewTrap({ actor, regionId, targets })` pour vérifier.
-    playTrap, previewTrap };
+    playTrap, previewTrap,
+    // Murs de sort posés par points (Mur de feu) : joués par nous tant que leur région est là ; `drawWall(regionId)` pour vérifier.
+    drawWall: args => drawWall(canvas.scene?.regions.get(args?.regionId ?? args)) };
   // `mcp` : ce que le connecteur MCP appelle par `call-module-api`, comme pour le moteur de combat.
   game.modules.get(MODULE_ID).api = { ...api, mcp: api };
   registerTraps();
+  registerWalls();
 });
 
 // Après tous les `init` : les autres modules donnent leurs tables par le hook `darsh-animations.register`.

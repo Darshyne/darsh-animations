@@ -14,6 +14,10 @@ recognise by itself: Ravenloft: The Horrors Within, third-party creatures, high-
 The module adds its animations to BLFX's **Custom Auto-Rec** when the world loads, on the GM's client; BLFX then
 plays them. Your own custom animations are kept.
 
+Two things BLFX cannot see are played by the module itself, through Sequencer: traps (no source token), and
+**walls drawn point by point** by DAS · Core (Wall of Fire: a looping wall of flames along each segment, or a
+ring, for as long as the spell's region is on the scene).
+
 ## Installation
 
 In Foundry (or on The Forge), *Install Module* → paste the manifest URL:
