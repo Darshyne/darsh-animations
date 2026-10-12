@@ -7,7 +7,8 @@
  *               celle dont la longueur est la plus proche (le pack BLFX a des murs de 10, 20, 30, 60 et 90 ft, à 40 px par pied)
  *     native    la hauteur de l'animation, en pixels (son épaisseur une fois couchée le long du mur)
  *     thickness l'épaisseur de l'image, en cases (la flamme n'en occupe que le milieu : 2 cases donnent un feu d'une demi-case)
- *     ring      facultatif : { module, animation, native } — un anneau tout fait, si ce module est actif ; sinon des segments
+ *     ring      facultatif : { animation, fill, module? } — un anneau tout fait (son cercle occupe `fill` de la largeur de l'image),
+ *               si son module est actif quand il en nomme un ; sinon des segments
  *   tile        { animation, scale? } — un mur épais, posé sur les cases : cette boucle (carrée) sur chaque case qu'il couvre, à
  *               `scale` fois la case
  *   (ni l'un ni l'autre : rien de dessiné — le Mur prismatique, sans image dans le pack — mais `hit` joue)
@@ -18,18 +19,19 @@
  *               dedans ou du côté brûlant) — des parties comme celles des pièges : { animation, scale?, delay?, duration?, sound? }
  */
 
-const fireWall = n => `blfx.spell.template.line.wall_of_fire1.loop.orange.width-${n}ft`;
+const thinFire = n => `blfx.spell.template.line.fire_wall.thin.1.color1.loop.width-${n}ft`;
 const wind = n => `blfx.spell.template.line.wind_wall1.loop.width-${n}ft`;
 const frost = n => `blfx.spell.template.line.ice.frost.ground1.color01.${n}ft`;
 const impact = type => `blfx.spell.impact.damage.${type}.1.color1`;
 
 export const WALLS = Object.freeze({
   "wall-of-fire": {
-    animations: { 10: fireWall(10), 20: fireWall(20), 30: fireWall(30), 60: fireWall(60), 90: fireWall(90) },
+    // Le mur de feu fin du pack 1.0.31 (fait pour ce sort) ; l'anneau de feu, à la mesure de l'anneau.
+    animations: { 10: thinFire(10), 20: thinFire(20), 30: thinFire(30), 60: thinFire(60) },
     native: 400,
     thickness: 2,
-    // JB2A (gratuit), anneau de 20 ft de diamètre dans une image de 400 px.
-    ring: { module: "JB2A_DnD5e", animation: "jb2a.wall_of_fire.ring.yellow", native: 400 },
+    // Le cercle de flammes de l'image est à 346 px du centre sur 600 (mesuré sur une image de la vidéo) : 58 % de sa largeur.
+    ring: { animation: "blfx.spell.template.circle.fire.ring.1.loop.color1", fill: 0.58 },
     sound: { name: "blfx.sound.spell.loop_channel.fire_burning1.1", volume: 0.5, reach: 30 },
     // L'impact du feu, puis la créature qui brûle quelques secondes.
     hit: [

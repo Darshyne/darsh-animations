@@ -26,7 +26,7 @@ function entryOf(region) {
 /** L'animation d'anneau toute faite, si son module est actif et que Sequencer la connaît. */
 function readyRing(entry) {
   const ring = entry.ring;
-  if ( !ring || !game.modules.get(ring.module)?.active ) return null;
+  if ( !ring || (ring.module && !game.modules.get(ring.module)?.active) ) return null;
   return globalThis.Sequencer?.Database?.entryExists?.(ring.animation) ? ring : null;
 }
 
@@ -87,7 +87,8 @@ export async function drawWall(region) {
     }
   }
   else if ( ring ) {
-    const size = (2 * shape.ring.radius) + (cell * entry.thickness);
+    // Le cercle de l'image (`fill` de sa largeur) sur celui du mur.
+    const size = (2 * shape.ring.radius) / (ring.fill ?? 1);
     sequence.effect().file(ring.animation).atLocation({ x: shape.ring.x, y: shape.ring.y }).size({ width: size, height: size })
       .persist().name(name).fadeIn(500);
     played.push(ring.animation);

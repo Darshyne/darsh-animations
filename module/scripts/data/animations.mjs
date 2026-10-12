@@ -105,6 +105,11 @@ export const ANIMATIONS = Object.freeze({
   // (BlfxMacroExecutor.js:194) : au même déclencheur, une bourrasque sur le lanceur.
   "wind-wall": [{ ...entry("createTemplate", "target", { ANIMATION1: "blfx.misc.nature.air.wind.1.color1", SCALE1: 1.5, ENABLED1: true,
     ENABLED2: false, ENABLED3: false }), note: "replaces BLFX's built-in template animation: the wall itself is drawn along its points" }],
+  // BLFX 3.5.4 reconnaît aussi le Mur de feu : à la pose de son gabarit, un mur de 60 ft qui ne suit pas le tracé ; aux dégâts, un
+  // impact en double du nôtre (data/walls.mjs, `hit`). Ces deux déclencheurs : rien. Son animation de lancement reste ; son retrait
+  // (`destroyTemplate`) écoute `destroyMeasuredTemplate` (bossLootFx.js:77), que nos régions ne déclenchent pas.
+  "wall-of-fire": ["createTemplate", "afterDamage"].map(trigger => ({ ...entry(trigger, "target",
+    { ENABLED1: false, ENABLED2: false, ENABLED3: false }), note: "silences BLFX's built-in wall: drawn along its points, hits played on damage" })),
 
   /* ---- Dhampir (Ravenloft) ---- */
   // Morsure vampirique : les crocs et le son de morsure de BLFX sur la cible, à l'attaque seulement (pas sur les activités Absorption
