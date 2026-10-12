@@ -2,12 +2,13 @@
  * Les murs de sort posés par points (data/walls.mjs) : une animation en boucle le long de chaque segment, ou en anneau, tant que la
  * région du mur est là. Deuxième exception à « BLFX déclenche, pas nous » (SPEC §7, après les pièges) : le moteur de combat pose ces
  * murs en régions, sans gabarit, et BLFX ne les voit pas. Le MJ actif joue (les effets persistants de Sequencer sont gardés par la
- * scène et vus de tous) ; la région redessinée (anneau, mur déplacé), on rejoue ; la région partie, on arrête.
+ * scène et vus de tous) ; la région redessinée (anneau, mur déplacé), on rejoue ; la région partie, on arrête. Le bruit (facultatif) :
+ * des sons d'ambiance du cœur posés le long du mur, retirés avec lui.
  * On ne lit que les régions : leurs formes et l'item qui les a posées (`flags.dnd5e.item`) — aucun lien avec le moteur.
  */
 
 import { MODULE_ID } from "./shared.mjs";
-import { wallShape, ringSegments, animationFor } from "../core/walls.mjs";
+import { wallShape, ringSegments, animationFor, soundSpots } from "../core/walls.mjs";
 import { WALLS } from "../data/walls.mjs";
 
 const nameOf = region => `${MODULE_ID}.wall.${region.id}`;
@@ -28,10 +29,35 @@ function readyRing(entry) {
   return globalThis.Sequencer?.Database?.entryExists?.(ring.animation) ? ring : null;
 }
 
-/** Arrête l'animation d'un mur. */
+/** Les sons d'ambiance posés pour ce mur. */
+const soundsOf = region => (region.parent?.sounds ?? []).filter(s => s.getFlag(MODULE_ID, "wall") === region.id);
+
+/** Arrête l'animation d'un mur, et son bruit. */
 export async function stopWall(region) {
+  const ids = soundsOf(region).map(s => s.id);
+  if ( ids.length ) await region.parent.deleteEmbeddedDocuments("AmbientSound", ids).catch(() => null);
   if ( !globalThis.Sequencer?.EffectManager ) return;
   await Sequencer.EffectManager.endEffects({ name: nameOf(region) }).catch(() => null);
+}
+
+/**
+ * Le bruit du mur : des sons d'ambiance du cœur, en boucle, spatialisés (plus fort en s'approchant ; les murs du cœur qui laissent passer
+ * le son le laissent passer). Le fichier vient de la base de Sequencer (pack BLFX). Rend le nombre de sons posés.
+ */
+async function soundWall(region, shape, entry) {
+  const sound = entry.sound;
+  if ( !sound ) return 0;
+  const found = globalThis.Sequencer?.Database?.getEntry?.(sound.name);
+  const file = [found?.file, found?.[0]?.file, found].find(f => typeof f === "string");
+  if ( !file ) return 0;
+  const scene = region.parent;
+  const perFoot = scene.grid.size / scene.grid.distance;
+  const spots = soundSpots(shape, sound.reach * perFoot);
+  const created = await scene.createEmbeddedDocuments("AmbientSound", spots.map(p => ({
+    x: Math.round(p.x), y: Math.round(p.y), radius: p.radius / perFoot, path: file, volume: sound.volume ?? 0.5, repeat: true,
+    easing: true, walls: true, levels: Array.from(region.levels ?? []), flags: { [MODULE_ID]: { wall: region.id } }
+  })));
+  return created.length;
 }
 
 /** Joue l'animation d'un mur (après avoir arrêté la précédente). Rend ce qui a été lancé, ou la raison de ne rien jouer. */
@@ -65,7 +91,8 @@ export async function drawWall(region) {
     }
   }
   await sequence.play();
-  return { played };
+  const sounds = await soundWall(region, shape, entry).catch(err => { console.warn(`${MODULE_ID} | wall sound`, err); return 0; });
+  return { played, sounds };
 }
 
 /** Les tracés d'un même mur, l'un après l'autre : la région créée puis aussitôt redessinée (anneau) ne laisse pas deux feux. */

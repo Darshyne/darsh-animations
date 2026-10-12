@@ -9,6 +9,8 @@
  *   thickness   l'épaisseur de l'image, en cases (la flamme n'en occupe que le milieu : 2 cases donnent un feu d'une demi-case)
  *   ring        facultatif : { module, animation, native } — un anneau tout fait, si ce module est actif ; sinon l'anneau est fait
  *               de segments
+ *   sound       facultatif : { name, volume, reach } — un son d'ambiance en boucle (nom Sequencer d'un son du pack BLFX) au milieu de
+ *               chaque segment, ou au centre de l'anneau, entendu jusqu'à `reach` pieds au-delà du mur
  */
 
 const fireWall = n => `blfx.spell.template.line.wall_of_fire1.loop.orange.width-${n}ft`;
@@ -19,6 +21,7 @@ export const WALLS = Object.freeze({
     native: 400,
     thickness: 2,
     // JB2A (gratuit), anneau de 20 ft de diamètre dans une image de 400 px.
-    ring: { module: "JB2A_DnD5e", animation: "jb2a.wall_of_fire.ring.yellow", native: 400 }
+    ring: { module: "JB2A_DnD5e", animation: "jb2a.wall_of_fire.ring.yellow", native: 400 },
+    sound: { name: "blfx.sound.spell.loop_channel.fire_burning1.1", volume: 0.5, reach: 30 }
   }
 });

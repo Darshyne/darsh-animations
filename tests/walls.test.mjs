@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { lineEnds, wallShape, ringSegments, animationFor } from "../module/scripts/core/walls.mjs";
+import { lineEnds, wallShape, ringSegments, animationFor, soundSpots } from "../module/scripts/core/walls.mjs";
 import { WALLS } from "../module/scripts/data/walls.mjs";
 
 // Le catalogue du pack BLFX (premium) n'est pas publié : vérifié seulement là où `npm run catalogue` l'a écrit.
@@ -28,7 +28,12 @@ describe("murs posés par points", () => {
     expect(animationFor(a, 5)).toBe(a[10]);
     expect(lineEnds({ x: 1, y: 2, rotation: 0, length: 3 })[1]).toEqual({ x: 4, y: 2 });
   });
+  it("les sons : au milieu des segments, au centre de l'anneau", () => {
+    expect(soundSpots({ segments: [[{ x: 0, y: 0 }, { x: 200, y: 0 }]] }, 50)).toEqual([{ x: 100, y: 0, radius: 150 }]);
+    expect(soundSpots({ ring: { x: 5, y: 5, radius: 100 } }, 50)).toEqual([{ x: 5, y: 5, radius: 150 }]);
+  });
   it.skipIf(!names)("chaque animation de mur existe dans le pack BLFX (prive/docs)", () => {
     for ( const entry of Object.values(WALLS) ) for ( const name of Object.values(entry.animations) ) expect(names.has(name), name).toBe(true);
+    for ( const entry of Object.values(WALLS) ) if ( entry.sound ) expect(names.has(entry.sound.name), entry.sound.name).toBe(true);
   });
 });
