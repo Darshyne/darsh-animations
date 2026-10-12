@@ -34,8 +34,9 @@ describe("murs posés par points", () => {
     expect(cellCenters(shape, 100)).toEqual([{ x: 50, y: 50 }, { x: 150, y: 50 }, { x: 250, y: 50 }, { x: 250, y: 150 }]);
     expect(cellCenters({ ring: { x: 0, y: 0, radius: 100 } }, 100).length).toBe(6);
   });
-  it("chaque entrée se dessine d'une façon : un mur fin ou des cases", () => {
-    for ( const [key, entry] of Object.entries(WALLS) ) expect(!!entry.animations !== !!entry.tile, key).toBe(true);
+  it("chaque entrée se dessine d'une façon au plus : un mur fin ou des cases", () => {
+    for ( const [key, entry] of Object.entries(WALLS) ) expect(!(entry.animations && entry.tile), key).toBe(true);
+    for ( const [key, entry] of Object.entries(WALLS) ) expect(!!(entry.animations || entry.tile || entry.hit), key).toBe(true);
   });
   it("les sons : au milieu des segments, au centre de l'anneau", () => {
     expect(soundSpots({ segments: [[{ x: 0, y: 0 }, { x: 200, y: 0 }]] }, 50)).toEqual([{ x: 100, y: 0, radius: 150 }]);

@@ -65,6 +65,7 @@ async function soundWall(region, shape, entry) {
 export async function drawWall(region) {
   const entry = entryOf(region);
   if ( !entry ) return { skipped: "not a wall of the table" };
+  if ( !entry.animations && !entry.tile && !entry.sound ) return { skipped: "nothing drawn for this wall" };
   if ( !globalThis.Sequence ) return { skipped: "Sequencer missing" };
   const shape = wallShape(region.shapes.map(s => s.toObject?.() ?? s));
   if ( !shape ) return { skipped: "no line nor ring" };

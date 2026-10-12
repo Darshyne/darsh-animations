@@ -99,6 +99,13 @@ export const ANIMATIONS = Object.freeze({
     ...onSelf("blfx.spell.cast.light_flare.1.center.color1", null, 1), activity: "utility",
     note: "replaces BLFX's built-in lantern macro, which writes the token light (the combat engine owns it)" }]])),
 
+  /* ---- Murs posés par points (runtime/walls.mjs) ---- */
+  // BLFX reconnaît le Mur de vent à la pose de son gabarit et l'étire sur la région du moteur, d'elle à elle-même (« stretching over
+  // a distance of 0 ») — en double avec le mur que nous dessinons (data/walls.mjs). L'Auto-Rec personnalisée passe avant l'intégrée
+  // (BlfxMacroExecutor.js:194) : au même déclencheur, une bourrasque sur le lanceur.
+  "wind-wall": [{ ...entry("createTemplate", "target", { ANIMATION1: "blfx.misc.nature.air.wind.1.color1", SCALE1: 1.5, ENABLED1: true,
+    ENABLED2: false, ENABLED3: false }), note: "replaces BLFX's built-in template animation: the wall itself is drawn along its points" }],
+
   /* ---- Dhampir (Ravenloft) ---- */
   // Morsure vampirique : les crocs et le son de morsure de BLFX sur la cible, à l'attaque seulement (pas sur les activités Absorption
   // et Vigueur). Pas d'alias vers « blfx-bite-vampire » : sa partie afterDamage pose un effet de PV max réduits (Morsure infectieuse

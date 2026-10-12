@@ -10,6 +10,7 @@
  *     ring      facultatif : { module, animation, native } — un anneau tout fait, si ce module est actif ; sinon des segments
  *   tile        { animation, scale? } — un mur épais, posé sur les cases : cette boucle (carrée) sur chaque case qu'il couvre, à
  *               `scale` fois la case
+ *   (ni l'un ni l'autre : rien de dessiné — le Mur prismatique, sans image dans le pack — mais `hit` joue)
  * Et, dans les deux cas :
  *   sound       facultatif : { name, volume, reach } — un son d'ambiance en boucle (nom Sequencer d'un son du pack BLFX) au milieu de
  *               chaque segment, ou au centre de l'anneau, entendu jusqu'à `reach` pieds au-delà du mur
@@ -18,6 +19,9 @@
  */
 
 const fireWall = n => `blfx.spell.template.line.wall_of_fire1.loop.orange.width-${n}ft`;
+const wind = n => `blfx.spell.template.line.wind_wall1.loop.width-${n}ft`;
+const frost = n => `blfx.spell.template.line.ice.frost.ground1.color01.${n}ft`;
+const impact = type => `blfx.spell.impact.damage.${type}.1.color1`;
 
 export const WALLS = Object.freeze({
   "wall-of-fire": {
@@ -32,6 +36,24 @@ export const WALLS = Object.freeze({
       { animation: "blfx.spell.impact.damage.fire.1.color1", scale: 1.5, sound: "blfx.sound.misc.fire.ignite1.1" },
       { animation: "blfx.misc.fire2.flame.burning.loop.color1", scale: 1.1, delay: 300, duration: 3000 }
     ]
+  },
+  // Le mur de vent du pack, couché le long du mur ; à l'apparition, la bourrasque qui frappe.
+  "wind-wall": {
+    animations: { 10: wind(10), 20: wind(20), 30: wind(30), 60: wind(60) },
+    native: 400,
+    thickness: 2,
+    hit: [{ animation: impact("bludgeoning"), scale: 1.4 }]
+  },
+  // Du givre au sol, le long du mur ; à l'apparition, le froid qui saisit.
+  "wall-of-ice": {
+    animations: { 5: frost("05"), 15: frost(15), 30: frost(30), 60: frost(60), 90: frost(90) },
+    native: 400,
+    thickness: 1,   // le givre remplit toute l'image (le feu n'en occupe que le milieu) : une case
+    hit: [{ animation: impact("cold"), scale: 1.5, sound: "blfx.sound.misc.frost_ice.imapact.explosion.1" }]
+  },
+  // Mur prismatique : pas d'image dans le pack (sa lumière et sa zone d'aveuglement se voient) ; à la traversée, les cinq couleurs.
+  "prismatic-wall": {
+    hit: ["fire", "acid", "lightning", "poison", "cold"].map((type, i) => ({ animation: impact(type), scale: 1.4, delay: i * 250 }))
   },
   // Des ronces épineuses sur chaque case ; à chaque blessure, les épines qui griffent.
   "wall-of-thorns": {
