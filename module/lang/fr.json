@@ -4,7 +4,7 @@
   "DARSHANIM.Sync.Echec": "DAS · Animations : BLFX n'a pas confirmé l'import de l'Auto-Rec — détail dans la console.",
   "DARSHANIM.Preview.Region": "DAS · Animations · aperçu",
   "DARSHANIM.Settings.Renderer.Name": "Rendu des effets",
-  "DARSHANIM.Settings.Renderer.Hint": "Comment s'affichent les effets que ce module joue lui-même — potions et consommables (potion bue ou administrée, poison appliqué, flasque lancée, parchemin lu, nourriture et boisson) et pièges. Auto : Boss Loot (BLFX), sinon Token Magic FX, sinon un anneau coloré intégré (vert : bénéfique, rouge : néfaste, bleu : neutre). Un rendu non installé passe au suivant.",
+  "DARSHANIM.Settings.Renderer.Hint": "Comment s'affichent les effets que ce module joue lui-même — potions et consommables (potion bue ou administrée, poison appliqué, flasque lancée, parchemin lu, nourriture et boisson) et pièges. Auto : Boss Loot (BLFX), sinon Token Magic FX, sinon un anneau coloré intégré (vert : bénéfique, rouge : néfaste, bleu : neutre). Un rendu non installé passe au suivant. Les zones de sort que BLFX n'anime pas (ou sans lui) reçoivent un effet Token Magic FX selon leur type de dégâts.",
   "DARSHANIM.Settings.Renderer.Auto": "Auto (BLFX, puis Token Magic FX, puis intégré)",
   "DARSHANIM.Settings.Renderer.Blfx": "Boss Loot (BLFX)",
   "DARSHANIM.Settings.Renderer.TokenMagic": "Token Magic FX",
