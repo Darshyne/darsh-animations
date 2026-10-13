@@ -18,6 +18,7 @@ import { previewConsumable, registerConsumables } from "./runtime/consumables.mj
 import { registerRenderer, renderer, rendererSetting } from "./runtime/renderer.mjs";
 import { registerNative } from "./runtime/native.mjs";
 import { areaState, drawArea, registerAreas } from "./runtime/areas.mjs";
+import { castingEffects, previewCancelledCast, registerCasting } from "./runtime/casting.mjs";
 
 Hooks.once("init", () => {
   // La dernière table versée (empreinte) : on ne revient vers BLFX que si elle a changé.
@@ -34,7 +35,9 @@ Hooks.once("init", () => {
     // Pour les scénarios : change le réglage « renderer » (MJ), rend l'ancienne valeur.
     rendererSetting,
     // Zones de sort sans BLFX (ou qu'il ne reconnaît pas) : effet Token Magic par type de dégâts sur une région compagne.
-    areaState, drawArea: args => drawArea(canvas.scene?.regions.get(args?.regionId ?? args)) };
+    areaState, drawArea: args => drawArea(canvas.scene?.regions.get(args?.regionId ?? args)),
+    // Incantation BLFX d'un sort à zone dont la pose est annulée : arrêtée (runtime/casting.mjs). Pour les scénarios.
+    previewCancelledCast, castingEffects };
   // `mcp` : ce que le connecteur MCP appelle par `call-module-api`, comme pour le moteur de combat.
   game.modules.get(MODULE_ID).api = { ...api, mcp: api };
   registerRenderer();
@@ -43,6 +46,7 @@ Hooks.once("init", () => {
   registerWalls();
   registerConsumables();
   registerAreas();
+  registerCasting();
 });
 
 // Après tous les `init` : les autres modules donnent leurs tables par le hook `darsh-animations.register`.
