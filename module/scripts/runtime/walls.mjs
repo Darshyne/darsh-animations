@@ -8,7 +8,7 @@
  * On ne lit que les régions : leurs formes et l'item qui les a posées (`flags.dnd5e.item`) — aucun lien avec le moteur.
  */
 
-import { MODULE_ID } from "./shared.mjs";
+import { MODULE_ID, blfxActive } from "./shared.mjs";
 import { wallShape, ringSegments, animationFor, soundSpots, cellCenters } from "../core/walls.mjs";
 import { WALLS } from "../data/walls.mjs";
 
@@ -66,7 +66,7 @@ export async function drawWall(region) {
   const entry = entryOf(region);
   if ( !entry ) return { skipped: "not a wall of the table" };
   if ( !entry.animations && !entry.tile && !entry.sound ) return { skipped: "nothing drawn for this wall" };
-  if ( !globalThis.Sequence ) return { skipped: "Sequencer missing" };
+  if ( !blfxActive() ) return { skipped: "BLFX or Sequencer missing" };
   const shape = wallShape(region.shapes.map(s => s.toObject?.() ?? s));
   if ( !shape ) return { skipped: "no line nor ring" };
   await stopWall(region);
@@ -112,7 +112,7 @@ export async function drawWall(region) {
  * visée est touchée — les parties `hit` de la table, sur chaque cible du jet présente sur la scène affichée.
  */
 export function hitTargets(message) {
-  if ( (message?.type !== "damage") || !globalThis.Sequence ) return { skipped: "not a damage roll" };
+  if ( (message?.type !== "damage") || !blfxActive() ) return { skipped: "not a damage roll, or BLFX missing" };
   const item = message.getAssociatedActivity?.()?.item ?? message.getAssociatedItem?.() ?? null;
   const parts = WALLS[item?.system?.identifier]?.hit;
   if ( !parts?.length ) return { skipped: "no hit for this item" };

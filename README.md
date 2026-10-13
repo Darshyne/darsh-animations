@@ -18,6 +18,21 @@ Two things BLFX cannot see are played by the module itself, through Sequencer: t
 **walls drawn point by point** by DAS · Core (Wall of Fire: a looping wall of flames along each segment, or a
 ring, for as long as the spell's region is on the scene).
 
+**Potions and consumables** get visual feedback too, played by the module when the item is used: a potion drunk
+or administered, a poison applied, a flask thrown (Alchemist's Fire, Acid, Holy Water, Oil), a scroll read, food and
+drink. Every Player's Handbook and Dungeon Master's Guide potion has its own colour, and the striking ones a
+signature effect (Invisibility fades, Gaseous Form turns to mist, Flying spreads wings, Growth and Diminution
+swell or shrink…). Three renderers, in this order (world setting **"Effect renderer"**, *Auto* by default):
+
+1. **Boss Loot (BLFX)** — drinking sounds, glows, splashes and signature animations from the BLFX asset pack;
+2. **Token Magic FX** — a pulsing glow on the token (plus fade, blur, scale, bloom or shockwave), which removes
+   itself;
+3. **Built-in** — with neither module: a coloured ring pulsing around the token, **green** for a beneficial effect,
+   **red** for a harmful one, **blue** for a neutral one.
+
+Traps follow the same order when BLFX is missing (a red glow and shockwave, or a red ring, on each victim). Spell
+walls and the Custom Auto-Rec need BLFX.
+
 ## Installation
 
 In Foundry (or on The Forge), *Install Module* → paste the manifest URL:
@@ -26,9 +41,10 @@ In Foundry (or on The Forge), *Install Module* → paste the manifest URL:
 https://github.com/Darshyne/darsh-animations/releases/latest/download/module.json
 ```
 
-- Requires **BLFX Animation Editor Premium** (`boss-loot-assets-premium`), and therefore Sequencer and the BLFX
-  asset pack.
-- In the Boss Loot module settings, tick **"BLFX Custom Auto-Rec Updates"**, then reload.
+- Recommended: **BLFX Animation Editor Premium** (`boss-loot-assets-premium`), and therefore Sequencer and the BLFX
+  asset pack. Without it, potions, consumables and traps use **Token Magic FX** (`tokenmagic`) if present, otherwise the
+  built-in ring; nothing else is needed.
+- With BLFX: in the Boss Loot module settings, tick **"BLFX Custom Auto-Rec Updates"**, then reload.
 - Enable "DAS · Animations". On the next load, the console reports what was added.
 
 ## Translations
@@ -59,7 +75,7 @@ The hook is called once, at `setup` (so before the `ready` sync). The same is av
 
 ## Development
 
-- `npm test` — core, registry and table. Checks against the BLFX catalogue (existing aliases, animations and
+- `npm test` — core, registry, tables (animations, traps, walls, consumables). Checks against the BLFX catalogue (existing aliases, animations and
   sounds) read `prive/docs/` and are skipped when those files are missing.
 - `npm run catalogue` — regenerates `prive/docs/catalogue-blfx.json` and `prive/docs/blfx-autorec.json` from the
   local BLFX install (`FOUNDRY_DATA` for a path other than `F:/Foundry V14/Data`). Indexes of a premium module:
@@ -67,8 +83,11 @@ The hook is called once, at `setup` (so before the `ready` sync). The same is av
 - `npm run inventaire` — regenerates `prive/docs/inventaire.md` and `prive/docs/table.md` (what is covered, what
   is missing), from the sibling repositories.
 
+In-game checks run through the DAS · Core scenario runner (MCP connector), from the engine's repository:
+`node tools/scenario.mjs "../Foundry dnd5e animations/tools/scenarios"`.
+
 ## License
 
-Code under the MIT license (see `LICENSE`). Requires the premium Boss Loot (BLFX) module, which is not provided:
+Code under the MIT license (see `LICENSE`). Works best with the premium Boss Loot (BLFX) module, which is not provided:
 this module contains none of its files, only names of animations to request from it. Not affiliated with, nor
 endorsed by, Wizards of the Coast.

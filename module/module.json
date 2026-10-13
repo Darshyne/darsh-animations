@@ -1,8 +1,8 @@
 {
   "id": "darsh-animations",
   "title": "DAS · Animations",
-  "description": "BLFX animations for the abilities Boss Loot does not recognise by itself (Ravenloft, third-party creatures, high-level spells): a table keyed by dnd5e identifier, added to the BLFX Custom Auto-Rec without overwriting the GM's own entries. Other modules can add their own entries. Also plays the traps announced by the darsh-loot.trapFired hook (DMG 2024 traps), which BLFX cannot play without a token.",
-  "version": "0.8.0",
+  "description": "BLFX animations for the abilities Boss Loot does not recognise by itself (Ravenloft, third-party creatures, high-level spells): a table keyed by dnd5e identifier, added to the BLFX Custom Auto-Rec without overwriting the GM's own entries. Other modules can add their own entries. Also plays the traps announced by the darsh-loot.trapFired hook (DMG 2024 traps), which BLFX cannot play without a token, and visual feedback for potions and consumables — with BLFX, otherwise Token Magic FX, otherwise a built-in coloured ring.",
+  "version": "0.9.0",
   "authors": [
     {
       "name": "Darshyne"
@@ -26,12 +26,21 @@
         }
       }
     ],
-    "requires": [
+    "recommends": [
       {
         "id": "boss-loot-assets-premium",
         "type": "module",
         "compatibility": {
           "minimum": "3.5.0"
+        },
+        "reason": "Animations, traps, spell walls, and the richer potion and consumable effects."
+      },
+      {
+        "id": "tokenmagic",
+        "type": "module",
+        "reason": "Potion, consumable and trap effects without Boss Loot (BLFX); without either, a built-in ring is shown.",
+        "compatibility": {
+          "minimum": "0.8.0"
         }
       }
     ]
@@ -50,5 +59,6 @@
       "name": "Français",
       "path": "lang/fr.json"
     }
-  ]
+  ],
+  "socket": true
 }

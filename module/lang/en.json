@@ -2,5 +2,12 @@
   "DARSHANIM.Sync.Interdit": "DAS · Animations: enable the BLFX setting \"BLFX Custom Auto-Rec Updates\" (Boss Loot module settings), then reload. It lets this module add its animations to the Custom Auto-Rec; your own entries are kept.",
   "DARSHANIM.Sync.Problemes": "DAS · Animations: {n} animation(s) could not be sent to BLFX — see the console for details.",
   "DARSHANIM.Sync.Echec": "DAS · Animations: BLFX did not confirm the Custom Auto-Rec import — see the console for details.",
-  "DARSHANIM.Preview.Region": "DAS · Animations · preview"
+  "DARSHANIM.Preview.Region": "DAS · Animations · preview",
+  "DARSHANIM.Settings.Renderer.Name": "Effect renderer",
+  "DARSHANIM.Settings.Renderer.Hint": "How the effects this module plays itself are shown — potions and consumables (a potion drunk or administered, a poison applied, a flask thrown, a scroll read, food and drink) and traps. Auto: Boss Loot (BLFX), otherwise Token Magic FX, otherwise a built-in coloured ring (green: beneficial, red: harmful, blue: neutral). A renderer that is not installed falls back to the next one.",
+  "DARSHANIM.Settings.Renderer.Auto": "Auto (BLFX, then Token Magic FX, then built-in)",
+  "DARSHANIM.Settings.Renderer.Blfx": "Boss Loot (BLFX)",
+  "DARSHANIM.Settings.Renderer.TokenMagic": "Token Magic FX",
+  "DARSHANIM.Settings.Renderer.Native": "Built-in ring (no module needed)",
+  "DARSHANIM.Settings.Renderer.None": "None"
 }

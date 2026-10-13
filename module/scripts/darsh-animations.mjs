@@ -2,7 +2,9 @@
  * darsh-dnd · Animations : la table d'animations (data/animations.mjs, plus celles que d'autres modules enregistrent —
  * runtime/registry.mjs) versée dans l'Auto-Rec personnalisée de BLFX. Le module ne joue rien lui-même en partie : c'est BLFX
  * qui déclenche, avec ses propres hooks — sauf les pièges, que BLFX ne sait pas jouer sans token (runtime/traps.mjs), et les murs
- * de sort posés par points, qu'il ne voit pas (runtime/walls.mjs).
+ * de sort posés par points, qu'il ne voit pas (runtime/walls.mjs), et les potions et consommables, qu'il ne reconnaît pas et qui doivent
+ * aussi s'animer sans lui (runtime/consumables.mjs). Ce que ce module joue lui-même passe par BLFX, sinon Token Magic FX, sinon un
+ * rendu autonome (runtime/renderer.mjs, runtime/native.mjs). BLFX est recommandé, pas requis.
  */
 
 import { MODULE_ID } from "./runtime/shared.mjs";
@@ -12,6 +14,9 @@ import { startRecording, stopRecording } from "./runtime/recorder.mjs";
 import { animations, collectRegistrations, register, registered } from "./runtime/registry.mjs";
 import { playTrap, previewTrap, registerTraps } from "./runtime/traps.mjs";
 import { drawWall, registerWalls } from "./runtime/walls.mjs";
+import { previewConsumable, registerConsumables } from "./runtime/consumables.mjs";
+import { registerRenderer, renderer, rendererSetting } from "./runtime/renderer.mjs";
+import { registerNative } from "./runtime/native.mjs";
 
 Hooks.once("init", () => {
   // La dernière table versée (empreinte) : on ne revient vers BLFX que si elle a changé.
@@ -22,11 +27,18 @@ Hooks.once("init", () => {
     // Pièges : joués par nous au hook `darsh-loot.trapFired` ; `previewTrap({ actor, regionId, targets })` pour vérifier.
     playTrap, previewTrap,
     // Murs de sort posés par points (Mur de feu) : joués par nous tant que leur région est là ; `drawWall(regionId)` pour vérifier.
-    drawWall: args => drawWall(canvas.scene?.regions.get(args?.regionId ?? args)) };
+    drawWall: args => drawWall(canvas.scene?.regions.get(args?.regionId ?? args)),
+    // Potions et consommables : joués par nous à la carte d'utilisation (réglage « renderer » : BLFX > Token Magic FX > autonome).
+    previewConsumable, renderer: () => renderer(),
+    // Pour les scénarios : change le réglage « renderer » (MJ), rend l'ancienne valeur.
+    rendererSetting };
   // `mcp` : ce que le connecteur MCP appelle par `call-module-api`, comme pour le moteur de combat.
   game.modules.get(MODULE_ID).api = { ...api, mcp: api };
+  registerRenderer();
+  registerNative();
   registerTraps();
   registerWalls();
+  registerConsumables();
 });
 
 // Après tous les `init` : les autres modules donnent leurs tables par le hook `darsh-animations.register`.

@@ -8,6 +8,10 @@
  */
 
 import { MODULE_ID } from "./shared.mjs";
+import { renderer } from "./renderer.mjs";
+import { placeTokenMagic } from "./consumables.mjs";
+import { playNative } from "./native.mjs";
+import { COLORS } from "../data/consumables.mjs";
 import { trapParts } from "../core/traps.mjs";
 import { BY_DAMAGE, TRAPS } from "../data/traps.mjs";
 
@@ -30,7 +34,11 @@ function areaOf(region) {
  * @param {{ actor: Actor, activity?: object, targets?: TokenDocument[], region?: Region, effectRegion?: Region }} payload
  */
 export function playTrap({ actor, activity=null, targets=[], region=null, effectRegion=null }={}) {
-  if ( !globalThis.Sequence ) return { skipped: "Sequencer missing" };
+  // BLFX > Token Magic FX > rendu autonome (runtime/renderer.mjs) : sans BLFX, une lueur rouge et une onde, ou un anneau rouge,
+  // sur chaque victime — un piège est toujours une mauvaise nouvelle.
+  const backend = renderer();
+  if ( !backend ) return { skipped: "renderer set to none" };
+  if ( backend !== "blfx" ) return playTrapFallback(backend, targets);
   // Source de compendium : `_stats.compendiumSource`, ou l'ancien drapeau `core.sourceId` (acteur copié à la main).
   const sourceId = actor?._stats?.compendiumSource ?? actor?.flags?.core?.sourceId;
   const parts = trapParts({ id: actor?.id, sourceId, damageTypes: damageTypes(activity) }, TRAPS, BY_DAMAGE);
@@ -64,10 +72,21 @@ export function playTrap({ actor, activity=null, targets=[], region=null, effect
   return { played };
 }
 
+/** Le piège sans BLFX : sur chaque victime de la scène affichée. */
+async function playTrapFallback(backend, targets) {
+  const tokens = targets.map(t => t?.object).filter(Boolean);
+  if ( !tokens.length ) return { skipped: "no target on the viewed scene" };
+  if ( backend === "tokenmagic" ) {
+    return { played: await placeTokenMagic(tokens, { glow: { strength: 6, loops: 1 }, wave: true }, COLORS.red, "trap") };
+  }
+  playNative(tokens, COLORS.red);
+  return { played: tokens.map(t => `ring:red:${t.name}`) };
+}
+
 /** Au déclenchement d'un piège, chez le client qui émet le hook (le MJ actif). */
 export function registerTraps() {
   Hooks.on(TRAP_HOOK, payload => {
-    try { playTrap(payload); }
+    try { Promise.resolve(playTrap(payload)).catch(err => console.error(`${MODULE_ID} | trap animation`, err)); }
     catch(err) { console.error(`${MODULE_ID} | trap animation`, err); }
   });
 }
