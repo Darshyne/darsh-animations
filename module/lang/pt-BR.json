@@ -1,0 +1,13 @@
+{
+  "DARSHANIM.Sync.Interdit": "DAS · Animations: ative a opção \"BLFX Custom Auto-Rec Updates\" nas configurações do módulo Boss Loot e recarregue o Foundry. Isso permite que o módulo adicione suas animações ao Auto-Rec personalizado, preservando as entradas que você criou.",
+  "DARSHANIM.Sync.Problemes": "DAS · Animations: não foi possível enviar {n} animação(ões) ao BLFX — consulte o console para detalhes.",
+  "DARSHANIM.Sync.Echec": "DAS · Animations: o BLFX não confirmou a importação do Auto-Rec personalizado — consulte o console para detalhes.",
+  "DARSHANIM.Preview.Region": "DAS · Animations · prévia",
+  "DARSHANIM.Settings.Renderer.Name": "Renderização dos efeitos",
+  "DARSHANIM.Settings.Renderer.Hint": "Define como são exibidos os efeitos executados pelo próprio módulo: poções e consumíveis (poção bebida ou administrada, veneno aplicado, frasco arremessado, pergaminho lido, comida e bebida) e armadilhas. No modo automático, usa Boss Loot (BLFX); se indisponível, Token Magic FX; caso contrário, um anel colorido integrado (verde: benéfico; vermelho: prejudicial; azul: neutro). Se um renderizador não estiver instalado, o próximo será usado. Áreas de magia que o BLFX não anima, ou quando ele não estiver disponível, recebem um efeito do Token Magic FX conforme o tipo de dano.",
+  "DARSHANIM.Settings.Renderer.Auto": "Automático (BLFX, depois Token Magic FX e, por fim, o efeito integrado)",
+  "DARSHANIM.Settings.Renderer.Blfx": "Boss Loot (BLFX)",
+  "DARSHANIM.Settings.Renderer.TokenMagic": "Token Magic FX",
+  "DARSHANIM.Settings.Renderer.Native": "Anel integrado (dispensa outros módulos)",
+  "DARSHANIM.Settings.Renderer.None": "Nenhum"
+}
