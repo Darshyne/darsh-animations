@@ -87,6 +87,23 @@ export async function drawArea(region) {
   return { ...plan, fx: fx.id };
 }
 
+/**
+ * Une zone que DAS · Core vient d'embraser (`flags.dnd5e-combat.area.burning` : huile au sol, toile) : sa compagne devient l'effet de
+ * feu. Le moteur n'est ni requis ni appelé — on lit seulement ce qu'il écrit sur la région.
+ */
+async function drawBurning(region) {
+  const backend = renderer();
+  if ( !backend || (backend === "native") || !tokenMagicActive() || !BY_DAMAGE.fire ) return;
+  const old = companions.get(region.id)?.fx ?? region.parent.regions.find(r => r.flags?.[MODULE_ID]?.areaFx === region.id)?.id;
+  companions.delete(region.id);
+  if ( old && region.parent.regions.has(old) ) await region.parent.deleteEmbeddedDocuments("Region", [old]).catch(() => {});
+  const item = fromUuidSync(region.flags?.dnd5e?.item ?? "", { strict: false });
+  const plan = { key: "fire", ...BY_DAMAGE.fire, item: item?.name ?? region.name };
+  const [fx] = await region.parent.createEmbeddedDocuments("Region", [companionData(region, plan)]);
+  if ( fx ) companions.set(region.id, { fx: fx.id, at: Date.now() });
+  log(`${plan.item}: burning, area effect ${plan.preset}`);
+}
+
 /** Retirer la compagne d'une zone (pas avant `MIN_VISIBLE_MS` après son apparition). */
 async function removeCompanion(scene, sourceId) {
   const entry = companions.get(sourceId);
@@ -114,6 +131,10 @@ export function registerAreas() {
   });
   Hooks.on("updateRegion", (region, changes) => {
     if ( !isExecutor() || isFx(region) ) return;
+    if ( foundry.utils.getProperty(changes, "flags.dnd5e-combat.area.burning") ) {
+      drawBurning(region).catch(err => console.error(`${MODULE_ID} | burning area effect failed`, err));
+      return;
+    }
     const entry = companions.get(region.id);
     const fx = entry ? region.parent.regions.get(entry.fx) : null;
     if ( !fx || !["shapes", "elevation", "levels"].some(k => k in changes) ) return;

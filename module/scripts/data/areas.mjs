@@ -33,6 +33,9 @@ export const BY_IDENTIFIER = Object.freeze({
   "cloudkill": { preset: "Smoky Area", tint: "#7fbf2a", opacity: 0.7 },
   "incendiary-cloud": { preset: "Smoky Area", tint: "#ff7030", opacity: 0.7 },
   "grease": { preset: "Watery Surface", tint: "#6b4a1f", opacity: 0.6 },
+  // Huile étalée au sol (DAS · Core 0.242.0) : une nappe sombre tant qu'elle ne brûle pas — sa donnée porte « 5 feu » (la flaque
+  // embrasée), qui l'aurait montrée en feu dès la pose. Embrasée, elle prend l'effet de feu (runtime/areas.mjs, `burning`).
+  "oil": { preset: "Watery Surface", tint: "#2b2214", opacity: 0.7 },
   "sleet-storm": { preset: "Zone : Blizzard", tint: "#c0e4ff", opacity: 0.7 },
   "ice-storm": { preset: "Zone : Blizzard", tint: "#c0e4ff", opacity: 0.7 },
   "entangle": { preset: "Protoplasm", tint: "#3f8f2a", opacity: 0.5 },
