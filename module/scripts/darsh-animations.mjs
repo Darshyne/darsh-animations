@@ -5,7 +5,8 @@
  * de sort posés par points, qu'il ne voit pas (runtime/walls.mjs), et les potions et consommables, qu'il ne reconnaît pas et qui doivent
  * aussi s'animer sans lui (runtime/consumables.mjs), et les zones de sort qu'il n'anime pas, en Token Magic FX (runtime/areas.mjs). Ce que ce module joue lui-même passe par BLFX, sinon Token Magic FX, sinon un
  * rendu autonome (runtime/renderer.mjs, runtime/native.mjs) — avec, entre BLFX et Token Magic FX, JB2A gratuit et les sons de PSFX.
- * Automated Animations reconnaît les objets dans toutes les langues, et se tait devant BLFX (runtime/aa.mjs). BLFX est recommandé,
+ * Automated Animations reconnaît les objets dans toutes les langues, et se tait devant BLFX (runtime/aa.mjs). Les châtiments que DAS · Core
+ * ajoute à une attaque d'arme jouent l'animation BLFX de leur sort (runtime/smites.mjs). BLFX est recommandé,
  * pas requis.
  */
 
@@ -22,6 +23,7 @@ import { registerNative } from "./runtime/native.mjs";
 import { areaState, drawArea, registerAreas } from "./runtime/areas.mjs";
 import { castingEffects, previewCancelledCast, registerCasting } from "./runtime/casting.mjs";
 import { aaPlays, aaResolve, addNames, registerAA } from "./runtime/aa.mjs";
+import { playSmite, registerSmites } from "./runtime/smites.mjs";
 
 Hooks.once("init", () => {
   // La dernière table versée (empreinte) : on ne revient vers BLFX que si elle a changé.
@@ -41,6 +43,8 @@ Hooks.once("init", () => {
     areaState, drawArea: args => drawArea(canvas.scene?.regions.get(args?.regionId ?? args)),
     // Incantation BLFX d'un sort à zone dont la pose est annulée : arrêtée (runtime/casting.mjs). Pour les scénarios.
     previewCancelledCast, castingEffects,
+    // Châtiments ajoutés par DAS · Core à une attaque : l'animation BLFX du sort (runtime/smites.mjs). `playSmite({ item, target })`.
+    playSmite: smite => playSmite(smite),
     // Automated Animations : `aaResolve({ item, activity, isTemplate })` (ce qu'il trouvera), `aaNames(map)` (noms d'une langue
     // sans table, ou d'objets maison : nom local → nom anglais).
     aaResolve, aaNames: addNames, aaPlays: async ({ item, activity=null, isTemplate=false }={}) => {
@@ -57,6 +61,7 @@ Hooks.once("init", () => {
   registerAreas();
   registerCasting();
   registerAA();
+  registerSmites();
 });
 
 // Après tous les `init` : les autres modules donnent leurs tables par le hook `darsh-animations.register`.
