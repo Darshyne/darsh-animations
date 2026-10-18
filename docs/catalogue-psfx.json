@@ -1,0 +1,2116 @@
+{
+ "module": "psfx",
+ "version": "0.17.0",
+ "count": 287,
+ "entries": [
+  {
+   "name": "psfx.weapon-swooshes.light.v1.group01",
+   "files": [
+    "library/weapon-swooshes/light/v1/group01/meleeattack-swoosh-light-group01-00.ogg",
+    "library/weapon-swooshes/light/v1/group01/meleeattack-swoosh-light-group01-01.ogg",
+    "library/weapon-swooshes/light/v1/group01/meleeattack-swoosh-light-group01-02.ogg",
+    "library/weapon-swooshes/light/v1/group01/meleeattack-swoosh-light-group01-03.ogg"
+   ],
+   "ms": 3000
+  },
+  {
+   "name": "psfx.weapon-swooshes.light.v1.group02",
+   "files": [
+    "library/weapon-swooshes/light/v1/group02/meleeattack-swoosh-light-group02-00.ogg",
+    "library/weapon-swooshes/light/v1/group02/meleeattack-swoosh-light-group02-01.ogg",
+    "library/weapon-swooshes/light/v1/group02/meleeattack-swoosh-light-group02-02.ogg",
+    "library/weapon-swooshes/light/v1/group02/meleeattack-swoosh-light-group02-03.ogg"
+   ],
+   "ms": 3000
+  },
+  {
+   "name": "psfx.weapon-swooshes.light.v1.group03",
+   "files": [
+    "library/weapon-swooshes/light/v1/group03/meleeattack-swoosh-light-group03-00.ogg",
+    "library/weapon-swooshes/light/v1/group03/meleeattack-swoosh-light-group03-01.ogg",
+    "library/weapon-swooshes/light/v1/group03/meleeattack-swoosh-light-group03-02.ogg",
+    "library/weapon-swooshes/light/v1/group03/meleeattack-swoosh-light-group03-03.ogg"
+   ],
+   "ms": 3000
+  },
+  {
+   "name": "psfx.weapon-swooshes.light.v1.group04",
+   "files": [
+    "library/weapon-swooshes/light/v1/group04/meleeattack-swoosh-light-group04-00.ogg",
+    "library/weapon-swooshes/light/v1/group04/meleeattack-swoosh-light-group04-01.ogg",
+    "library/weapon-swooshes/light/v1/group04/meleeattack-swoosh-light-group04-02.ogg",
+    "library/weapon-swooshes/light/v1/group04/meleeattack-swoosh-light-group04-03.ogg"
+   ],
+   "ms": 3000
+  },
+  {
+   "name": "psfx.weapon-swooshes.light.v1.group05",
+   "files": [
+    "library/weapon-swooshes/light/v1/group05/meleeattack-swoosh-light-group05-00.ogg",
+    "library/weapon-swooshes/light/v1/group05/meleeattack-swoosh-light-group05-01.ogg",
+    "library/weapon-swooshes/light/v1/group05/meleeattack-swoosh-light-group05-02.ogg",
+    "library/weapon-swooshes/light/v1/group05/meleeattack-swoosh-light-group05-03.ogg"
+   ],
+   "ms": 3000
+  },
+  {
+   "name": "psfx.weapon-swooshes.light.v1.group06",
+   "files": [
+    "library/weapon-swooshes/light/v1/group06/meleeattack-swoosh-light-group06-00.ogg",
+    "library/weapon-swooshes/light/v1/group06/meleeattack-swoosh-light-group06-01.ogg"
+   ],
+   "ms": 3000
+  },
+  {
+   "name": "psfx.weapon-swooshes.heavy.v1.group01",
+   "files": [
+    "library/weapon-swooshes/heavy/v1/group01/meleeattack-swoosh-heavy-group01-00.ogg",
+    "library/weapon-swooshes/heavy/v1/group01/meleeattack-swoosh-heavy-group01-01.ogg",
+    "library/weapon-swooshes/heavy/v1/group01/meleeattack-swoosh-heavy-group01-02.ogg",
+    "library/weapon-swooshes/heavy/v1/group01/meleeattack-swoosh-heavy-group01-03.ogg"
+   ],
+   "ms": 3000
+  },
+  {
+   "name": "psfx.weapon-swooshes.heavy.v1.group02",
+   "files": [
+    "library/weapon-swooshes/heavy/v1/group02/meleeattack-swoosh-heavy-group02-00.ogg",
+    "library/weapon-swooshes/heavy/v1/group02/meleeattack-swoosh-heavy-group02-01.ogg",
+    "library/weapon-swooshes/heavy/v1/group02/meleeattack-swoosh-heavy-group02-02.ogg",
+    "library/weapon-swooshes/heavy/v1/group02/meleeattack-swoosh-heavy-group02-03.ogg"
+   ],
+   "ms": 3000
+  },
+  {
+   "name": "psfx.weapon-swooshes.heavy.v1.group03",
+   "files": [
+    "library/weapon-swooshes/heavy/v1/group03/meleeattack-swoosh-heavy-group03-00.ogg",
+    "library/weapon-swooshes/heavy/v1/group03/meleeattack-swoosh-heavy-group03-01.ogg",
+    "library/weapon-swooshes/heavy/v1/group03/meleeattack-swoosh-heavy-group03-02.ogg",
+    "library/weapon-swooshes/heavy/v1/group03/meleeattack-swoosh-heavy-group03-03.ogg"
+   ],
+   "ms": 3000
+  },
+  {
+   "name": "psfx.weapon-swooshes.heavy.v1.group04",
+   "files": [
+    "library/weapon-swooshes/heavy/v1/group04/meleeattack-swoosh-heavy-group04-00.ogg",
+    "library/weapon-swooshes/heavy/v1/group04/meleeattack-swoosh-heavy-group04-01.ogg",
+    "library/weapon-swooshes/heavy/v1/group04/meleeattack-swoosh-heavy-group04-02.ogg",
+    "library/weapon-swooshes/heavy/v1/group04/meleeattack-swoosh-heavy-group04-03.ogg"
+   ],
+   "ms": 3000
+  },
+  {
+   "name": "psfx.weapon-swooshes.heavy.v1.group05",
+   "files": [
+    "library/weapon-swooshes/heavy/v1/group05/meleeattack-swoosh-heavy-group05-00.ogg",
+    "library/weapon-swooshes/heavy/v1/group05/meleeattack-swoosh-heavy-group05-01.ogg",
+    "library/weapon-swooshes/heavy/v1/group05/meleeattack-swoosh-heavy-group05-02.ogg",
+    "library/weapon-swooshes/heavy/v1/group05/meleeattack-swoosh-heavy-group05-03.ogg"
+   ],
+   "ms": 3000
+  },
+  {
+   "name": "psfx.weapon-swooshes.heavy.v1.group06",
+   "files": [
+    "library/weapon-swooshes/heavy/v1/group06/meleeattack-swoosh-heavy-group06-00.ogg",
+    "library/weapon-swooshes/heavy/v1/group06/meleeattack-swoosh-heavy-group06-01.ogg"
+   ],
+   "ms": 3000
+  },
+  {
+   "name": "psfx.weapon-swooshes.fire.v1.group01",
+   "files": [
+    "library/weapon-swooshes/fire/v1/group01/meleeattack-swoosh-magicaleffect-group01-fire-00.ogg",
+    "library/weapon-swooshes/fire/v1/group01/meleeattack-swoosh-magicaleffect-group01-fire-01.ogg",
+    "library/weapon-swooshes/fire/v1/group01/meleeattack-swoosh-magicaleffect-group01-fire-02.ogg",
+    "library/weapon-swooshes/fire/v1/group01/meleeattack-swoosh-magicaleffect-group01-fire-03.ogg"
+   ],
+   "ms": 2000
+  },
+  {
+   "name": "psfx.weapon-swooshes.cold.v1.group01",
+   "files": [
+    "library/weapon-swooshes/cold/v1/group01/meleeattack-swoosh-magicaleffect-group01-cold-00.ogg",
+    "library/weapon-swooshes/cold/v1/group01/meleeattack-swoosh-magicaleffect-group01-cold-01.ogg",
+    "library/weapon-swooshes/cold/v1/group01/meleeattack-swoosh-magicaleffect-group01-cold-02.ogg",
+    "library/weapon-swooshes/cold/v1/group01/meleeattack-swoosh-magicaleffect-group01-cold-03.ogg"
+   ],
+   "ms": 1953
+  },
+  {
+   "name": "psfx.weapon-swooshes.necrotic.v1.group01",
+   "files": [
+    "library/weapon-swooshes/necrotic/v1/group01/meleeattack-swoosh-magicaleffect-group01-necrotic-00.ogg",
+    "library/weapon-swooshes/necrotic/v1/group01/meleeattack-swoosh-magicaleffect-group01-necrotic-01.ogg",
+    "library/weapon-swooshes/necrotic/v1/group01/meleeattack-swoosh-magicaleffect-group01-necrotic-02.ogg",
+    "library/weapon-swooshes/necrotic/v1/group01/meleeattack-swoosh-magicaleffect-group01-necrotic-03.ogg"
+   ],
+   "ms": 4500
+  },
+  {
+   "name": "psfx.weapon-swooshes.psychic.v1.group01",
+   "files": [
+    "library/weapon-swooshes/psychic/v1/group01/meleeattack-swoosh-magicaleffect-group01-psychic-00.ogg",
+    "library/weapon-swooshes/psychic/v1/group01/meleeattack-swoosh-magicaleffect-group01-psychic-01.ogg",
+    "library/weapon-swooshes/psychic/v1/group01/meleeattack-swoosh-magicaleffect-group01-psychic-02.ogg",
+    "library/weapon-swooshes/psychic/v1/group01/meleeattack-swoosh-magicaleffect-group01-psychic-03.ogg"
+   ],
+   "ms": 3500
+  },
+  {
+   "name": "psfx.weapon-swooshes.lightning.v1.group01",
+   "files": [
+    "library/weapon-swooshes/lightning/v1/group01/meleeattack-swoosh-magicaleffect-group01-lightning-00.ogg",
+    "library/weapon-swooshes/lightning/v1/group01/meleeattack-swoosh-magicaleffect-group01-lightning-01.ogg",
+    "library/weapon-swooshes/lightning/v1/group01/meleeattack-swoosh-magicaleffect-group01-lightning-02.ogg",
+    "library/weapon-swooshes/lightning/v1/group01/meleeattack-swoosh-magicaleffect-group01-lightning-03.ogg"
+   ],
+   "ms": 3500
+  },
+  {
+   "name": "psfx.impacts.slashing.v1",
+   "files": [
+    "library/impacts/slashing/v1/meleeattack-impacts-slashing-00.ogg",
+    "library/impacts/slashing/v1/meleeattack-impacts-slashing-01.ogg",
+    "library/impacts/slashing/v1/meleeattack-impacts-slashing-02.ogg",
+    "library/impacts/slashing/v1/meleeattack-impacts-slashing-03.ogg"
+   ],
+   "ms": 1206
+  },
+  {
+   "name": "psfx.impacts.bludgeoning.v1",
+   "files": [
+    "library/impacts/bludgeoning/v1/meleeattack-impacts-bludgeoning-00.ogg",
+    "library/impacts/bludgeoning/v1/meleeattack-impacts-bludgeoning-01.ogg",
+    "library/impacts/bludgeoning/v1/meleeattack-impacts-bludgeoning-02.ogg",
+    "library/impacts/bludgeoning/v1/meleeattack-impacts-bludgeoning-03.ogg"
+   ],
+   "ms": 1703
+  },
+  {
+   "name": "psfx.impacts.magicaleffects.fire",
+   "files": [
+    "library/impacts/magicaleffects/fire/meleeattack-impacts-magicaleffects-fire-00.ogg"
+   ],
+   "ms": 4500
+  },
+  {
+   "name": "psfx.impacts.magicaleffects.cold",
+   "files": [
+    "library/impacts/magicaleffects/cold/meleeattack-impacts-magicaleffects-cold-00.ogg"
+   ],
+   "ms": 5000
+  },
+  {
+   "name": "psfx.impacts.magicaleffects.necrotic",
+   "files": [
+    "library/impacts/magicaleffects/necrotic/meleeattack-impacts-magicaleffects-necrotic-00.ogg"
+   ],
+   "ms": 3000
+  },
+  {
+   "name": "psfx.impacts.magicaleffects.psychic",
+   "files": [
+    "library/impacts/magicaleffects/psychic/meleeattack-impacts-magicaleffects-psychic-00.ogg",
+    "library/impacts/magicaleffects/psychic/meleeattack-impacts-magicaleffects-psychic-01.ogg",
+    "library/impacts/magicaleffects/psychic/meleeattack-impacts-magicaleffects-psychic-02.ogg",
+    "library/impacts/magicaleffects/psychic/meleeattack-impacts-magicaleffects-psychic-03.ogg"
+   ],
+   "ms": 3500
+  },
+  {
+   "name": "psfx.impacts.magicaleffects.lightning",
+   "files": [
+    "library/impacts/magicaleffects/lightning/meleeattack-impacts-magicaleffects-lightning-00.ogg",
+    "library/impacts/magicaleffects/lightning/meleeattack-impacts-magicaleffects-lightning-01.ogg",
+    "library/impacts/magicaleffects/lightning/meleeattack-impacts-magicaleffects-lightning-02.ogg",
+    "library/impacts/magicaleffects/lightning/meleeattack-impacts-magicaleffects-lightning-03.ogg",
+    "library/impacts/magicaleffects/lightning/meleeattack-impacts-magicaleffects-lightning-04.ogg"
+   ],
+   "ms": 2500
+  },
+  {
+   "name": "psfx.impacts.magicaleffects.generic.002.001",
+   "files": [
+    "library/impacts/magicaleffects/generic/002/impact-magicaleffects-generic-001-03.ogg"
+   ],
+   "ms": 3494
+  },
+  {
+   "name": "psfx.cantrips.fire-bolt.v1.05ft",
+   "files": [
+    "library/cantrips/fire-bolt/v1/fire-bolt-001-05ft.ogg"
+   ],
+   "ms": 3500
+  },
+  {
+   "name": "psfx.cantrips.fire-bolt.v1.15ft",
+   "files": [
+    "library/cantrips/fire-bolt/v1/fire-bolt-001-15ft.ogg"
+   ],
+   "ms": 3500
+  },
+  {
+   "name": "psfx.cantrips.fire-bolt.v1.30ft",
+   "files": [
+    "library/cantrips/fire-bolt/v1/fire-bolt-001-30ft.ogg"
+   ],
+   "ms": 3500
+  },
+  {
+   "name": "psfx.cantrips.fire-bolt.v1.60ft",
+   "files": [
+    "library/cantrips/fire-bolt/v1/fire-bolt-001-60ft.ogg"
+   ],
+   "ms": 3500
+  },
+  {
+   "name": "psfx.cantrips.fire-bolt.v1.90ft",
+   "files": [
+    "library/cantrips/fire-bolt/v1/fire-bolt-001-90ft.ogg"
+   ],
+   "ms": 3500
+  },
+  {
+   "name": "psfx.cantrips.fire-bolt.v2.05ft",
+   "files": [
+    "library/cantrips/fire-bolt/v2/fire-bolt-002-05ft.ogg"
+   ],
+   "ms": 3500
+  },
+  {
+   "name": "psfx.cantrips.fire-bolt.v2.15ft",
+   "files": [
+    "library/cantrips/fire-bolt/v2/fire-bolt-002-15ft.ogg"
+   ],
+   "ms": 3500
+  },
+  {
+   "name": "psfx.cantrips.fire-bolt.v2.30ft",
+   "files": [
+    "library/cantrips/fire-bolt/v2/fire-bolt-002-30ft.ogg"
+   ],
+   "ms": 3500
+  },
+  {
+   "name": "psfx.cantrips.fire-bolt.v2.60ft",
+   "files": [
+    "library/cantrips/fire-bolt/v2/fire-bolt-002-60ft.ogg"
+   ],
+   "ms": 3500
+  },
+  {
+   "name": "psfx.cantrips.fire-bolt.v2.90ft",
+   "files": [
+    "library/cantrips/fire-bolt/v2/fire-bolt-002-90ft.ogg"
+   ],
+   "ms": 3500
+  },
+  {
+   "name": "psfx.cantrips.ray-of-frost.v1",
+   "files": [
+    "library/cantrips/ray-of-frost/v1/ray-of-frost-003.ogg"
+   ],
+   "ms": 6000
+  },
+  {
+   "name": "psfx.cantrips.ray-of-frost.v2",
+   "files": [
+    "library/cantrips/ray-of-frost/v2/ray-of-frost-003.ogg"
+   ],
+   "ms": 6000
+  },
+  {
+   "name": "psfx.cantrips.toll-the-dead.v1.001",
+   "files": [
+    "library/cantrips/toll-the-dead/v1/toll-the-dead-001.ogg"
+   ],
+   "ms": 8000
+  },
+  {
+   "name": "psfx.cantrips.toll-the-dead.v1.002",
+   "files": [
+    "library/cantrips/toll-the-dead/v1/toll-the-dead-002.ogg"
+   ],
+   "ms": 8000
+  },
+  {
+   "name": "psfx.cantrips.toll-the-dead.rasping-whispers.001",
+   "files": [
+    "library/cantrips/toll-the-dead/v1/rasping-whispers-001.ogg"
+   ],
+   "ms": 6266
+  },
+  {
+   "name": "psfx.cantrips.toll-the-dead.ominous-bell.001",
+   "files": [
+    "library/cantrips/toll-the-dead/v1/ominous-bell-001.ogg"
+   ],
+   "ms": 8060
+  },
+  {
+   "name": "psfx.cantrips.mind-sliver.v1",
+   "files": [
+    "library/cantrips/mind-sliver/v1/mind-sliver-001.ogg"
+   ],
+   "ms": 4000
+  },
+  {
+   "name": "psfx.cantrips.eldritch-blast.v1",
+   "files": [
+    "library/cantrips/eldritch-blast/v1/eldritch-blast-001.ogg",
+    "library/cantrips/eldritch-blast/v1/eldritch-blast-002.ogg",
+    "library/cantrips/eldritch-blast/v1/eldritch-blast-003.ogg",
+    "library/cantrips/eldritch-blast/v1/eldritch-blast-004.ogg",
+    "library/cantrips/eldritch-blast/v1/eldritch-blast-005.ogg"
+   ],
+   "ms": 4514
+  },
+  {
+   "name": "psfx.cantrips.acid-splash.v1.05ft",
+   "files": [
+    "library/cantrips/acid-splash/v1/acid-splash-003-05ft.ogg"
+   ],
+   "ms": 3500
+  },
+  {
+   "name": "psfx.cantrips.acid-splash.v1.15ft",
+   "files": [
+    "library/cantrips/acid-splash/v1/acid-splash-003-15ft.ogg"
+   ],
+   "ms": 3500
+  },
+  {
+   "name": "psfx.cantrips.acid-splash.v1.30ft",
+   "files": [
+    "library/cantrips/acid-splash/v1/acid-splash-003-30ft.ogg"
+   ],
+   "ms": 3500
+  },
+  {
+   "name": "psfx.cantrips.acid-splash.v1.60ft",
+   "files": [
+    "library/cantrips/acid-splash/v1/acid-splash-003-60ft.ogg"
+   ],
+   "ms": 3500
+  },
+  {
+   "name": "psfx.cantrips.acid-splash.v1.90ft",
+   "files": [
+    "library/cantrips/acid-splash/v1/acid-splash-003-90ft.ogg"
+   ],
+   "ms": 3500
+  },
+  {
+   "name": "psfx.cantrips.shocking-grasp.v1.001",
+   "files": [
+    "library/cantrips/shocking-grasp/v1/shocking-grasp-001.ogg"
+   ],
+   "ms": 3511
+  },
+  {
+   "name": "psfx.cantrips.shocking-grasp.v1.002",
+   "files": [
+    "library/cantrips/shocking-grasp/v1/shocking-grasp-002.ogg"
+   ],
+   "ms": 3511
+  },
+  {
+   "name": "psfx.cantrips.shocking-grasp.v1.003",
+   "files": [
+    "library/cantrips/shocking-grasp/v1/shocking-grasp-003.ogg"
+   ],
+   "ms": 3511
+  },
+  {
+   "name": "psfx.cantrips.shocking-grasp.v1.004",
+   "files": [
+    "library/cantrips/shocking-grasp/v1/shocking-grasp-004.ogg"
+   ],
+   "ms": 3511
+  },
+  {
+   "name": "psfx.cantrips.shocking-grasp.v1.005",
+   "files": [
+    "library/cantrips/shocking-grasp/v1/shocking-grasp-005.ogg"
+   ],
+   "ms": 3511
+  },
+  {
+   "name": "psfx.cantrips.dancing-lights.v1.001",
+   "files": [
+    "library/cantrips/dancing-lights/v1/dancing-lights-00.ogg"
+   ],
+   "ms": 3200
+  },
+  {
+   "name": "psfx.cantrips.dancing-lights.v1.002",
+   "files": [
+    "library/cantrips/dancing-lights/v1/dancing-lights-01.ogg"
+   ],
+   "ms": 3200
+  },
+  {
+   "name": "psfx.cantrips.dancing-lights.v1.003",
+   "files": [
+    "library/cantrips/dancing-lights/v1/dancing-lights-02.ogg"
+   ],
+   "ms": 3200
+  },
+  {
+   "name": "psfx.cantrips.dancing-lights.v1.004",
+   "files": [
+    "library/cantrips/dancing-lights/v1/dancing-lights-03.ogg"
+   ],
+   "ms": 3200
+  },
+  {
+   "name": "psfx.cantrips.dancing-lights.v1.005",
+   "files": [
+    "library/cantrips/dancing-lights/v1/dancing-lights-04.ogg"
+   ],
+   "ms": 3200
+  },
+  {
+   "name": "psfx.cantrips.light.v1.001",
+   "files": [
+    "library/cantrips/light/v1/light-00.ogg"
+   ],
+   "ms": 11000
+  },
+  {
+   "name": "psfx.cantrips.light.v1.002",
+   "files": [
+    "library/cantrips/light/v1/light-01.ogg"
+   ],
+   "ms": 11000
+  },
+  {
+   "name": "psfx.cantrips.light.v1.003",
+   "files": [
+    "library/cantrips/light/v1/light-02.ogg"
+   ],
+   "ms": 11000
+  },
+  {
+   "name": "psfx.cantrips.light.v1.004",
+   "files": [
+    "library/cantrips/light/v1/light-03.ogg"
+   ],
+   "ms": 11000
+  },
+  {
+   "name": "psfx.cantrips.light.v1.005",
+   "files": [
+    "library/cantrips/light/v1/light-04.ogg"
+   ],
+   "ms": 11000
+  },
+  {
+   "name": "psfx.cantrips.create-bonfire.v1.001",
+   "files": [
+    "library/cantrips/create-bonfire/v1/create-bonfire-001.ogg"
+   ],
+   "ms": 20000
+  },
+  {
+   "name": "psfx.cantrips.create-bonfire.v1.002",
+   "files": [
+    "library/cantrips/create-bonfire/v1/create-bonfire-002.ogg"
+   ],
+   "ms": 20000
+  },
+  {
+   "name": "psfx.cantrips.poison-spray.v1",
+   "files": [
+    "library/cantrips/poison-spray/v1/poison-spray-001.ogg"
+   ],
+   "ms": 8000
+  },
+  {
+   "name": "psfx.cantrips.thunderclap.v1",
+   "files": [
+    "library/cantrips/thunderclap/v1/thunderclap-001.ogg"
+   ],
+   "ms": 5520
+  },
+  {
+   "name": "psfx.cantrips.gust.v1",
+   "files": [
+    "library/cantrips/gust/v1/gust-001.ogg"
+   ],
+   "ms": 6434
+  },
+  {
+   "name": "psfx.cantrips.sacred-flame.v1.001.caster",
+   "files": [
+    "library/cantrips/sacred-flame/v1/sacred-flame-caster-01.ogg"
+   ],
+   "ms": 5000
+  },
+  {
+   "name": "psfx.cantrips.sacred-flame.v1.001.target",
+   "files": [
+    "library/cantrips/sacred-flame/v1/sacred-flame-target-01.ogg"
+   ],
+   "ms": 6000
+  },
+  {
+   "name": "psfx.cantrips.mending.v1.001.with-cast",
+   "files": [
+    "library/cantrips/mending/v1/mending-with-cast-001.ogg"
+   ],
+   "ms": 6000
+  },
+  {
+   "name": "psfx.ranged-weapons.longbow.v1.05ft",
+   "files": [
+    "library/ranged-weapons/longbow/v1/longbow-003-05ft.ogg"
+   ],
+   "ms": 3500
+  },
+  {
+   "name": "psfx.ranged-weapons.longbow.v1.15ft",
+   "files": [
+    "library/ranged-weapons/longbow/v1/longbow-003-15ft.ogg"
+   ],
+   "ms": 3500
+  },
+  {
+   "name": "psfx.ranged-weapons.longbow.v1.30ft",
+   "files": [
+    "library/ranged-weapons/longbow/v1/longbow-003-30ft.ogg"
+   ],
+   "ms": 3500
+  },
+  {
+   "name": "psfx.ranged-weapons.longbow.v1.60ft",
+   "files": [
+    "library/ranged-weapons/longbow/v1/longbow-003-60ft.ogg"
+   ],
+   "ms": 3500
+  },
+  {
+   "name": "psfx.ranged-weapons.longbow.v1.90ft",
+   "files": [
+    "library/ranged-weapons/longbow/v1/longbow-003-90ft.ogg"
+   ],
+   "ms": 3500
+  },
+  {
+   "name": "psfx.ranged-weapons.guns.single-fire.revolver",
+   "files": [
+    "library/ranged-weapons/guns/revolver/single-fire/revolver-single-fire-001-01.ogg",
+    "library/ranged-weapons/guns/revolver/single-fire/revolver-single-fire-001-02.ogg",
+    "library/ranged-weapons/guns/revolver/single-fire/revolver-single-fire-001-03.ogg",
+    "library/ranged-weapons/guns/revolver/single-fire/revolver-single-fire-001-04.ogg",
+    "library/ranged-weapons/guns/revolver/single-fire/revolver-single-fire-001-05.ogg"
+   ],
+   "ms": 3000
+  },
+  {
+   "name": "psfx.ranged-weapons.guns.prepare.revolver",
+   "files": [
+    "library/ranged-weapons/guns/revolver/prepare/revolver-prepare-001-01.ogg",
+    "library/ranged-weapons/guns/revolver/prepare/revolver-prepare-001-02.ogg",
+    "library/ranged-weapons/guns/revolver/prepare/revolver-prepare-001-03.ogg",
+    "library/ranged-weapons/guns/revolver/prepare/revolver-prepare-001-04.ogg",
+    "library/ranged-weapons/guns/revolver/prepare/revolver-prepare-001-05.ogg"
+   ],
+   "ms": 500
+  },
+  {
+   "name": "psfx.weapon-attacks.spear.v1",
+   "files": [
+    "library/weapon-attacks/spear/v1/spear-001-00.ogg",
+    "library/weapon-attacks/spear/v1/spear-001-01.ogg",
+    "library/weapon-attacks/spear/v1/spear-001-02.ogg",
+    "library/weapon-attacks/spear/v1/spear-001-03.ogg",
+    "library/weapon-attacks/spear/v1/spear-001-04.ogg",
+    "library/weapon-attacks/spear/v1/spear-001-05.ogg"
+   ],
+   "ms": 3500
+  },
+  {
+   "name": "psfx.weapon-attacks.sword.v1",
+   "files": [
+    "library/weapon-attacks/sword/v1/sword-001-00.ogg",
+    "library/weapon-attacks/sword/v1/sword-001-01.ogg",
+    "library/weapon-attacks/sword/v1/sword-001-02.ogg",
+    "library/weapon-attacks/sword/v1/sword-001-03.ogg",
+    "library/weapon-attacks/sword/v1/sword-001-04.ogg",
+    "library/weapon-attacks/sword/v1/sword-001-05.ogg"
+   ],
+   "ms": 3500
+  },
+  {
+   "name": "psfx.ambient.firesources.fireplace.001",
+   "files": [
+    "library/ambient/firesources/fireplace/open-fire-001.ogg"
+   ],
+   "ms": 60000
+  },
+  {
+   "name": "psfx.ambient.firesources.fireplace.002",
+   "files": [
+    "library/ambient/firesources/fireplace/open-fire-002.ogg"
+   ],
+   "ms": 60000
+  },
+  {
+   "name": "psfx.doors.clean.open.wooden.01",
+   "files": [
+    "library/doors/clean/wooden/01/wooden-open-clean-01.ogg"
+   ],
+   "ms": 3500
+  },
+  {
+   "name": "psfx.doors.clean.close.wooden.01",
+   "files": [
+    "library/doors/clean/wooden/01/wooden-close-clean-01.ogg"
+   ],
+   "ms": 3500
+  },
+  {
+   "name": "psfx.doors.clean.test.wooden.01",
+   "files": [
+    "library/doors/clean/wooden/01/wooden-test-clean-01.ogg"
+   ],
+   "ms": 3500
+  },
+  {
+   "name": "psfx.doors.clean.lock.wooden.01",
+   "files": [
+    "library/doors/clean/wooden/01/wooden-lock-clean-01.ogg"
+   ],
+   "ms": 3500
+  },
+  {
+   "name": "psfx.doors.clean.lock.unlock.wooden.01",
+   "files": [
+    "library/doors/clean/wooden/01/wooden-unlock-clean-01.ogg"
+   ],
+   "ms": 3500
+  },
+  {
+   "name": "psfx.1st-level-spells.entangle.vines.v1.001.intro",
+   "files": [
+    "library/1st-level-spells/entangle/vines/v1/entangle-intro.ogg"
+   ],
+   "ms": 5251
+  },
+  {
+   "name": "psfx.1st-level-spells.entangle.vines.v1.001.outro",
+   "files": [
+    "library/1st-level-spells/entangle/vines/v1/entangle-outro.ogg"
+   ],
+   "ms": 1799
+  },
+  {
+   "name": "psfx.1st-level-spells.burning-hands.v1.001",
+   "files": [
+    "library/1st-level-spells/burning-hands/v1/burning-hands-01.ogg"
+   ],
+   "ms": 5000
+  },
+  {
+   "name": "psfx.1st-level-spells.arms-of-hadar.v1.001",
+   "files": [
+    "library/1st-level-spells/arms-of-hadar/v1/arms-of-hadar-00.ogg"
+   ],
+   "ms": 4000
+  },
+  {
+   "name": "psfx.1st-level-spells.cure-wounds.v1.001",
+   "files": [
+    "library/1st-level-spells/cure-wounds/v1/cure-wounds-00.ogg"
+   ],
+   "ms": 5995
+  },
+  {
+   "name": "psfx.1st-level-spells.magic-missile.v1.05ft",
+   "files": [
+    "library/1st-level-spells/magic-missile/v1/magic-missile-001-05ft.ogg"
+   ],
+   "ms": 3500
+  },
+  {
+   "name": "psfx.1st-level-spells.magic-missile.v1.15ft",
+   "files": [
+    "library/1st-level-spells/magic-missile/v1/magic-missile-001-15ft.ogg"
+   ],
+   "ms": 3500
+  },
+  {
+   "name": "psfx.1st-level-spells.magic-missile.v1.30ft",
+   "files": [
+    "library/1st-level-spells/magic-missile/v1/magic-missile-001-30ft.ogg"
+   ],
+   "ms": 3500
+  },
+  {
+   "name": "psfx.1st-level-spells.magic-missile.v1.60ft",
+   "files": [
+    "library/1st-level-spells/magic-missile/v1/magic-missile-001-60ft.ogg"
+   ],
+   "ms": 3500
+  },
+  {
+   "name": "psfx.1st-level-spells.magic-missile.v1.90ft",
+   "files": [
+    "library/1st-level-spells/magic-missile/v1/magic-missile-001-90ft.ogg"
+   ],
+   "ms": 3500
+  },
+  {
+   "name": "psfx.1st-level-spells.bless.v1.001",
+   "files": [
+    "library/1st-level-spells/bless/v1/bless-v1-001.ogg"
+   ],
+   "ms": 8000
+  },
+  {
+   "name": "psfx.1st-level-spells.bless.v1.002",
+   "files": [
+    "library/1st-level-spells/bless/v1/bless-v1-002.ogg"
+   ],
+   "ms": 8000
+  },
+  {
+   "name": "psfx.1st-level-spells.bless.v1.003",
+   "files": [
+    "library/1st-level-spells/bless/v1/bless-v1-003.ogg"
+   ],
+   "ms": 8000
+  },
+  {
+   "name": "psfx.1st-level-spells.bless.v1.004",
+   "files": [
+    "library/1st-level-spells/bless/v1/bless-v1-004.ogg"
+   ],
+   "ms": 8000
+  },
+  {
+   "name": "psfx.1st-level-spells.bless.v1.005",
+   "files": [
+    "library/1st-level-spells/bless/v1/bless-v1-005.ogg"
+   ],
+   "ms": 8000
+  },
+  {
+   "name": "psfx.1st-level-spells.shield-spell.intro.v1.003",
+   "files": [
+    "library/1st-level-spells/shield-spell/v1/shield-spell-v1-intro-03.ogg"
+   ],
+   "ms": 4500
+  },
+  {
+   "name": "psfx.1st-level-spells.shield-spell.outro.v1.003",
+   "files": [
+    "library/1st-level-spells/shield-spell/v1/shield-spell-v1-outro-03.ogg"
+   ],
+   "ms": 4500
+  },
+  {
+   "name": "psfx.1st-level-spells.sleep.v1.001",
+   "files": [
+    "library/1st-level-spells/sleep/v1/sleep-v1-001.ogg"
+   ],
+   "ms": 12000
+  },
+  {
+   "name": "psfx.1st-level-spells.detect-magic.v1.001",
+   "files": [
+    "library/1st-level-spells/detect-magic/v1/detect-magic-001.ogg"
+   ],
+   "ms": 6000
+  },
+  {
+   "name": "psfx.1st-level-spells.dissonant-whispers.v1.001",
+   "files": [
+    "library/1st-level-spells/dissonant-whispers/v1/001/dissonant-whispers-001-03.ogg"
+   ],
+   "ms": 4000
+  },
+  {
+   "name": "psfx.1st-level-spells.dissonant-whispers.v1.002",
+   "files": [
+    "library/1st-level-spells/dissonant-whispers/v1/002/dissonant-whispers-002.ogg"
+   ],
+   "ms": 4000
+  },
+  {
+   "name": "psfx.1st-level-spells.dissonant-whispers.v1.003",
+   "files": [
+    "library/1st-level-spells/dissonant-whispers/v1/003/dissonant-whispers-003-03.ogg"
+   ],
+   "ms": 4000
+  },
+  {
+   "name": "psfx.1st-level-spells.dissonant-whispers.v1.004",
+   "files": [
+    "library/1st-level-spells/dissonant-whispers/v1/004/dissonant-whispers-004-03.ogg"
+   ],
+   "ms": 4000
+  },
+  {
+   "name": "psfx.2nd-level-spells.scorching-ray.v1.05ft",
+   "files": [
+    "library/2nd-level-spells/scorching-ray/v1/scorching-ray-001-05ft.ogg"
+   ],
+   "ms": 3000
+  },
+  {
+   "name": "psfx.2nd-level-spells.scorching-ray.v1.15ft",
+   "files": [
+    "library/2nd-level-spells/scorching-ray/v1/scorching-ray-001-15ft.ogg"
+   ],
+   "ms": 3500
+  },
+  {
+   "name": "psfx.2nd-level-spells.scorching-ray.v1.30ft",
+   "files": [
+    "library/2nd-level-spells/scorching-ray/v1/scorching-ray-001-30ft.ogg"
+   ],
+   "ms": 3500
+  },
+  {
+   "name": "psfx.2nd-level-spells.scorching-ray.v1.60ft",
+   "files": [
+    "library/2nd-level-spells/scorching-ray/v1/scorching-ray-001-60ft.ogg"
+   ],
+   "ms": 3500
+  },
+  {
+   "name": "psfx.2nd-level-spells.scorching-ray.v1.90ft",
+   "files": [
+    "library/2nd-level-spells/scorching-ray/v1/scorching-ray-001-90ft.ogg"
+   ],
+   "ms": 3500
+  },
+  {
+   "name": "psfx.2nd-level-spells.misty-step.v1.complete.generic",
+   "files": [
+    "library/2nd-level-spells/misty-step/v1/complete/misty-step-complete-generic-001.ogg"
+   ],
+   "ms": 6000
+  },
+  {
+   "name": "psfx.2nd-level-spells.misty-step.v1.intro.generic",
+   "files": [
+    "library/2nd-level-spells/misty-step/v1/intro/misty-step-intro-generic-001.ogg"
+   ],
+   "ms": 4000
+  },
+  {
+   "name": "psfx.2nd-level-spells.misty-step.v1.outro.generic",
+   "files": [
+    "library/2nd-level-spells/misty-step/v1/outro/misty-step-outro-generic-001.ogg"
+   ],
+   "ms": 5500
+  },
+  {
+   "name": "psfx.2nd-level-spells.moonbeam.intro.v1.001",
+   "files": [
+    "library/2nd-level-spells/moonbeam/v1/moonbeam-intro-v1-001.ogg"
+   ],
+   "ms": 16000
+  },
+  {
+   "name": "psfx.2nd-level-spells.moonbeam.intro.v1.002",
+   "files": [
+    "library/2nd-level-spells/moonbeam/v1/moonbeam-intro-v1-002.ogg"
+   ],
+   "ms": 16000
+  },
+  {
+   "name": "psfx.2nd-level-spells.moonbeam.intro.v1.003",
+   "files": [
+    "library/2nd-level-spells/moonbeam/v1/moonbeam-intro-v1-003.ogg"
+   ],
+   "ms": 16000
+  },
+  {
+   "name": "psfx.2nd-level-spells.moonbeam.intro.v1.004",
+   "files": [
+    "library/2nd-level-spells/moonbeam/v1/moonbeam-intro-v1-004.ogg"
+   ],
+   "ms": 16000
+  },
+  {
+   "name": "psfx.2nd-level-spells.moonbeam.intro.v1.005",
+   "files": [
+    "library/2nd-level-spells/moonbeam/v1/moonbeam-intro-v1-005.ogg"
+   ],
+   "ms": 16000
+  },
+  {
+   "name": "psfx.2nd-level-spells.moonbeam.intro_no_pulse.v1.001",
+   "files": [
+    "library/2nd-level-spells/moonbeam/v1/moonbeam-intro_no_pulse-v1-001.ogg"
+   ],
+   "ms": 16000
+  },
+  {
+   "name": "psfx.2nd-level-spells.moonbeam.intro_no_pulse.v1.002",
+   "files": [
+    "library/2nd-level-spells/moonbeam/v1/moonbeam-intro_no_pulse-v1-002.ogg"
+   ],
+   "ms": 16000
+  },
+  {
+   "name": "psfx.2nd-level-spells.moonbeam.intro_no_pulse.v1.003",
+   "files": [
+    "library/2nd-level-spells/moonbeam/v1/moonbeam-intro_no_pulse-v1-003.ogg"
+   ],
+   "ms": 16000
+  },
+  {
+   "name": "psfx.2nd-level-spells.moonbeam.intro_no_pulse.v1.004",
+   "files": [
+    "library/2nd-level-spells/moonbeam/v1/moonbeam-intro_no_pulse-v1-004.ogg"
+   ],
+   "ms": 16000
+  },
+  {
+   "name": "psfx.2nd-level-spells.moonbeam.intro_no_pulse.v1.005",
+   "files": [
+    "library/2nd-level-spells/moonbeam/v1/moonbeam-intro_no_pulse-v1-005.ogg"
+   ],
+   "ms": 16000
+  },
+  {
+   "name": "psfx.2nd-level-spells.moonbeam.outro.v1.001",
+   "files": [
+    "library/2nd-level-spells/moonbeam/v1/moonbeam-outro-v1-001.ogg"
+   ],
+   "ms": 8000
+  },
+  {
+   "name": "psfx.2nd-level-spells.moonbeam.outro.v1.002",
+   "files": [
+    "library/2nd-level-spells/moonbeam/v1/moonbeam-outro-v1-002.ogg"
+   ],
+   "ms": 8000
+  },
+  {
+   "name": "psfx.2nd-level-spells.moonbeam.outro.v1.003",
+   "files": [
+    "library/2nd-level-spells/moonbeam/v1/moonbeam-outro-v1-003.ogg"
+   ],
+   "ms": 8000
+  },
+  {
+   "name": "psfx.2nd-level-spells.moonbeam.outro.v1.004",
+   "files": [
+    "library/2nd-level-spells/moonbeam/v1/moonbeam-outro-v1-004.ogg"
+   ],
+   "ms": 8000
+  },
+  {
+   "name": "psfx.2nd-level-spells.moonbeam.outro.v1.005",
+   "files": [
+    "library/2nd-level-spells/moonbeam/v1/moonbeam-outro-v1-005.ogg"
+   ],
+   "ms": 8000
+  },
+  {
+   "name": "psfx.3rd-level-spells.fireball.v1.001.beam",
+   "files": [
+    "library/3rd-level-spells/fireball/v1/fireball-beam-01.ogg"
+   ],
+   "ms": 4000
+  },
+  {
+   "name": "psfx.3rd-level-spells.fireball.v1.001.explosion",
+   "files": [
+    "library/3rd-level-spells/fireball/v1/fireball-explosion-01.ogg"
+   ],
+   "ms": 3994
+  },
+  {
+   "name": "psfx.3rd-level-spells.call-lightning.v1.cast",
+   "files": [
+    "library/3rd-level-spells/call-lightning/v1/cast/call-lightning-001.ogg"
+   ],
+   "ms": 10000
+  },
+  {
+   "name": "psfx.3rd-level-spells.call-lightning.v1.primary",
+   "files": [
+    "library/3rd-level-spells/call-lightning/v1/primary/lightning-strike-001.ogg"
+   ],
+   "ms": 6000
+  },
+  {
+   "name": "psfx.3rd-level-spells.call-lightning.v1.secondary",
+   "files": [
+    "library/3rd-level-spells/call-lightning/v1/secondary/chain-lightning-secondary-strike-5ft-00.ogg",
+    "library/3rd-level-spells/call-lightning/v1/secondary/chain-lightning-secondary-strike-5ft-01.ogg",
+    "library/3rd-level-spells/call-lightning/v1/secondary/chain-lightning-secondary-strike-5ft-02.ogg",
+    "library/3rd-level-spells/call-lightning/v1/secondary/chain-lightning-secondary-strike-5ft-03.ogg",
+    "library/3rd-level-spells/call-lightning/v1/secondary/chain-lightning-secondary-strike-5ft-04.ogg"
+   ],
+   "ms": 4000
+  },
+  {
+   "name": "psfx.5th-level-spells.cone-of-cold.v1.001",
+   "files": [
+    "library/5th-level-spells/cone-of-cold/v1/cone-of-cold-00.ogg"
+   ],
+   "ms": 4500
+  },
+  {
+   "name": "psfx.class-features.divine-smite.v1.001.caster",
+   "files": [
+    "library/class-features/divine-smite/v1/divine-smite-caster-01.ogg"
+   ],
+   "ms": 5000
+  },
+  {
+   "name": "psfx.class-features.divine-smite.v1.001.target",
+   "files": [
+    "library/class-features/divine-smite/v1/divine-smite-target-01.ogg"
+   ],
+   "ms": 4000
+  },
+  {
+   "name": "psfx.class-features.bardic-inspiration.v1.keyOfC.001",
+   "files": [
+    "library/class-features/bardic-inspiration/v1/bardicInspiration-layer-keyOfC-001.ogg"
+   ],
+   "ms": 4000
+  },
+  {
+   "name": "psfx.casting.fire.001",
+   "files": [
+    "library/casting/fire/cast-fire-03.ogg"
+   ],
+   "ms": 2500
+  },
+  {
+   "name": "psfx.casting.fire-side.001",
+   "files": [
+    "library/casting/fire-side/cast-fire-side-03.ogg"
+   ],
+   "ms": 2008
+  },
+  {
+   "name": "psfx.casting.earth.001",
+   "files": [
+    "library/casting/earth/cast-earth-03.ogg"
+   ],
+   "ms": 3000
+  },
+  {
+   "name": "psfx.casting.sound.001",
+   "files": [
+    "library/casting/sound/cast-sound-03.ogg"
+   ],
+   "ms": 4000
+  },
+  {
+   "name": "psfx.casting.water.001",
+   "files": [
+    "library/casting/water/cast-water-03.ogg"
+   ],
+   "ms": 5000
+  },
+  {
+   "name": "psfx.casting.generic.001",
+   "files": [
+    "library/casting/generic/001/cast-generic-03.ogg"
+   ],
+   "ms": 1518
+  },
+  {
+   "name": "psfx.casting.generic.002.001",
+   "files": [
+    "library/casting/generic/002/cast-generic-001-03.ogg"
+   ],
+   "ms": 3503
+  },
+  {
+   "name": "psfx.casting.generic-v2.001.01",
+   "files": [
+    "library/casting/generic-v2/001/cast-generic-001-01.ogg"
+   ],
+   "ms": 4000
+  },
+  {
+   "name": "psfx.ranged-magic.generic.missile.only.001.05ft",
+   "files": [
+    "library/ranged-magic/generic/missile/001/ranged-magic-missile-only-001-05ft-03.ogg"
+   ],
+   "ms": 3499
+  },
+  {
+   "name": "psfx.ranged-magic.generic.missile.only.001.15ft",
+   "files": [
+    "library/ranged-magic/generic/missile/001/ranged-magic-missile-only-001-15ft-03.ogg"
+   ],
+   "ms": 3504
+  },
+  {
+   "name": "psfx.ranged-magic.generic.missile.only.001.30ft",
+   "files": [
+    "library/ranged-magic/generic/missile/001/ranged-magic-missile-only-001-30ft-03.ogg"
+   ],
+   "ms": 3500
+  },
+  {
+   "name": "psfx.ranged-magic.generic.missile.only.001.60ft",
+   "files": [
+    "library/ranged-magic/generic/missile/001/ranged-magic-missile-only-001-60ft-03.ogg"
+   ],
+   "ms": 4000
+  },
+  {
+   "name": "psfx.ranged-magic.generic.missile.only.001.90ft",
+   "files": [
+    "library/ranged-magic/generic/missile/001/ranged-magic-missile-only-001-90ft-03.ogg"
+   ],
+   "ms": 5000
+  },
+  {
+   "name": "psfx.ranged-magic.generic.missile.complete.001.05ft",
+   "files": [
+    "library/ranged-magic/generic/missile/001/ranged-magic-missile-complete-001-05ft-03.ogg"
+   ],
+   "ms": 3490
+  },
+  {
+   "name": "psfx.ranged-magic.generic.missile.complete.001.15ft",
+   "files": [
+    "library/ranged-magic/generic/missile/001/ranged-magic-missile-complete-001-15ft-03.ogg"
+   ],
+   "ms": 3490
+  },
+  {
+   "name": "psfx.ranged-magic.generic.missile.complete.001.30ft",
+   "files": [
+    "library/ranged-magic/generic/missile/001/ranged-magic-missile-complete-001-30ft-03.ogg"
+   ],
+   "ms": 3499
+  },
+  {
+   "name": "psfx.ranged-magic.generic.missile.complete.001.60ft",
+   "files": [
+    "library/ranged-magic/generic/missile/001/ranged-magic-missile-complete-001-60ft-03.ogg"
+   ],
+   "ms": 4998
+  },
+  {
+   "name": "psfx.ranged-magic.generic.missile.complete.001.90ft",
+   "files": [
+    "library/ranged-magic/generic/missile/001/ranged-magic-missile-complete-001-90ft-03.ogg"
+   ],
+   "ms": 6000
+  },
+  {
+   "name": "psfx.ranged-magic.generic.projectile.ranged.001.05ft",
+   "files": [
+    "library/ranged-magic/generic/projectile/001/ranged-magic-projectile-001-05ft-03.ogg"
+   ],
+   "ms": 3520
+  },
+  {
+   "name": "psfx.ranged-magic.generic.projectile.ranged.001.15ft",
+   "files": [
+    "library/ranged-magic/generic/projectile/001/ranged-magic-projectile-001-15ft-03.ogg"
+   ],
+   "ms": 4500
+  },
+  {
+   "name": "psfx.ranged-magic.generic.projectile.ranged.001.30ft",
+   "files": [
+    "library/ranged-magic/generic/projectile/001/ranged-magic-projectile-001-30ft-03.ogg"
+   ],
+   "ms": 4500
+  },
+  {
+   "name": "psfx.ranged-magic.generic.projectile.ranged.001.60ft",
+   "files": [
+    "library/ranged-magic/generic/projectile/001/ranged-magic-projectile-001-60ft-03.ogg"
+   ],
+   "ms": 4000
+  },
+  {
+   "name": "psfx.ranged-magic.generic.projectile.ranged.001.90ft",
+   "files": [
+    "library/ranged-magic/generic/projectile/001/ranged-magic-projectile-001-90ft-03.ogg"
+   ],
+   "ms": 4000
+  },
+  {
+   "name": "psfx.ranged-magic.generic.projectile.instant.001",
+   "files": [
+    "library/ranged-magic/generic/instant/001/ranged-magic-instant-001-03.ogg"
+   ],
+   "ms": 3520
+  },
+  {
+   "name": "psfx.ranged-magic.generic.beam.001",
+   "files": [
+    "library/ranged-magic/generic/beam/001/ranged-magic-beam-001-03.ogg"
+   ],
+   "ms": 4500
+  },
+  {
+   "name": "psfx.ranged-magic.generic.energy-strands.001.05ft",
+   "files": [
+    "library/ranged-magic/generic/energy-strands/001/05ft/ranged-magic-energy-strands-001-05ft.ogg"
+   ],
+   "ms": 1000
+  },
+  {
+   "name": "psfx.ranged-magic.generic.energy-strands.001.15ft",
+   "files": [
+    "library/ranged-magic/generic/energy-strands/001/15ft/ranged-magic-energy-strands-001-15ft.ogg"
+   ],
+   "ms": 1000
+  },
+  {
+   "name": "psfx.ranged-magic.generic.energy-strands.001.30ft",
+   "files": [
+    "library/ranged-magic/generic/energy-strands/001/30ft/ranged-magic-energy-strands-001-30ft.ogg"
+   ],
+   "ms": 1000
+  },
+  {
+   "name": "psfx.ranged-magic.generic.energy-strands.001.60ft",
+   "files": [
+    "library/ranged-magic/generic/energy-strands/001/60ft/ranged-magic-energy-strands-001-60ft.ogg"
+   ],
+   "ms": 2000
+  },
+  {
+   "name": "psfx.ranged-magic.generic.energy-strands.001.90ft",
+   "files": [
+    "library/ranged-magic/generic/energy-strands/001/90ft/ranged-magic-energy-strands-001-90ft.ogg"
+   ],
+   "ms": 2000
+  },
+  {
+   "name": "psfx.creature.movement.footsteps.outdoors.001.single",
+   "files": [
+    "library/creature/movement/footsteps/outdoors/001/footsteps-single-outdoors-001-00.ogg",
+    "library/creature/movement/footsteps/outdoors/001/footsteps-single-outdoors-001-01.ogg",
+    "library/creature/movement/footsteps/outdoors/001/footsteps-single-outdoors-001-02.ogg",
+    "library/creature/movement/footsteps/outdoors/001/footsteps-single-outdoors-001-03.ogg",
+    "library/creature/movement/footsteps/outdoors/001/footsteps-single-outdoors-001-04.ogg",
+    "library/creature/movement/footsteps/outdoors/001/footsteps-single-outdoors-001-05.ogg",
+    "library/creature/movement/footsteps/outdoors/001/footsteps-single-outdoors-001-06.ogg",
+    "library/creature/movement/footsteps/outdoors/001/footsteps-single-outdoors-001-07.ogg"
+   ],
+   "ms": 2000
+  },
+  {
+   "name": "psfx.creature.movement.footsteps.outdoors.001.sequence",
+   "files": [
+    "library/creature/movement/footsteps/outdoors/001/footsteps-sequence-outdoors-001.ogg"
+   ],
+   "ms": 2896
+  },
+  {
+   "name": "psfx.creature.movement.footsteps.outdoors.002.single",
+   "files": [
+    "library/creature/movement/footsteps/outdoors/002/footsteps-single-outdoors-002-00.ogg",
+    "library/creature/movement/footsteps/outdoors/002/footsteps-single-outdoors-002-01.ogg",
+    "library/creature/movement/footsteps/outdoors/002/footsteps-single-outdoors-002-02.ogg",
+    "library/creature/movement/footsteps/outdoors/002/footsteps-single-outdoors-002-03.ogg",
+    "library/creature/movement/footsteps/outdoors/002/footsteps-single-outdoors-002-04.ogg",
+    "library/creature/movement/footsteps/outdoors/002/footsteps-single-outdoors-002-05.ogg",
+    "library/creature/movement/footsteps/outdoors/002/footsteps-single-outdoors-002-06.ogg",
+    "library/creature/movement/footsteps/outdoors/002/footsteps-single-outdoors-002-07.ogg"
+   ],
+   "ms": 2000
+  },
+  {
+   "name": "psfx.creature.movement.footsteps.outdoors.002.sequence",
+   "files": [
+    "library/creature/movement/footsteps/outdoors/002/footsteps-sequence-outdoors-002.ogg"
+   ],
+   "ms": 2896
+  },
+  {
+   "name": "psfx.creature.movement.burrow.001.ranged.05ft",
+   "files": [
+    "library/creature/movement/burrow/001/burrow-ranged-001-05ft-03.ogg"
+   ],
+   "ms": 5000
+  },
+  {
+   "name": "psfx.creature.movement.burrow.001.ranged.15ft",
+   "files": [
+    "library/creature/movement/burrow/001/burrow-ranged-001-15ft-03.ogg"
+   ],
+   "ms": 5000
+  },
+  {
+   "name": "psfx.creature.movement.burrow.001.ranged.30ft",
+   "files": [
+    "library/creature/movement/burrow/001/burrow-ranged-001-30ft-03.ogg"
+   ],
+   "ms": 5500
+  },
+  {
+   "name": "psfx.creature.movement.burrow.001.ranged.60ft",
+   "files": [
+    "library/creature/movement/burrow/001/burrow-ranged-001-60ft-03.ogg"
+   ],
+   "ms": 6500
+  },
+  {
+   "name": "psfx.creature.movement.burrow.001.ranged.90ft",
+   "files": [
+    "library/creature/movement/burrow/001/burrow-ranged-001-90ft-03.ogg"
+   ],
+   "ms": 7500
+  },
+  {
+   "name": "psfx.creature.movement.burrow.breach",
+   "files": [
+    "library/creature/movement/burrow/001/burrow-breach-001-03.ogg"
+   ],
+   "ms": 2500
+  },
+  {
+   "name": "psfx.creature.movement.flight.landing.impact.small",
+   "files": [
+    "library/creature/movement/flight/landing/landing-impact-small-001.ogg"
+   ],
+   "ms": 8000
+  },
+  {
+   "name": "psfx.creature.movement.flight.wings.small",
+   "files": [
+    "library/creature/movement/flight/wings/beating-wings-small-001.ogg"
+   ],
+   "ms": 8000
+  },
+  {
+   "name": "psfx.creature.dragons.attacks.breath.small.fire",
+   "files": [
+    "library/creature/dragons/attacks/breath-attack-small-fire-001.ogg"
+   ],
+   "ms": 8000
+  },
+  {
+   "name": "psfx.creature.dragons.attacks.breath.small.cold",
+   "files": [
+    "library/creature/dragons/attacks/breath-attack-small-cold-001.ogg"
+   ],
+   "ms": 8000
+  },
+  {
+   "name": "psfx.creature.dragons.attacks.rend.fire",
+   "files": [
+    "library/creature/dragons/attacks/rend-slash-fire-001.ogg"
+   ],
+   "ms": 8000
+  },
+  {
+   "name": "psfx.creature.dragons.attacks.rend.cold",
+   "files": [
+    "library/creature/dragons/attacks/rend-slash-cold-001.ogg"
+   ],
+   "ms": 8000
+  },
+  {
+   "name": "psfx.creature.dragons.roar.small",
+   "files": [
+    "library/creature/dragons/roar/dragon-roar-small-001.ogg"
+   ],
+   "ms": 8000
+  },
+  {
+   "name": "psfx.creature.sleeping.humanoid.snoring.001",
+   "files": [
+    "library/creature/sleeping/humanoid/snoring/snoring-humanoid-001.ogg"
+   ],
+   "ms": 13004
+  },
+  {
+   "name": "psfx.magic-signs.circle.v1.abjuration.complete",
+   "files": [
+    "library/magic-signs/circles/v1/abjuration-magic-sign-circle-complete.ogg"
+   ],
+   "ms": 12000
+  },
+  {
+   "name": "psfx.magic-signs.circle.v1.abjuration.intro",
+   "files": [
+    "library/magic-signs/circles/v1/abjuration-magic-sign-circle-intro.ogg"
+   ],
+   "ms": 5625
+  },
+  {
+   "name": "psfx.magic-signs.circle.v1.abjuration.loop",
+   "files": [
+    "library/magic-signs/circles/v1/abjuration-magic-sign-circle-loop.ogg"
+   ],
+   "ms": 5040
+  },
+  {
+   "name": "psfx.magic-signs.circle.v1.abjuration.outro",
+   "files": [
+    "library/magic-signs/circles/v1/abjuration-magic-sign-circle-outro.ogg"
+   ],
+   "ms": 5000
+  },
+  {
+   "name": "psfx.magic-signs.circle.v1.abjuration.intro-fade",
+   "files": [
+    "library/magic-signs/circles/v1/abjuration-magic-sign-circle-intro-fade.ogg"
+   ],
+   "ms": 14000
+  },
+  {
+   "name": "psfx.magic-signs.circle.v1.conjuration.complete",
+   "files": [
+    "library/magic-signs/circles/v1/conjuration-magic-sign-circle-complete.ogg"
+   ],
+   "ms": 12002
+  },
+  {
+   "name": "psfx.magic-signs.circle.v1.conjuration.intro",
+   "files": [
+    "library/magic-signs/circles/v1/conjuration-magic-sign-circle-intro.ogg"
+   ],
+   "ms": 5625
+  },
+  {
+   "name": "psfx.magic-signs.circle.v1.conjuration.loop",
+   "files": [
+    "library/magic-signs/circles/v1/conjuration-magic-sign-circle-loop.ogg"
+   ],
+   "ms": 5042
+  },
+  {
+   "name": "psfx.magic-signs.circle.v1.conjuration.outro",
+   "files": [
+    "library/magic-signs/circles/v1/conjuration-magic-sign-circle-outro.ogg"
+   ],
+   "ms": 5000
+  },
+  {
+   "name": "psfx.magic-signs.circle.v1.conjuration.intro-fade",
+   "files": [
+    "library/magic-signs/circles/v1/conjuration-magic-sign-circle-intro-fade.ogg"
+   ],
+   "ms": 14000
+  },
+  {
+   "name": "psfx.magic-signs.circle.v1.divination.complete",
+   "files": [
+    "library/magic-signs/circles/v1/divination-magic-sign-circle-complete.ogg"
+   ],
+   "ms": 12000
+  },
+  {
+   "name": "psfx.magic-signs.circle.v1.divination.intro",
+   "files": [
+    "library/magic-signs/circles/v1/divination-magic-sign-circle-intro.ogg"
+   ],
+   "ms": 5625
+  },
+  {
+   "name": "psfx.magic-signs.circle.v1.divination.loop",
+   "files": [
+    "library/magic-signs/circles/v1/divination-magic-sign-circle-loop.ogg"
+   ],
+   "ms": 5042
+  },
+  {
+   "name": "psfx.magic-signs.circle.v1.divination.outro",
+   "files": [
+    "library/magic-signs/circles/v1/divination-magic-sign-circle-outro.ogg"
+   ],
+   "ms": 5000
+  },
+  {
+   "name": "psfx.magic-signs.circle.v1.divination.intro-fade",
+   "files": [
+    "library/magic-signs/circles/v1/divination-magic-sign-circle-intro-fade.ogg"
+   ],
+   "ms": 14000
+  },
+  {
+   "name": "psfx.magic-signs.rune.v1.abjuration.complete",
+   "files": [
+    "library/magic-signs/runes/v1/abjuration-magic-sign-rune-complete.ogg"
+   ],
+   "ms": 11000
+  },
+  {
+   "name": "psfx.magic-signs.rune.v1.abjuration.intro",
+   "files": [
+    "library/magic-signs/runes/v1/abjuration-magic-sign-rune-intro.ogg"
+   ],
+   "ms": 3500
+  },
+  {
+   "name": "psfx.magic-signs.rune.v1.abjuration.loop",
+   "files": [
+    "library/magic-signs/runes/v1/abjuration-magic-sign-rune-loop.ogg"
+   ],
+   "ms": 5040
+  },
+  {
+   "name": "psfx.magic-signs.rune.v1.abjuration.outro",
+   "files": [
+    "library/magic-signs/runes/v1/abjuration-magic-sign-rune-outro.ogg"
+   ],
+   "ms": 4000
+  },
+  {
+   "name": "psfx.magic-signs.rune.v1.abjuration.intro-fade",
+   "files": [
+    "library/magic-signs/runes/v1/abjuration-magic-sign-rune-intro-fade.ogg"
+   ],
+   "ms": 14000
+  },
+  {
+   "name": "psfx.magic-signs.rune.v1.conjuration.complete",
+   "files": [
+    "library/magic-signs/runes/v1/conjuration-magic-sign-rune-complete.ogg"
+   ],
+   "ms": 11000
+  },
+  {
+   "name": "psfx.magic-signs.rune.v1.conjuration.intro",
+   "files": [
+    "library/magic-signs/runes/v1/conjuration-magic-sign-rune-intro.ogg"
+   ],
+   "ms": 3500
+  },
+  {
+   "name": "psfx.magic-signs.rune.v1.conjuration.loop",
+   "files": [
+    "library/magic-signs/runes/v1/conjuration-magic-sign-rune-loop.ogg"
+   ],
+   "ms": 5042
+  },
+  {
+   "name": "psfx.magic-signs.rune.v1.conjuration.outro",
+   "files": [
+    "library/magic-signs/runes/v1/conjuration-magic-sign-rune-outro.ogg"
+   ],
+   "ms": 4000
+  },
+  {
+   "name": "psfx.magic-signs.rune.v1.conjuration.intro-fade",
+   "files": [
+    "library/magic-signs/runes/v1/conjuration-magic-sign-rune-intro-fade.ogg"
+   ],
+   "ms": 14000
+  },
+  {
+   "name": "psfx.magic-signs.rune.v1.divination.complete",
+   "files": [
+    "library/magic-signs/runes/v1/divination-magic-sign-rune-complete.ogg"
+   ],
+   "ms": 11000
+  },
+  {
+   "name": "psfx.magic-signs.rune.v1.divination.intro",
+   "files": [
+    "library/magic-signs/runes/v1/divination-magic-sign-rune-intro.ogg"
+   ],
+   "ms": 3500
+  },
+  {
+   "name": "psfx.magic-signs.rune.v1.divination.loop",
+   "files": [
+    "library/magic-signs/runes/v1/divination-magic-sign-rune-loop.ogg"
+   ],
+   "ms": 5042
+  },
+  {
+   "name": "psfx.magic-signs.rune.v1.divination.outro",
+   "files": [
+    "library/magic-signs/runes/v1/divination-magic-sign-rune-outro.ogg"
+   ],
+   "ms": 4000
+  },
+  {
+   "name": "psfx.magic-signs.rune.v1.divination.intro-fade",
+   "files": [
+    "library/magic-signs/runes/v1/divination-magic-sign-rune-intro-fade.ogg"
+   ],
+   "ms": 14000
+  },
+  {
+   "name": "psfx.incantations.masculine.001.reverb.harm.001",
+   "files": [
+    "library/incantations/masculine/001/reverb/harm/incantation-masculine001-reverb-harm-001.ogg"
+   ],
+   "ms": 5360
+  },
+  {
+   "name": "psfx.incantations.masculine.001.reverb.help.002",
+   "files": [
+    "library/incantations/masculine/001/reverb/help/incantation-masculine001-reverb-help-002.ogg"
+   ],
+   "ms": 6220
+  },
+  {
+   "name": "psfx.incantations.masculine.001.reverb.summon.003",
+   "files": [
+    "library/incantations/masculine/001/reverb/summon/incantation-masculine001-reverb-summon-003.ogg"
+   ],
+   "ms": 6580
+  },
+  {
+   "name": "psfx.incantations.masculine.001.dry.harm.001",
+   "files": [
+    "library/incantations/masculine/001/dry/harm/incantation-masculine001-dry-harm-001.ogg"
+   ],
+   "ms": 5360
+  },
+  {
+   "name": "psfx.incantations.masculine.001.dry.help.002",
+   "files": [
+    "library/incantations/masculine/001/dry/help/incantation-masculine001-dry-help-002.ogg"
+   ],
+   "ms": 6220
+  },
+  {
+   "name": "psfx.incantations.masculine.001.dry.summon.003",
+   "files": [
+    "library/incantations/masculine/001/dry/summon/incantation-masculine001-dry-summon-003.ogg"
+   ],
+   "ms": 6580
+  },
+  {
+   "name": "psfx.incantations.masculine.001.demonic.harm.001",
+   "files": [
+    "library/incantations/masculine/001/demonic/harm/incantation-masculine001-demonic-harm-001.ogg"
+   ],
+   "ms": 5360
+  },
+  {
+   "name": "psfx.incantations.masculine.001.demonic.help.002",
+   "files": [
+    "library/incantations/masculine/001/demonic/help/incantation-masculine001-demonic-help-002.ogg"
+   ],
+   "ms": 6220
+  },
+  {
+   "name": "psfx.incantations.masculine.001.demonic.summon.003",
+   "files": [
+    "library/incantations/masculine/001/demonic/summon/incantation-masculine001-demonic-summon-003.ogg"
+   ],
+   "ms": 6580
+  },
+  {
+   "name": "psfx.incantations.masculine.002.reverb.harm.004",
+   "files": [
+    "library/incantations/masculine/002/reverb/harm/incantation-masculine002-reverb-harm-004.ogg"
+   ],
+   "ms": 6115
+  },
+  {
+   "name": "psfx.incantations.masculine.002.reverb.help.005",
+   "files": [
+    "library/incantations/masculine/002/reverb/help/incantation-masculine002-reverb-help-005.ogg"
+   ],
+   "ms": 6158
+  },
+  {
+   "name": "psfx.incantations.masculine.002.reverb.summon.006",
+   "files": [
+    "library/incantations/masculine/002/reverb/summon/incantation-masculine002-reverb-summon-006.ogg"
+   ],
+   "ms": 6000
+  },
+  {
+   "name": "psfx.incantations.masculine.002.dry.harm.004",
+   "files": [
+    "library/incantations/masculine/002/dry/harm/incantation-masculine002-dry-harm-004.ogg"
+   ],
+   "ms": 6115
+  },
+  {
+   "name": "psfx.incantations.masculine.002.dry.help.005",
+   "files": [
+    "library/incantations/masculine/002/dry/help/incantation-masculine002-dry-help-005.ogg"
+   ],
+   "ms": 6158
+  },
+  {
+   "name": "psfx.incantations.masculine.002.dry.summon.006",
+   "files": [
+    "library/incantations/masculine/002/dry/summon/incantation-masculine002-dry-summon-006.ogg"
+   ],
+   "ms": 6000
+  },
+  {
+   "name": "psfx.incantations.masculine.002.demonic.harm.004",
+   "files": [
+    "library/incantations/masculine/002/demonic/harm/incantation-masculine002-demonic-harm-004.ogg"
+   ],
+   "ms": 6115
+  },
+  {
+   "name": "psfx.incantations.masculine.002.demonic.help.005",
+   "files": [
+    "library/incantations/masculine/002/demonic/help/incantation-masculine002-demonic-help-005.ogg"
+   ],
+   "ms": 6158
+  },
+  {
+   "name": "psfx.incantations.masculine.002.demonic.summon.006",
+   "files": [
+    "library/incantations/masculine/002/demonic/summon/incantation-masculine002-demonic-summon-006.ogg"
+   ],
+   "ms": 6000
+  },
+  {
+   "name": "psfx.incantations.feminine.001.reverb.harm.007",
+   "files": [
+    "library/incantations/feminine/001/reverb/harm/incantation-feminine001-reverb-harm-007.ogg"
+   ],
+   "ms": 5800
+  },
+  {
+   "name": "psfx.incantations.feminine.001.reverb.help.008",
+   "files": [
+    "library/incantations/feminine/001/reverb/help/incantation-feminine001-reverb-help-008.ogg"
+   ],
+   "ms": 6176
+  },
+  {
+   "name": "psfx.incantations.feminine.001.reverb.summon.009",
+   "files": [
+    "library/incantations/feminine/001/reverb/summon/incantation-feminine001-reverb-summon-009.ogg"
+   ],
+   "ms": 7000
+  },
+  {
+   "name": "psfx.incantations.feminine.001.dry.harm.007",
+   "files": [
+    "library/incantations/feminine/001/dry/harm/incantation-feminine001-dry-harm-007.ogg"
+   ],
+   "ms": 5800
+  },
+  {
+   "name": "psfx.incantations.feminine.001.dry.help.008",
+   "files": [
+    "library/incantations/feminine/001/dry/help/incantation-feminine001-dry-help-008.ogg"
+   ],
+   "ms": 6176
+  },
+  {
+   "name": "psfx.incantations.feminine.001.dry.summon.009",
+   "files": [
+    "library/incantations/feminine/001/dry/summon/incantation-feminine001-dry-summon-009.ogg"
+   ],
+   "ms": 7000
+  },
+  {
+   "name": "psfx.incantations.feminine.001.demonic.harm.007",
+   "files": [
+    "library/incantations/feminine/001/demonic/harm/incantation-feminine001-demonic-harm-007.ogg"
+   ],
+   "ms": 5800
+  },
+  {
+   "name": "psfx.incantations.feminine.001.demonic.help.008",
+   "files": [
+    "library/incantations/feminine/001/demonic/help/incantation-feminine001-demonic-help-008.ogg"
+   ],
+   "ms": 6176
+  },
+  {
+   "name": "psfx.incantations.feminine.001.demonic.summon.009",
+   "files": [
+    "library/incantations/feminine/001/demonic/summon/incantation-feminine001-demonic-summon-009.ogg"
+   ],
+   "ms": 7000
+  },
+  {
+   "name": "psfx.incantations.whispers.masc.001.forward.standard.001",
+   "files": [
+    "library/incantations/whispers/masc/001/forward/standard/incantations-whispers-masc-001-forward-standard-001.ogg"
+   ],
+   "ms": 4000
+  },
+  {
+   "name": "psfx.incantations.whispers.masc.001.forward.standard.002",
+   "files": [
+    "library/incantations/whispers/masc/001/forward/standard/incantations-whispers-masc-001-forward-standard-002.ogg"
+   ],
+   "ms": 4000
+  },
+  {
+   "name": "psfx.incantations.whispers.masc.001.forward.standard.003",
+   "files": [
+    "library/incantations/whispers/masc/001/forward/standard/incantations-whispers-masc-001-forward-standard-003.ogg"
+   ],
+   "ms": 4000
+  },
+  {
+   "name": "psfx.incantations.whispers.masc.001.forward.standard.004",
+   "files": [
+    "library/incantations/whispers/masc/001/forward/standard/incantations-whispers-masc-001-forward-standard-004.ogg"
+   ],
+   "ms": 4000
+  },
+  {
+   "name": "psfx.incantations.whispers.masc.001.forward.standard.005",
+   "files": [
+    "library/incantations/whispers/masc/001/forward/standard/incantations-whispers-masc-001-forward-standard-005.ogg"
+   ],
+   "ms": 4000
+  },
+  {
+   "name": "psfx.incantations.whispers.masc.001.forward.standard.006",
+   "files": [
+    "library/incantations/whispers/masc/001/forward/standard/incantations-whispers-masc-001-forward-standard-006.ogg"
+   ],
+   "ms": 4000
+  },
+  {
+   "name": "psfx.incantations.whispers.masc.001.forward.standard.007",
+   "files": [
+    "library/incantations/whispers/masc/001/forward/standard/incantations-whispers-masc-001-forward-standard-007.ogg"
+   ],
+   "ms": 4000
+  },
+  {
+   "name": "psfx.incantations.whispers.masc.001.forward.standard.008",
+   "files": [
+    "library/incantations/whispers/masc/001/forward/standard/incantations-whispers-masc-001-forward-standard-008.ogg"
+   ],
+   "ms": 4000
+  },
+  {
+   "name": "psfx.incantations.whispers.masc.001.forward.standard.009",
+   "files": [
+    "library/incantations/whispers/masc/001/forward/standard/incantations-whispers-masc-001-forward-standard-009.ogg"
+   ],
+   "ms": 4000
+  },
+  {
+   "name": "psfx.incantations.whispers.masc.001.forward.standard.010",
+   "files": [
+    "library/incantations/whispers/masc/001/forward/standard/incantations-whispers-masc-001-forward-standard-010.ogg"
+   ],
+   "ms": 4000
+  },
+  {
+   "name": "psfx.incantations.whispers.fem.001.forward.standard.001",
+   "files": [
+    "library/incantations/whispers/fem/001/forward/standard/incantations-whispers-fem-001-forward-standard-001.ogg"
+   ],
+   "ms": 4000
+  },
+  {
+   "name": "psfx.incantations.whispers.fem.001.forward.standard.002",
+   "files": [
+    "library/incantations/whispers/fem/001/forward/standard/incantations-whispers-fem-001-forward-standard-002.ogg"
+   ],
+   "ms": 4000
+  },
+  {
+   "name": "psfx.incantations.whispers.fem.001.forward.standard.003",
+   "files": [
+    "library/incantations/whispers/fem/001/forward/standard/incantations-whispers-fem-001-forward-standard-003.ogg"
+   ],
+   "ms": 4000
+  },
+  {
+   "name": "psfx.incantations.whispers.fem.001.forward.standard.004",
+   "files": [
+    "library/incantations/whispers/fem/001/forward/standard/incantations-whispers-fem-001-forward-standard-004.ogg"
+   ],
+   "ms": 4000
+  },
+  {
+   "name": "psfx.incantations.whispers.fem.001.forward.standard.005",
+   "files": [
+    "library/incantations/whispers/fem/001/forward/standard/incantations-whispers-fem-001-forward-standard-005.ogg"
+   ],
+   "ms": 4000
+  },
+  {
+   "name": "psfx.incantations.whispers.fem.001.forward.standard.006",
+   "files": [
+    "library/incantations/whispers/fem/001/forward/standard/incantations-whispers-fem-001-forward-standard-006.ogg"
+   ],
+   "ms": 4000
+  },
+  {
+   "name": "psfx.incantations.whispers.fem.001.forward.standard.007",
+   "files": [
+    "library/incantations/whispers/fem/001/forward/standard/incantations-whispers-fem-001-forward-standard-007.ogg"
+   ],
+   "ms": 4000
+  },
+  {
+   "name": "psfx.incantations.whispers.fem.001.forward.standard.008",
+   "files": [
+    "library/incantations/whispers/fem/001/forward/standard/incantations-whispers-fem-001-forward-standard-008.ogg"
+   ],
+   "ms": 4000
+  },
+  {
+   "name": "psfx.incantations.whispers.fem.001.forward.standard.009",
+   "files": [
+    "library/incantations/whispers/fem/001/forward/standard/incantations-whispers-fem-001-forward-standard-009.ogg"
+   ],
+   "ms": 4000
+  },
+  {
+   "name": "psfx.incantations.whispers.fem.001.forward.standard.010",
+   "files": [
+    "library/incantations/whispers/fem/001/forward/standard/incantations-whispers-fem-001-forward-standard-010.ogg"
+   ],
+   "ms": 4000
+  },
+  {
+   "name": "psfx.conditions.boon.001.01",
+   "files": [
+    "library/conditions/boon/boon-001-01.ogg"
+   ],
+   "ms": 6000
+  },
+  {
+   "name": "psfx.conditions.boon.002.01",
+   "files": [
+    "library/conditions/boon/boon-002-01.ogg"
+   ],
+   "ms": 6000
+  },
+  {
+   "name": "psfx.conditions.boon.003.01",
+   "files": [
+    "library/conditions/boon/boon-003-01.ogg"
+   ],
+   "ms": 6000
+  },
+  {
+   "name": "psfx.conditions.boon.004.01",
+   "files": [
+    "library/conditions/boon/boon-004-01.ogg"
+   ],
+   "ms": 6000
+  },
+  {
+   "name": "psfx.conditions.boon.005.01",
+   "files": [
+    "library/conditions/boon/boon-005-01.ogg"
+   ],
+   "ms": 6000
+  },
+  {
+   "name": "psfx.conditions.boon.006.01",
+   "files": [
+    "library/conditions/boon/boon-006-01.ogg"
+   ],
+   "ms": 6000
+  },
+  {
+   "name": "psfx.conditions.generic-layer.002",
+   "files": [
+    "library/conditions/generic-layers/generic-layer-002.ogg"
+   ],
+   "ms": 6000
+  },
+  {
+   "name": "psfx.consumables.potions-vials.cork-bottle.002",
+   "files": [
+    "library/consumables/potions-vials/cork-bottle/cork-bottle-002.ogg"
+   ],
+   "ms": 2000
+  },
+  {
+   "name": "psfx.consumables.potions-vials.drink-liquid.002",
+   "files": [
+    "library/consumables/potions-vials/drink-liquid/drink-liquid-002.ogg"
+   ],
+   "ms": 2000
+  },
+  {
+   "name": "psfx.consumables.food-and-drink.open.food.bag.zip.001",
+   "files": [
+    "library/consumables/food-and-drink/open/consumable-open-bag-zip-01.ogg"
+   ],
+   "ms": 1559
+  },
+  {
+   "name": "psfx.consumables.food-and-drink.open.drink.glassbottle.twistcap.001",
+   "files": [
+    "library/consumables/food-and-drink/open/consumable-open-glassbottle-twistcap-01.ogg"
+   ],
+   "ms": 2359
+  },
+  {
+   "name": "psfx.consumables.food-and-drink.consume.drink.sip.polite.001",
+   "files": [
+    "library/consumables/food-and-drink/consume/consumable-consume-drink-sip-polite-01.ogg"
+   ],
+   "ms": 1279
+  },
+  {
+   "name": "psfx.consumables.food-and-drink.consume.food.bite.soft.001",
+   "files": [
+    "library/consumables/food-and-drink/consume/consumable-consume-food-bite-soft-01.ogg"
+   ],
+   "ms": 2166
+  },
+  {
+   "name": "psfx.consumables.food-and-drink.consume.food.chew.soft.001",
+   "files": [
+    "library/consumables/food-and-drink/consume/consumable-consume-food-chew-soft-01.ogg"
+   ],
+   "ms": 3110
+  },
+  {
+   "name": "psfx.consumables.food-and-drink.consume.food.swallow.001",
+   "files": [
+    "library/consumables/food-and-drink/consume/consumable-consume-food-swallow-masc-01.ogg"
+   ],
+   "ms": 707
+  },
+  {
+   "name": "psfx.consumables.food-and-drink.reaction.masc.ahh.001",
+   "files": [
+    "library/consumables/food-and-drink/reaction/consumable-reaction-ahh-masc-01.ogg"
+   ],
+   "ms": 1529
+  },
+  {
+   "name": "psfx.musical-instruments.lute.01.strummed.keyOfC.C6",
+   "files": [
+    "library/musical-instruments/strummed-plucked/lute/strummed/lute-C6-strum.ogg"
+   ],
+   "ms": 4000
+  },
+  {
+   "name": "psfx.musical-instruments.lute.01.strummed.keyOfC.C7",
+   "files": [
+    "library/musical-instruments/strummed-plucked/lute/strummed/lute-C7-strum.ogg"
+   ],
+   "ms": 4000
+  },
+  {
+   "name": "psfx.musical-instruments.lute.01.strummed-tremolo.keyOfC.Cadd9",
+   "files": [
+    "library/musical-instruments/strummed-plucked/lute/strummed-tremolo/lute-Cadd9-strum-tremolo.ogg"
+   ],
+   "ms": 4000
+  },
+  {
+   "name": "psfx.musical-instruments.lute.01.strummed-tremolo.keyOfC.Cm6",
+   "files": [
+    "library/musical-instruments/strummed-plucked/lute/strummed-tremolo/lute-Cm6-strum-tremolo.ogg"
+   ],
+   "ms": 4000
+  }
+ ]
+}

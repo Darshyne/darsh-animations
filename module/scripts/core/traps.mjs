@@ -25,12 +25,22 @@ export function trapParts(trap, table, byDamage) {
   return [];
 }
 
-/** Les erreurs de forme d'une partie (vide si elle est bonne). */
-export function checkTrapPart(part, label) {
+/** Les préfixes des noms Sequencer de chaque rendu : BLFX (`blfx.*`), ou JB2A gratuit et PSFX (data/jb2a.mjs). */
+const LIBRARIES = Object.freeze({
+  blfx: { animation: ["blfx."], sound: ["blfx.sound."], label: "BLFX" },
+  jb2a: { animation: ["jb2a."], sound: ["psfx."], label: "JB2A / PSFX" }
+});
+
+/** Les erreurs de forme d'une partie (vide si elle est bonne). `library` : "blfx" (data/traps.mjs) ou "jb2a" (data/jb2a.mjs). */
+export function checkTrapPart(part, label, library="blfx") {
+  const lib = LIBRARIES[library] ?? LIBRARIES.blfx;
   const errors = [];
   if ( !TRAP_PLACES.includes(part?.at) ) errors.push(`${label}: "at" must be ${TRAP_PLACES.join(" or ")}`);
-  if ( typeof part?.animation !== "string" || !part.animation.startsWith("blfx.") ) errors.push(`${label}: BLFX animation expected`);
-  if ( (part?.sound !== undefined) && !String(part.sound).startsWith("blfx.sound.") ) errors.push(`${label}: BLFX sound expected`);
+  if ( (typeof part?.animation !== "string") || !lib.animation.some(p => part.animation.startsWith(p)) ) {
+    errors.push(`${label}: ${lib.label} animation expected`);
+  }
+  if ( (part?.sound !== undefined) && !lib.sound.some(p => String(part.sound).startsWith(p)) ) errors.push(`${label}: ${lib.label} sound expected`);
+  if ( (part?.tint !== undefined) && !/^#[0-9a-f]{6}$/i.test(String(part.tint)) ) errors.push(`${label}: invalid tint`);
   for ( const key of ["scale", "delay", "duration"] ) {
     if ( (part?.[key] !== undefined) && !(Number.isFinite(part[key]) && (part[key] >= 0)) ) errors.push(`${label}: invalid ${key}`);
   }

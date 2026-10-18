@@ -5,7 +5,11 @@
   "scripts": {
     "test": "vitest run",
     "catalogue": "node tools/catalogue.mjs",
-    "inventaire": "node tools/inventaire.mjs"
+    "inventaire": "node tools/inventaire.mjs",
+    "catalogue:libre": "node tools/catalogue-libre.mjs",
+    "noms:fr": "node tools/noms-fr.mjs"
   },
-  "devDependencies": { "vitest": "^3.0.0" }
+  "devDependencies": {
+    "vitest": "^3.0.0"
+  }
 }

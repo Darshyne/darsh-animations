@@ -10,9 +10,12 @@ import { MODULE_ID, log } from "./shared.mjs";
 import { classify, filtersDuration, fill, tokenMagicFilters } from "../core/consumables.mjs";
 import { BLFX_BUILTIN, BLFX_RECIPES, BY_IDENTIFIER, COLORS, IMPACT, KINDS, MOODS, SIGNATURES, TOKENMAGIC_RECIPES }
   from "../data/consumables.mjs";
+import * as JB2A from "../data/jb2a.mjs";
 import { animations } from "./registry.mjs";
 import { renderer } from "./renderer.mjs";
 import { playNative } from "./native.mjs";
+import { aaPlays } from "./aa.mjs";
+import { addEffect, addSound, known } from "./sequencer.mjs";
 
 const isExecutor = () => game.users.activeGM?.isSelf === true;
 
@@ -58,6 +61,8 @@ export function planConsumable({ item, activity=null, user=null, targets=[] }, b
   if ( (backend === "blfx") && (BLFX_BUILTIN.includes(identifier) || animations()[identifier]) ) {
     return { skipped: "played by BLFX" };
   }
+  // Automated Animations le joue (une entrée de son Auto-Rec, ou des drapeaux sur l'objet) : pas deux fois.
+  if ( aaPlays(item, { activity }) ) return { skipped: "played by Automated Animations" };
   if ( !user ) return { skipped: "no token on the viewed scene" };
   // Sur soi : une activité « soi », ou sans cible désignée. Une flasque lancée a besoin d'une cible.
   const self = (activity?.target?.affects?.type === "self") || !targets.length;
@@ -70,45 +75,59 @@ export function planConsumable({ item, activity=null, user=null, targets=[] }, b
 const placesOf = (plan, at) => ((at === "user") ? [plan.user] : plan.targets);
 
 /* -------------------------------------------- */
-/*  Rendu BLFX (Sequencer)                       */
+/*  Rendus Sequencer : BLFX, ou JB2A + PSFX      */
 /* -------------------------------------------- */
 
-const known = name => !!globalThis.Sequencer?.Database?.entryExists?.(name);
+/**
+ * Ce qui change d'un rendu Sequencer à l'autre : les recettes, le nom d'une couleur dans les animations, la teinte, l'impact des
+ * dégâts d'une flasque, la signature.
+ */
+const LIBRARIES = {
+  blfx: {
+    recipes: BLFX_RECIPES,
+    color: plan => plan.color,
+    tint: () => null,
+    impact: plan => (plan.damage ? { animation: fill(IMPACT, plan), scale: 1.3 } : null),
+    signature: plan => SIGNATURES[plan.signature]?.blfx ?? null
+  },
+  jb2a: {
+    recipes: JB2A.CONSUMABLES,
+    color: plan => JB2A.COLORS[plan.color]?.variant ?? "blue",
+    tint: (plan, part) => ((part?.tint === true) ? (JB2A.COLORS[plan.color]?.tint ?? null) : (part?.tint ?? null)),
+    impact: plan => (plan.damage ? { scale: 1.3, ...JB2A.IMPACTS[plan.damage] } : null),
+    signature: plan => JB2A.SIGNATURES[plan.signature] ?? null
+  }
+};
 
-/** Ajoute une animation du pack à la séquence, sur ce token. */
-function addEffect(sequence, name, place, { scale=1.5, delay=0, duration=0, below=false }={}) {
-  const effect = sequence.effect().file(name).atLocation(place).scaleToObject(scale);
-  if ( delay ) effect.delay(delay);
-  if ( duration ) effect.duration(duration).fadeOut(500);
-  if ( below ) effect.belowTokens();
-}
-
-/** Joue la recette BLFX d'un plan, et sa signature. Rend la liste de ce qui a été lancé. */
-function playBlfx(plan) {
+/** Joue la recette Sequencer d'un plan (BLFX ou JB2A), et sa signature. Rend la liste de ce qui a été lancé. */
+function playSequencer(plan, library) {
+  const lib = LIBRARIES[library];
   const sequence = new Sequence({ moduleName: MODULE_ID });
   const played = [];
-  for ( const part of BLFX_RECIPES[plan.kind] ?? [] ) {
+  const color = lib.color(plan);
+  for ( const part of lib.recipes[plan.kind] ?? [] ) {
+    const tint = lib.tint(plan, part);
     for ( const place of placesOf(plan, part.at) ) {
       if ( part.throw && known(part.throw) && (place !== plan.user) ) {
         sequence.effect().file(part.throw).atLocation(plan.user).stretchTo(place).waitUntilFinished(-300);
         played.push(part.throw);
       }
       if ( part.splash && known(part.splash) ) {
-        addEffect(sequence, part.splash, place, { scale: 1.4 });
+        addEffect(sequence, part.splash, place, { scale: 1.4, tint });
         played.push(part.splash);
-        const impact = plan.damage ? fill(IMPACT, plan) : null;
-        if ( impact && known(impact) ) { addEffect(sequence, impact, place, { scale: 1.3, delay: 200 }); played.push(impact); }
+        const impact = lib.impact(plan);
+        if ( impact?.animation && known(impact.animation) ) {
+          addEffect(sequence, impact.animation, place, { ...impact, delay: 200 });
+          played.push(impact.animation);
+          if ( (library === "jb2a") && addSound(sequence, impact.sound, { delay: 200 }) ) played.push(impact.sound);
+        }
       }
-      const animation = part.animation ? fill(part.animation, plan) : null;
-      if ( animation && known(animation) ) { addEffect(sequence, animation, place, part); played.push(animation); }
+      const animation = part.animation ? fill(part.animation, { color, damage: plan.damage }) : null;
+      if ( animation && known(animation) ) { addEffect(sequence, animation, place, { ...part, tint }); played.push(animation); }
     }
-    if ( part.sound && known(part.sound) ) {
-      const sound = sequence.sound().file(part.sound);
-      if ( part.delay && !part.throw ) sound.delay(part.delay);
-      played.push(part.sound);
-    }
+    if ( part.sound && addSound(sequence, part.sound, { delay: (part.delay && !part.throw) ? part.delay : 0 }) ) played.push(part.sound);
   }
-  const signature = SIGNATURES[plan.signature]?.blfx;
+  const signature = lib.signature(plan);
   if ( signature && known(signature.animation) ) {
     for ( const place of plan.targets ) addEffect(sequence, signature.animation, place, { delay: 700, ...signature });
     played.push(signature.animation);
@@ -162,7 +181,7 @@ function playTokenMagic(plan) {
 /** Joue un plan avec ce rendu. Rend `{ backend, kind, color, mood, played }`. */
 export async function playConsumable(plan, backend) {
   let played = [];
-  if ( backend === "blfx" ) played = playBlfx(plan);
+  if ( (backend === "blfx") || (backend === "jb2a") ) played = playSequencer(plan, backend);
   else if ( backend === "tokenmagic" ) played = await playTokenMagic(plan);
   else if ( backend === "native" ) {
     const tokens = placesOf(plan, TOKENMAGIC_RECIPES[plan.kind]?.at ?? "targets");
@@ -194,7 +213,7 @@ export function registerConsumables() {
 
 /**
  * Pour vérifier en jeu (MJ, ou connecteur MCP) : joue l'effet d'un consommable sans l'utiliser. `item` : uuid (compendium
- * accepté) ; `source`, `targets` : tokens de la scène affichée, par nom ou id ; `backend` : "blfx", "tokenmagic", "native" (défaut :
+ * accepté) ; `source`, `targets` : tokens de la scène affichée, par nom ou id ; `backend` : "blfx", "jb2a", "tokenmagic", "native" (défaut :
  * le réglage), avec le même ordre de repli.
  */
 export async function previewConsumable({ item, source, targets=[], backend=null }={}) {

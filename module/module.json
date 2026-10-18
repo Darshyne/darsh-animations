@@ -1,8 +1,8 @@
 {
   "id": "darsh-animations",
   "title": "DAS · Animations",
-  "description": "BLFX animations for the abilities Boss Loot does not recognise by itself (Ravenloft, third-party creatures, high-level spells): a table keyed by dnd5e identifier, added to the BLFX Custom Auto-Rec without overwriting the GM's own entries. Other modules can add their own entries. Also plays the traps announced by the darsh-loot.trapFired hook (DMG 2024 traps), which BLFX cannot play without a token, and visual feedback for potions and consumables — with BLFX, otherwise Token Magic FX, otherwise a built-in coloured ring.",
-  "version": "0.9.3",
+  "description": "BLFX animations for the abilities Boss Loot does not recognise by itself (Ravenloft, third-party creatures, high-level spells): a table keyed by dnd5e identifier, added to the BLFX Custom Auto-Rec without overwriting the GM's own entries. Other modules can add their own entries. Also plays the traps announced by the darsh-loot.trapFired hook (DMG 2024 traps), spell walls, the spell areas nothing else animates, and visual feedback for potions and consumables — with BLFX, otherwise JB2A (free or Patreon) and PSFX sounds, otherwise Token Magic FX, otherwise a built-in coloured ring. Makes Automated Animations recognise translated items in every language (French table included) and keeps it from doubling BLFX.",
+  "version": "0.10.0",
   "authors": [
     {
       "name": "Darshyne"
@@ -42,6 +42,24 @@
         "compatibility": {
           "minimum": "0.8.0"
         }
+      },
+      {
+        "id": "JB2A_DnD5e",
+        "type": "module",
+        "reason": "Animations for potions, traps, spell walls and areas without Boss Loot (BLFX). The Patreon version works too."
+      },
+      {
+        "id": "psfx",
+        "type": "module",
+        "reason": "Sounds for the JB2A effects."
+      },
+      {
+        "id": "autoanimations",
+        "type": "module",
+        "compatibility": {
+          "minimum": "7.0.0"
+        },
+        "reason": "Recognises translated items in every language through this module, and gives way to BLFX."
       }
     ]
   },

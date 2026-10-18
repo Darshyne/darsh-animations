@@ -4,10 +4,16 @@
   "DARSHANIM.Sync.Echec": "DAS · Animations : BLFX n'a pas confirmé l'import de l'Auto-Rec — détail dans la console.",
   "DARSHANIM.Preview.Region": "DAS · Animations · aperçu",
   "DARSHANIM.Settings.Renderer.Name": "Rendu des effets",
-  "DARSHANIM.Settings.Renderer.Hint": "Comment s'affichent les effets que ce module joue lui-même — potions et consommables (potion bue ou administrée, poison appliqué, flasque lancée, parchemin lu, nourriture et boisson) et pièges. Auto : Boss Loot (BLFX), sinon Token Magic FX, sinon un anneau coloré intégré (vert : bénéfique, rouge : néfaste, bleu : neutre). Un rendu non installé passe au suivant. Les zones de sort que BLFX n'anime pas (ou sans lui) reçoivent un effet Token Magic FX selon leur type de dégâts.",
-  "DARSHANIM.Settings.Renderer.Auto": "Auto (BLFX, puis Token Magic FX, puis intégré)",
+  "DARSHANIM.Settings.Renderer.Hint": "Comment s'affichent les effets que ce module joue lui-même — potions et consommables (potion bue ou administrée, poison appliqué, flasque lancée, parchemin lu, nourriture et boisson), pièges, murs de sort et zones de sort que rien d'autre n'anime. Auto : Boss Loot (BLFX), sinon JB2A (gratuit ou Patreon) avec les sons de PSFX, sinon Token Magic FX, sinon un anneau coloré intégré (vert : bénéfique, rouge : nuisible, bleu : neutre). Un rendu non installé passe au suivant. Ce qu'Automated Animations joue déjà lui est laissé.",
+  "DARSHANIM.Settings.Renderer.Auto": "Auto (BLFX, puis JB2A + PSFX, puis Token Magic FX, puis intégré)",
   "DARSHANIM.Settings.Renderer.Blfx": "Boss Loot (BLFX)",
   "DARSHANIM.Settings.Renderer.TokenMagic": "Token Magic FX",
   "DARSHANIM.Settings.Renderer.Native": "Anneau intégré (sans module)",
-  "DARSHANIM.Settings.Renderer.None": "Aucun"
+  "DARSHANIM.Settings.Renderer.None": "Aucun",
+  "DARSHANIM.Settings.Renderer.Jb2a": "Animations JB2A + sons PSFX",
+  "DARSHANIM.Settings.AaNames.Name": "Automated Animations dans toutes les langues",
+  "DARSHANIM.Settings.AaNames.Hint": "Automated Animations reconnaît les objets par leur nom anglais. Quand il ne trouve rien avec le nom traduit, lui donner l'entrée qui correspond au nom anglais de l'objet (Babele), à son identifiant dnd5e, à son arme de base, ou à la table de traduction de la langue du monde (français compris). Remplace le module « Automated Animation for Babele ». Vos propres entrées dans une autre langue restent prioritaires.",
+  "DARSHANIM.Settings.AaYield.Name": "Automated Animations laisse la place à BLFX",
+  "DARSHANIM.Settings.AaYield.Hint": "Quand Boss Loot (BLFX) et Automated Animations sont tous deux actifs, Automated Animations se tait pour les objets que BLFX anime : rien ne joue deux fois. Son animation de coup critique n'est pas couverte (la couper dans ses propres réglages au besoin).",
+  "DARSHANIM.AA.BabeleCompanion": "DAS · Animations : Automated Animations reconnaît déjà les objets traduits grâce à ce module. « Automated Animation for Babele » peut être désactivé."
 }

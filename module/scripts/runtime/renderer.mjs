@@ -1,19 +1,19 @@
 /**
- * Le rendu des effets que ce module joue lui-même (consommables, pièges) : BLFX > Token Magic FX > rendu autonome (décision
- * utilisateur, 2026-10-13). Réglage de monde `renderer` ; « auto » prend le premier disponible. Les murs de sort et l'Auto-Rec
- * restent à BLFX seul : les murs du moteur sont déjà de vrais murs de Foundry, visibles sans animation.
+ * Le rendu des effets que ce module joue lui-même (consommables, pièges, murs de sort, zones) : BLFX > JB2A + PSFX > Token Magic FX
+ * > rendu autonome (décisions utilisateur, 2026-10-13 et 2026-10-18). Réglage de monde `renderer` ; « auto » prend le premier
+ * disponible. L'Auto-Rec reste à BLFX seul ; Automated Animations joue lui-même ce qu'il reconnaît (runtime/aa.mjs).
  */
 
-import { MODULE_ID, blfxActive } from "./shared.mjs";
+import { MODULE_ID, blfxActive, jb2aActive } from "./shared.mjs";
 import { pickBackend } from "../core/consumables.mjs";
 
 export const TOKENMAGIC = "tokenmagic";
 
 export const tokenMagicActive = () => !!(game.modules.get(TOKENMAGIC)?.active && globalThis.TokenMagic);
 
-/** Le rendu en vigueur : "blfx", "tokenmagic", "native", ou null (« none »). `setting` : pour forcer (aperçu). */
+/** Le rendu en vigueur : "blfx", "jb2a", "tokenmagic", "native", ou null (« none »). `setting` : pour forcer (aperçu). */
 export function renderer(setting=game.settings.get(MODULE_ID, "renderer")) {
-  return pickBackend(setting, { blfx: blfxActive(), tokenmagic: tokenMagicActive() });
+  return pickBackend(setting, { blfx: blfxActive(), jb2a: jb2aActive(), tokenmagic: tokenMagicActive() });
 }
 
 export function registerRenderer() {
@@ -23,6 +23,7 @@ export function registerRenderer() {
     choices: {
       auto: "DARSHANIM.Settings.Renderer.Auto",
       blfx: "DARSHANIM.Settings.Renderer.Blfx",
+      jb2a: "DARSHANIM.Settings.Renderer.Jb2a",
       tokenmagic: "DARSHANIM.Settings.Renderer.TokenMagic",
       native: "DARSHANIM.Settings.Renderer.Native",
       none: "DARSHANIM.Settings.Renderer.None"

@@ -71,6 +71,13 @@ describe("choix du rendu : BLFX > Token Magic FX > autonome", () => {
     expect(pickBackend("blfx", {})).toBe("native");
     expect(pickBackend("native", { blfx: true, tokenmagic: true })).toBe("native");
   });
+  it("JB2A + PSFX entre BLFX et Token Magic FX", () => {
+    expect(pickBackend("auto", { blfx: true, jb2a: true, tokenmagic: true })).toBe("blfx");
+    expect(pickBackend("auto", { jb2a: true, tokenmagic: true })).toBe("jb2a");
+    expect(pickBackend("jb2a", { blfx: true, tokenmagic: true })).toBe("tokenmagic");
+    expect(pickBackend("blfx", { jb2a: true })).toBe("jb2a");
+    expect(pickBackend("jb2a", { jb2a: true, blfx: true })).toBe("jb2a");
+  });
   it("« none » : rien", () => expect(pickBackend("none", { blfx: true, tokenmagic: true })).toBeNull());
 });
 

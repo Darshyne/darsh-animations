@@ -2,7 +2,10 @@
  * Choisir l'effet d'un consommable (data/consumables.mjs) : pur, testable hors du jeu.
  */
 
-export const BACKENDS = Object.freeze(["auto", "blfx", "tokenmagic", "native", "none"]);
+export const BACKENDS = Object.freeze(["auto", "blfx", "jb2a", "tokenmagic", "native", "none"]);
+
+/** L'ordre des rendus (décisions utilisateur, 2026-10-13 puis 2026-10-18) : BLFX > JB2A + PSFX > Token Magic FX > autonome. */
+export const ORDER = Object.freeze(["blfx", "jb2a", "tokenmagic", "native"]);
 
 /** Boissons parmi la nourriture : l'eau et les pintes (bière, vin, miel…). */
 const DRINKS = /(^|-)(water|pint|wine|beer|ale|mead|tea|milk)(-|$)/;
@@ -41,21 +44,18 @@ function genericKind({ subtype, identifier="", activities=[] }) {
 }
 
 /**
- * Le rendu à utiliser (décision utilisateur, 2026-10-13 : BLFX > Token Magic FX > rendu autonome). En « auto », le premier
- * disponible ; un rendu demandé mais absent retombe sur le suivant de l'ordre ; le rendu autonome est toujours là. « none » : rien.
- * @param {string} setting            "auto" | "blfx" | "tokenmagic" | "native" | "none"
- * @param {{ blfx: boolean, tokenmagic: boolean }} available
+ * Le rendu à utiliser. En « auto », le premier disponible de l'ordre ; un rendu demandé mais absent retombe sur le suivant de
+ * l'ordre ; le rendu autonome est toujours là. « none » : rien.
+ * @param {string} setting            "auto" | "blfx" | "jb2a" | "tokenmagic" | "native" | "none"
+ * @param {{ blfx?: boolean, jb2a?: boolean, tokenmagic?: boolean }} available
  */
-export function pickBackend(setting, { blfx=false, tokenmagic=false }={}) {
+export function pickBackend(setting, available={}) {
   if ( setting === "none" ) return null;
-  if ( setting === "native" ) return "native";
-  if ( (setting === "tokenmagic") && tokenmagic ) return "tokenmagic";
-  if ( blfx && (setting !== "tokenmagic") ) return "blfx";
-  if ( tokenmagic ) return "tokenmagic";
-  return "native";
+  const from = Math.max(0, ORDER.indexOf(setting));
+  return ORDER.slice(from).find(b => (b === "native") || available[b]) ?? "native";
 }
 
-/** Remplace `{color}` et `{damage}` dans un nom d'animation BLFX. */
+/** Remplace `{color}` et `{damage}` dans un nom d'animation (BLFX, ou JB2A avec la variante de couleur). */
 export function fill(name, { color, damage }={}) {
   return String(name).replaceAll("{color}", color ?? "").replaceAll("{damage}", damage ?? "");
 }

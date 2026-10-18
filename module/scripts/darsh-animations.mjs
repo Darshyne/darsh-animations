@@ -4,7 +4,9 @@
  * qui déclenche, avec ses propres hooks — sauf les pièges, que BLFX ne sait pas jouer sans token (runtime/traps.mjs), et les murs
  * de sort posés par points, qu'il ne voit pas (runtime/walls.mjs), et les potions et consommables, qu'il ne reconnaît pas et qui doivent
  * aussi s'animer sans lui (runtime/consumables.mjs), et les zones de sort qu'il n'anime pas, en Token Magic FX (runtime/areas.mjs). Ce que ce module joue lui-même passe par BLFX, sinon Token Magic FX, sinon un
- * rendu autonome (runtime/renderer.mjs, runtime/native.mjs). BLFX est recommandé, pas requis.
+ * rendu autonome (runtime/renderer.mjs, runtime/native.mjs) — avec, entre BLFX et Token Magic FX, JB2A gratuit et les sons de PSFX.
+ * Automated Animations reconnaît les objets dans toutes les langues, et se tait devant BLFX (runtime/aa.mjs). BLFX est recommandé,
+ * pas requis.
  */
 
 import { MODULE_ID } from "./runtime/shared.mjs";
@@ -19,6 +21,7 @@ import { registerRenderer, renderer, rendererSetting } from "./runtime/renderer.
 import { registerNative } from "./runtime/native.mjs";
 import { areaState, drawArea, registerAreas } from "./runtime/areas.mjs";
 import { castingEffects, previewCancelledCast, registerCasting } from "./runtime/casting.mjs";
+import { aaPlays, aaResolve, addNames, registerAA } from "./runtime/aa.mjs";
 
 Hooks.once("init", () => {
   // La dernière table versée (empreinte) : on ne revient vers BLFX que si elle a changé.
@@ -37,7 +40,13 @@ Hooks.once("init", () => {
     // Zones de sort sans BLFX (ou qu'il ne reconnaît pas) : effet Token Magic par type de dégâts sur une région compagne.
     areaState, drawArea: args => drawArea(canvas.scene?.regions.get(args?.regionId ?? args)),
     // Incantation BLFX d'un sort à zone dont la pose est annulée : arrêtée (runtime/casting.mjs). Pour les scénarios.
-    previewCancelledCast, castingEffects };
+    previewCancelledCast, castingEffects,
+    // Automated Animations : `aaResolve({ item, activity, isTemplate })` (ce qu'il trouvera), `aaNames(map)` (noms d'une langue
+    // sans table, ou d'objets maison : nom local → nom anglais).
+    aaResolve, aaNames: addNames, aaPlays: async ({ item, activity=null, isTemplate=false }={}) => {
+      const doc = await fromUuid(item);
+      return aaPlays(doc, { activity: activity ? doc?.system?.activities?.get(activity) : null, isTemplate });
+    } };
   // `mcp` : ce que le connecteur MCP appelle par `call-module-api`, comme pour le moteur de combat.
   game.modules.get(MODULE_ID).api = { ...api, mcp: api };
   registerRenderer();
@@ -47,6 +56,7 @@ Hooks.once("init", () => {
   registerConsumables();
   registerAreas();
   registerCasting();
+  registerAA();
 });
 
 // Après tous les `init` : les autres modules donnent leurs tables par le hook `darsh-animations.register`.

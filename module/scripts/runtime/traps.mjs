@@ -14,6 +14,11 @@ import { playNative } from "./native.mjs";
 import { COLORS } from "../data/consumables.mjs";
 import { trapParts } from "../core/traps.mjs";
 import { BY_DAMAGE, TRAPS } from "../data/traps.mjs";
+import * as JB2A from "../data/jb2a.mjs";
+import { addSound, known } from "./sequencer.mjs";
+
+/** Les tables de chaque rendu Sequencer : BLFX (data/traps.mjs), JB2A + PSFX (data/jb2a.mjs). */
+const TABLES = { blfx: { traps: TRAPS, byDamage: BY_DAMAGE }, jb2a: { traps: JB2A.TRAPS, byDamage: JB2A.TRAPS_BY_DAMAGE } };
 
 export const TRAP_HOOK = "darsh-loot.trapFired";
 
@@ -34,14 +39,15 @@ function areaOf(region) {
  * @param {{ actor: Actor, activity?: object, targets?: TokenDocument[], region?: Region, effectRegion?: Region }} payload
  */
 export function playTrap({ actor, activity=null, targets=[], region=null, effectRegion=null }={}) {
-  // BLFX > Token Magic FX > rendu autonome (runtime/renderer.mjs) : sans BLFX, une lueur rouge et une onde, ou un anneau rouge,
-  // sur chaque victime — un piège est toujours une mauvaise nouvelle.
+  // BLFX > JB2A + PSFX > Token Magic FX > rendu autonome (runtime/renderer.mjs) : sans les deux premiers, une lueur rouge et une
+  // onde, ou un anneau rouge, sur chaque victime — un piège est toujours une mauvaise nouvelle.
   const backend = renderer();
   if ( !backend ) return { skipped: "renderer set to none" };
-  if ( backend !== "blfx" ) return playTrapFallback(backend, targets);
+  if ( !TABLES[backend] ) return playTrapFallback(backend, targets);
+  const { traps, byDamage } = TABLES[backend];
   // Source de compendium : `_stats.compendiumSource`, ou l'ancien drapeau `core.sourceId` (acteur copié à la main).
   const sourceId = actor?._stats?.compendiumSource ?? actor?.flags?.core?.sourceId;
-  const parts = trapParts({ id: actor?.id, sourceId, damageTypes: damageTypes(activity) }, TRAPS, BY_DAMAGE);
+  const parts = trapParts({ id: actor?.id, sourceId, damageTypes: damageTypes(activity) }, traps, byDamage);
   if ( !parts.length ) return { skipped: "no animation for this trap" };
   const area = areaOf(effectRegion ?? region);
   const onScene = targets.map(t => t?.object).filter(Boolean);
@@ -49,6 +55,7 @@ export function playTrap({ actor, activity=null, targets=[], region=null, effect
   const played = [];
   for ( const part of parts ) {
     const places = (part.at === "area") ? (area ? [area] : []) : onScene;
+    if ( !known(part.animation) ) continue;
     for ( const place of places ) {
       const effect = sequence.effect().file(part.animation);
       if ( part.at === "area" ) {
@@ -59,20 +66,17 @@ export function playTrap({ actor, activity=null, targets=[], region=null, effect
       if ( part.delay ) effect.delay(part.delay);
       if ( part.duration ) effect.duration(part.duration).fadeOut(400);
       if ( part.below ) effect.belowTokens();
+      if ( part.tint ) effect.tint(part.tint);
       played.push(part.animation);
     }
-    if ( part.sound && places.length ) {
-      const sound = sequence.sound().file(part.sound);
-      if ( part.delay ) sound.delay(part.delay);
-      played.push(part.sound);
-    }
+    if ( part.sound && places.length && addSound(sequence, part.sound, { delay: part.delay ?? 0 }) ) played.push(part.sound);
   }
   if ( !played.length ) return { skipped: "no area or target on the viewed scene" };
   sequence.play();
-  return { played };
+  return { backend, played };
 }
 
-/** Le piège sans BLFX : sur chaque victime de la scène affichée. */
+/** Le piège sans BLFX ni JB2A : sur chaque victime de la scène affichée. */
 async function playTrapFallback(backend, targets) {
   const tokens = targets.map(t => t?.object).filter(Boolean);
   if ( !tokens.length ) return { skipped: "no target on the viewed scene" };

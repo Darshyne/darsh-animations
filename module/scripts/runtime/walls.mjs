@@ -8,26 +8,47 @@
  * On ne lit que les régions : leurs formes et l'item qui les a posées (`flags.dnd5e.item`) — aucun lien avec le moteur.
  */
 
-import { MODULE_ID, blfxActive } from "./shared.mjs";
+import { MODULE_ID, blfxActive, jb2aActive } from "./shared.mjs";
 import { wallShape, ringSegments, animationFor, soundSpots, cellCenters } from "../core/walls.mjs";
 import { WALLS } from "../data/walls.mjs";
+import * as JB2A from "../data/jb2a.mjs";
+import { renderer } from "./renderer.mjs";
+import { aaPlays } from "./aa.mjs";
+import { addSound, fileOf, known } from "./sequencer.mjs";
+
+/**
+ * La table des murs en vigueur : JB2A + PSFX si c'est le rendu choisi ; sinon BLFX s'il est là (les murs lui restaient avant
+ * JB2A, quel que soit le rendu des consommables) ; sinon JB2A s'il est là ; sinon aucune.
+ */
+export function wallTable() {
+  let backend = null;
+  try { backend = renderer(); } catch { backend = null; }
+  if ( backend === null ) return {};
+  if ( backend === "jb2a" ) return JB2A.WALLS;
+  if ( blfxActive() ) return WALLS;
+  if ( jb2aActive() ) return JB2A.WALLS;
+  return {};
+}
 
 const nameOf = region => `${MODULE_ID}.wall.${region.id}`;
 const isExecutor = () => game.users.activeGM?.isSelf === true;
 
-/** L'entrée de la table pour le sort qui a posé cette région, ou null. */
+/** L'entrée de la table pour le sort qui a posé cette région, ou null (aussi quand Automated Animations joue ce mur). */
 function entryOf(region) {
   const uuid = region?.flags?.dnd5e?.item;
   if ( !uuid ) return null;
   const item = fromUuidSync(uuid, { strict: false });
-  return WALLS[item?.system?.identifier] ?? null;
+  const entry = wallTable()[item?.system?.identifier] ?? null;
+  if ( !entry ) return null;
+  const activity = fromUuidSync(region.flags.dnd5e.activity ?? "", { strict: false });
+  return aaPlays(item, { activity, isTemplate: true }) ? null : entry;
 }
 
 /** L'animation d'anneau toute faite, si son module est actif et que Sequencer la connaît. */
 function readyRing(entry) {
   const ring = entry.ring;
   if ( !ring || (ring.module && !game.modules.get(ring.module)?.active) ) return null;
-  return globalThis.Sequencer?.Database?.entryExists?.(ring.animation) ? ring : null;
+  return known(ring.animation) ? ring : null;
 }
 
 /** Les sons d'ambiance posés pour ce mur. */
@@ -48,8 +69,7 @@ export async function stopWall(region) {
 async function soundWall(region, shape, entry) {
   const sound = entry.sound;
   if ( !sound ) return 0;
-  const found = globalThis.Sequencer?.Database?.getEntry?.(sound.name);
-  const file = [found?.file, found?.[0]?.file, found].find(f => typeof f === "string");
+  const file = known(sound.name) ? fileOf(sound.name) : null;
   if ( !file ) return 0;
   const scene = region.parent;
   const perFoot = scene.grid.size / scene.grid.distance;
@@ -66,7 +86,7 @@ export async function drawWall(region) {
   const entry = entryOf(region);
   if ( !entry ) return { skipped: "not a wall of the table" };
   if ( !entry.animations && !entry.tile && !entry.sound ) return { skipped: "nothing drawn for this wall" };
-  if ( !blfxActive() ) return { skipped: "BLFX or Sequencer missing" };
+  if ( !globalThis.Sequence ) return { skipped: "Sequencer missing" };
   const shape = wallShape(region.shapes.map(s => s.toObject?.() ?? s));
   if ( !shape ) return { skipped: "no line nor ring" };
   await stopWall(region);
@@ -112,23 +132,22 @@ export async function drawWall(region) {
  * visée est touchée — les parties `hit` de la table, sur chaque cible du jet présente sur la scène affichée.
  */
 export function hitTargets(message) {
-  if ( (message?.type !== "damage") || !blfxActive() ) return { skipped: "not a damage roll, or BLFX missing" };
+  if ( (message?.type !== "damage") || !globalThis.Sequence ) return { skipped: "not a damage roll, or Sequencer missing" };
   const item = message.getAssociatedActivity?.()?.item ?? message.getAssociatedItem?.() ?? null;
-  const parts = WALLS[item?.system?.identifier]?.hit;
+  const parts = wallTable()[item?.system?.identifier]?.hit;
   if ( !parts?.length ) return { skipped: "no hit for this item" };
   const tokens = (message.system?.targets ?? []).map(t => fromUuidSync(t.token ?? "", { strict: false })?.object).filter(Boolean);
   if ( !tokens.length ) return { skipped: "no target on the viewed scene" };
   const sequence = new Sequence({ moduleName: MODULE_ID });
   for ( const part of parts ) {
+    if ( !known(part.animation) ) continue;
     for ( const token of tokens ) {
       const effect = sequence.effect().file(part.animation).atLocation(token).scaleToObject(part.scale ?? 1.5);
       if ( part.duration ) effect.attachTo(token).duration(part.duration).fadeOut(500);
       if ( part.delay ) effect.delay(part.delay);
+      if ( part.tint ) effect.tint(part.tint);
     }
-    if ( part.sound ) {
-      const sound = sequence.sound().file(part.sound);
-      if ( part.delay ) sound.delay(part.delay);
-    }
+    if ( part.sound ) addSound(sequence, part.sound, { delay: part.delay ?? 0 });
   }
   sequence.play();
   return { burnt: tokens.map(t => t.name) };
