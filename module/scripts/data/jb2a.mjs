@@ -43,7 +43,7 @@ const S = Object.freeze({
  * sans entrée propre, aux murs et à leurs créatures touchées.
  */
 export const IMPACTS = Object.freeze({
-  acid: { animation: "jb2a.liquid.splash.blue", tint: "#6fd02a", sound: "psfx.cantrips.acid-splash.v1.15ft" },
+  acid: { animation: "jb2a.impact.004.blue", tint: "#6fd02a", sound: "psfx.cantrips.acid-splash.v1.15ft" },
   bludgeoning: { animation: "jb2a.impact.005.orange", sound: "psfx.impacts.bludgeoning.v1" },
   cold: { animation: "jb2a.impact_themed.ice_shard.blue", sound: "psfx.impacts.magicaleffects.cold" },
   fire: { animation: "jb2a.impact.fire.01.orange", sound: "psfx.impacts.magicaleffects.fire" },

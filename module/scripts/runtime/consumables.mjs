@@ -93,7 +93,13 @@ const LIBRARIES = {
   jb2a: {
     recipes: JB2A.CONSUMABLES,
     color: plan => JB2A.COLORS[plan.color]?.variant ?? "blue",
-    tint: (plan, part) => ((part?.tint === true) ? (JB2A.COLORS[plan.color]?.tint ?? null) : (part?.tint ?? null)),
+    // Une flasque (fiole et éclaboussure, une seule couleur dans JB2A gratuit) prend toujours la couleur du consommable ; une lueur,
+    // seulement si JB2A n'a pas la variante.
+    tint: (plan, part) => {
+      if ( part?.tint !== true ) return part?.tint ?? null;
+      if ( part.throw ) return `#${COLORS[plan.color].toString(16).padStart(6, "0")}`;
+      return JB2A.COLORS[plan.color]?.tint ?? null;
+    },
     impact: plan => (plan.damage ? { scale: 1.3, ...JB2A.IMPACTS[plan.damage] } : null),
     signature: plan => JB2A.SIGNATURES[plan.signature] ?? null
   }
@@ -109,7 +115,8 @@ function playSequencer(plan, library) {
     const tint = lib.tint(plan, part);
     for ( const place of placesOf(plan, part.at) ) {
       if ( part.throw && known(part.throw) && (place !== plan.user) ) {
-        sequence.effect().file(part.throw).atLocation(plan.user).stretchTo(place).waitUntilFinished(-300);
+        const thrown = sequence.effect().file(part.throw).atLocation(plan.user).stretchTo(place).waitUntilFinished(-300);
+        if ( tint ) thrown.tint(tint);
         played.push(part.throw);
       }
       if ( part.splash && known(part.splash) ) {
