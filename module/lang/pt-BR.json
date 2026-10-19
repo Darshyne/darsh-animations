@@ -9,5 +9,23 @@
   "DARSHANIM.Settings.Renderer.Blfx": "Boss Loot (BLFX)",
   "DARSHANIM.Settings.Renderer.TokenMagic": "Token Magic FX",
   "DARSHANIM.Settings.Renderer.Native": "Anel integrado (dispensa outros módulos)",
-  "DARSHANIM.Settings.Renderer.None": "Nenhum"
+  "DARSHANIM.Settings.Renderer.None": "Nenhum",
+  "DARSHANIM": {
+    "Settings": {
+      "Renderer": {
+        "Jb2a": "Animações JB2A + sons PSFX"
+      },
+      "AaNames": {
+        "Name": "Automated Animations em qualquer idioma",
+        "Hint": "O Automated Animations reconhece itens pelo nome em inglês. Quando não encontra o nome traduzido, este módulo procura a entrada correspondente pelo nome original do item (Babele), seu identificador do dnd5e, sua arma base ou a tabela de tradução do idioma do mundo (inclusive francês). Substitui o módulo \"Automated Animation for Babele\". Suas entradas personalizadas em outros idiomas continuam tendo prioridade."
+      },
+      "AaYield": {
+        "Name": "Automated Animations dá prioridade ao BLFX",
+        "Hint": "Quando Boss Loot (BLFX) e Automated Animations estão ativos, o Automated Animations não executa efeitos para itens que o BLFX já anima, evitando animações duplicadas. A animação de acerto crítico não está incluída nessa regra (desative-a nas configurações do próprio módulo, se necessário)."
+      }
+    },
+    "AA": {
+      "BabeleCompanion": "DAS · Animations: o Automated Animations já reconhece itens traduzidos por meio deste módulo. Você pode desativar \"Automated Animation for Babele\"."
+    }
+  }
 }
