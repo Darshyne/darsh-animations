@@ -2,7 +2,7 @@
   "id": "darsh-animations",
   "title": "DAS · Animations",
   "description": "BLFX animations for the abilities Boss Loot does not recognise by itself (Ravenloft, third-party creatures, high-level spells): a table keyed by dnd5e identifier, added to the BLFX Custom Auto-Rec without overwriting the GM's own entries. Other modules can add their own entries. Also plays the traps announced by the darsh-loot.trapFired hook (DMG 2024 traps), spell walls, the spell areas nothing else animates, and visual feedback for potions and consumables — with BLFX, otherwise JB2A (free or Patreon) and PSFX sounds, otherwise Token Magic FX, otherwise a built-in coloured ring. Makes Automated Animations recognise translated items in every language (French table included) and keeps it from doubling BLFX.",
-  "version": "0.10.2",
+  "version": "0.11.0",
   "authors": [
     {
       "name": "Darshyne"
