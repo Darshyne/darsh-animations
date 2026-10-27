@@ -15,6 +15,7 @@ import { addSound, known } from "./sequencer.mjs";
 
 export const NOISE_HOOK = "dnd5e-combat.noise";
 export const DOOR_UNLOCKED_HOOK = "dnd5e-combat.doorUnlocked";
+export const FEEDBACK_HOOK = "dnd5e-combat.feedback";
 
 const TABLES = { blfx: BLFX_DOORS, jb2a: JB2A_DOORS };
 
@@ -66,6 +67,13 @@ export function registerDoors() {
     const moment = doorMoment("doorUnlocked", { method });
     if ( moment ) playDoor(moment, { point: doorCenter(door), scene: door?.parent });
   }));
+  // DAS · Core §252 : le moteur joue un son du cœur au retour d'une action (`dnd5e-combat.feedback`, appelé avant `doorUnlocked`) ;
+  // quand on joue nous-mêmes la serrure qui cède ou le coup contre la porte, on le fait taire (rendre false) : un seul son.
+  Hooks.on(FEEDBACK_HOOK, ({ action, outcome }={}) => {
+    const moment = (outcome === "success") ? doorMoment("doorUnlocked", { method: action })
+      : (((action === "force") && (outcome === "failure")) ? doorMoment("noise", { cause: "forceDoor" }) : null);
+    if ( moment && TABLES[renderer()]?.[moment]?.some(part => known(part.animation)) ) return false;
+  });
 }
 
 /** Pour vérifier en jeu (MJ, ou connecteur MCP) : joue un moment sur une porte de la scène affichée, sans rien déverrouiller. */
