@@ -70,7 +70,8 @@ export async function preview({ identifier, index=0, source, targets=[] }={}) {
     // l'activité (`playOnlyForActivityType`).
     const own = actor => actor?.items.find(i => i.system.identifier === identifier);
     const item = own(sourceToken.actor) ?? game.actors.find(own)?.items.find(i => i.system.identifier === identifier) ?? null;
-    const activity = item?.system.activities?.find(a => !animation.activity || (a.type === animation.activity)) ?? null;
+    const activity = item?.system.activities?.find(a => (!animation.activity || (a.type === animation.activity))
+      && (!animation.activityId || (a.id === animation.activityId))) ?? null;
     if ( animation.trigger === "createTemplate" ) region = await temporaryRegion(animation.template ?? "circle", sourceToken, targetTokens[0]);
     const macro = new CONFIG.Macro.documentClass({ name: "darsh-animations preview", type: "script",
       command: `return await (async () => {\n${command}\n})();` });

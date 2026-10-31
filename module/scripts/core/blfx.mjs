@@ -99,7 +99,7 @@ await anim.macro({ sourceToken, targetTokens, templateDocument, item, roll, acti
 /**
  * Les entrées d'Auto-Rec de nos animations pour les items trouvés dans le monde et les compendiums.
  * @param {object} args
- * @param {{name: string, identifier: string, activities: {name: string, type: string}[]}[]} args.items
+ * @param {{name: string, identifier: string, activities: {id?: string, name: string, type: string}[]}[]} args.items
  * @param {Record<string, object[]>} args.table      Identifiant dnd5e → animations (data/animations.mjs).
  * @param {Record<string, string>} args.templates    Clé de TEMPLATES → texte du modèle BLFX.
  * @param {string} args.version
@@ -114,8 +114,10 @@ export function buildEntries({ items, table, templates, version }) {
     const itemSlug = slugify(item.name);
     if ( !itemSlug ) { problems.push(`${item.identifier}: empty name`); continue; }
     for ( const animation of animations ) {
-      const activities = item.activities.filter(a => !animation.activity || (a.type === animation.activity));
-      if ( !activities.length ) { problems.push(`${item.name} (${item.identifier}): no "${animation.activity}" activity`); continue; }
+      const activities = item.activities.filter(a => (!animation.activity || (a.type === animation.activity))
+        && (!animation.activityId || (a.id === animation.activityId)));
+      // Une activité désignée par son id manque : un autre item du même identifiant (le Conduit divin du Paladin), pas un défaut.
+      if ( !activities.length ) { if ( !animation.activityId ) problems.push(`${item.name} (${item.identifier}): no "${animation.activity}" activity`); continue; }
       let command;
       try {
         if ( animation.alias ) command = aliasCommand(animation.alias, animation.aliasTrigger ?? animation.trigger);

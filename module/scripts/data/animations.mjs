@@ -7,6 +7,7 @@
  *   trigger      déclencheur BLFX : afterAttack, afterThrown, afterDamage, afterItemUse, afterActiveEffects, afterSummon,
  *                createTemplate (core/blfx.mjs, TRIGGERS)
  *   activity     facultatif : seulement les activités de ce type (attack, save, damage, heal, utility, summon…)
+ *   activityId   facultatif : seulement cette activité (son id), quand l'item en a plusieurs du même type (Conduit divin)
  *   et SOIT
  *   alias        « type.clé » d'une animation que BLFX a déjà (weapon.claw, feat.deathly-touch, spell.command) ;
  *                aliasTrigger si son déclencheur diffère du nôtre. Seulement vers une macro VÉRIFIÉE purement visuelle :
@@ -36,6 +37,8 @@ export const SOURCES = Object.freeze([
   "dnd-ravenloft-horrors-within.items",
   "dnd-ravenloft-horrors-within.bastions",
   "dnd-players-handbook.spells",
+  // Le Conduit divin et la Calcination des morts-vivants du Clerc (aptitudes de classe).
+  "dnd-players-handbook.classes",
   // Les lanternes (PHB 2024, SRD de dnd5e) : leurs entrées remplacent la macro intégrée de BLFX dès qu'une fiche en reçoit une.
   "dnd-players-handbook.equipment",
   "dnd5e.items"
@@ -71,6 +74,18 @@ const cone = (animation, file, extra={}) => entry("createTemplate", "cone",
 /** Une ligne depuis le lanceur. */
 const line = (animation, file, extra={}) => entry("createTemplate", "line",
   { ENABLED1: false, ENABLED2: false, ENABLED3: true, ANIMATION3: animation, ...sound(3, file) }, extra);
+
+/**
+ * Renvoi des morts-vivants (Conduit divin du Clerc) : le moteur de combat le lance sans zone, sur les morts-vivants choisis dans sa liste
+ * (son SPEC §293) — un anneau de rayons sacrés sur le clerc (9 m), puis sur chaque cible un éclat de lumière sacrée, ou la flamme sacrée
+ * de la Calcination (dégâts radiants).
+ */
+const turnUndead = (activityId, sear) => ({ trigger: "afterItemUse", template: "target", activity: "save", activityId,
+  note: sear ? "Sear Undead: holy ring on the cleric, sacred flame on each undead" : "Turn Undead: holy ring on the cleric, holy light on each undead",
+  params: { ENABLED1: true, ANIMATION1: "blfx.spell.impact.ring_rays.1.color1", SCALE1: 3, ...sound(1, "blfx.sound.spell.cast.bless.1"),
+    ENABLED2: false, ENABLED3: true, SCALE3: 1.5,
+    ANIMATION3: sear ? "blfx.spell.impact.holy.sacred_flame1.color1" : "blfx.spell.cast.impact.holy_light1.color1",
+    ...sound(3, sear ? "blfx.sound.spell.sacred_flame1.impact.1" : "blfx.sound.misc.impact.radiant1.1") } });
 
 /** Une animation d'attaque que BLFX a déjà (arme, attaque naturelle). */
 const strike = (alias, extra={}) => ({ trigger: "afterAttack", activity: "attack", alias, ...extra });
@@ -118,6 +133,13 @@ export const ANIMATIONS = Object.freeze({
   // la création, traduit ou non — d'où les deux clés.
   ...Object.fromEntries(["vampiric-bite", "morsure-vampirique"].map(id => [id, [{ ...onTargets("blfx.ability.bite1.fangs1.attack1.color1",
     "blfx.sound.ability.bite.1", { scale: 1.5, trigger: "afterAttack" }), activity: "attack", note: "dhampir bite: fangs on the target" }]])),
+
+  /* ---- Clerc (Manuel des joueurs) ---- */
+  // BLFX n'anime ni le Renvoi ni la Calcination. Le Conduit divin a deux activités de sauvegarde (Étincelle divine, Renvoi) : celle du
+  // Renvoi seule.
+  "channel-divinity": [turnUndead("aOptL5pMaj3WtR8S", false)],
+  "channel-divinity-cleric": [turnUndead("aOptL5pMaj3WtR8S", false)],
+  "sear-undead": [turnUndead("fW3U8L8Ca9a6O9Wx", true)],
 
   /* ---- Sorts sans animation BLFX (Xanathar's, haut niveau) ---- */
   "absorb-elements": [onSelf("blfx.spell.misc.shield5.magic.protection.energy.fire1.loop.color1", "blfx.sound.spell.resistance.1", 1.5)],

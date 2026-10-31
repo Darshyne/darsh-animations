@@ -25,7 +25,7 @@ export async function collectItems() {
   const take = item => {
     const identifier = item?.system?.identifier;
     if ( !wanted.has(identifier) ) return;
-    const activities = (item.system.activities?.contents ?? []).map(a => ({ name: a.name, type: a.type }));
+    const activities = (item.system.activities?.contents ?? []).map(a => ({ id: a.id, name: a.name, type: a.type }));
     found.set(`${identifier}|${item.name}|${activities.map(a => a.name).join(",")}`, { name: item.name, identifier, activities });
   };
   for ( const item of game.items ) take(item);

@@ -110,3 +110,17 @@ describe("divers", () => {
     expect(fingerprint({ a: 1 })).not.toBe(fingerprint({ a: 2 }));
   });
 });
+
+describe("buildEntries : une activité désignée par son id", () => {
+  const TEMPLATE_ID = "const ENABLED1 = false;\nconst ANIMATION1 = \"\";";
+  it("seule l'activité nommée reçoit l'animation (Conduit divin : le Renvoi, pas l'Étincelle divine)", () => {
+    const items = [{ name: "Channel Divinity", identifier: "channel-divinity", activities: [
+      { id: "UdbUwbvrWwgDuNy9", name: "Divine Spark: Heal", type: "heal" },
+      { id: "OY9UrTXvlRL0JUoI", name: "Divine Spark: Save", type: "save" },
+      { id: "aOptL5pMaj3WtR8S", name: "Turn Undead", type: "save" }] }];
+    const table = { "channel-divinity": [{ trigger: "afterItemUse", template: "target", activity: "save", activityId: "aOptL5pMaj3WtR8S", params: { ENABLED1: true } }] };
+    const { entries, problems } = buildEntries({ items, table, templates: { target: TEMPLATE_ID }, version: "0.1.0" });
+    expect(problems).toEqual([]);
+    expect(Object.keys(entries["channel-divinity"])).toEqual([slugify("Turn Undead")]);
+  });
+});

@@ -20,6 +20,7 @@ export function checkAnimation(a, at="") {
   if ( !a || (typeof a !== "object") ) return [`${at}: object expected`];
   if ( !(a.trigger in TRIGGERS) ) errors.push(`${at}.trigger: expected one of ${Object.keys(TRIGGERS).join(", ")}`);
   if ( a.activity && !ACTIVITY_TYPES.includes(a.activity) ) errors.push(`${at}.activity: expected one of ${ACTIVITY_TYPES.join(", ")}`);
+  if ( ("activityId" in a) && !/^[a-zA-Z0-9]{16}$/.test(String(a.activityId)) ) errors.push(`${at}.activityId: a 16-character activity id`);
   if ( !!a.alias === !!a.template ) errors.push(`${at}: alias OR template (exactly one)`);
   if ( a.alias && !/^[a-z]+\.[\w-]+$/.test(a.alias) ) errors.push(`${at}.alias: expected "type.key"`);
   if ( a.template && !(a.template in TEMPLATES) ) errors.push(`${at}.template: expected one of ${Object.keys(TEMPLATES).join(", ")}`);
