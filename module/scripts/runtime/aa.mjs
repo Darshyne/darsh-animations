@@ -18,6 +18,9 @@ import { MENUS, englishKeys, normalize, resolveLabel, aaWillPlay } from "../core
 
 export const BABELE_COMPANION = "automated-animation-for-babele";
 
+/** Marque posée sur les données d'un appel à AA fait par ce module pour un châtiment (lue à `AutomatedAnimations-WorkflowStart`). */
+export const SMITE_MARK = "darshAnimationsSmite";
+
 /** Nom normalisé dans la langue du monde → nom anglais (module/names/<langue>.json, plus ce que d'autres modules ajoutent). */
 const names = {};
 const added = [];
@@ -88,6 +91,8 @@ function onRequiredData(data) {
 
 /** `AutomatedAnimations-WorkflowStart` : AA se tait devant BLFX. */
 function onWorkflowStart(data, animation) {
+  // Un châtiment que ce module confie lui-même à AA (runtime/smites.mjs) : BLFX n'a pas d'animation de dégâts pour lui, AA joue.
+  if ( data?.[SMITE_MARK] ) return;
   if ( !animation || !setting("aaYieldToBlfx") || !blfxActive() ) return;
   const item = data?.item;
   if ( item?.documentName !== "Item" || !blfxPlays(item) ) return;
@@ -99,11 +104,12 @@ function onWorkflowStart(data, animation) {
  * AA jouera-t-il cette utilisation ? Pour que ce module se taise (consommables, zones, murs). Faux si AA n'est pas là, ou s'il se
  * tait devant BLFX pour cet objet.
  * @param {Item} item
- * @param {{ activity?: object, isTemplate?: boolean }} [options]
+ * @param {{ activity?: object, isTemplate?: boolean, ignoreBlfx?: boolean }} [options]   `ignoreBlfx` : ne pas se taire devant BLFX
+ *   (les châtiments, que BLFX ne joue pas quand il n'a pas d'animation de dégâts pour eux)
  */
-export function aaPlays(item, { activity=null, isTemplate=false }={}) {
+export function aaPlays(item, { activity=null, isTemplate=false, ignoreBlfx=false }={}) {
   if ( !aaActive() || (item?.documentName !== "Item") ) return false;
-  if ( setting("aaYieldToBlfx") && blfxActive() && blfxPlays(item) ) return false;
+  if ( !ignoreBlfx && setting("aaYieldToBlfx") && blfxActive() && blfxPlays(item) ) return false;
   let autorecDisabled = false;
   try { autorecDisabled = !!game.settings.get(AA, "disableAutoRec"); } catch {}
   return aaWillPlay({
@@ -111,6 +117,22 @@ export function aaPlays(item, { activity=null, isTemplate=false }={}) {
     settings: autorec(), keys: keysOf(item, activity), nativeNames: nativeNamesOf(item, activity), itemName: item.name, isTemplate,
     translate: !!setting("aaNames")
   });
+}
+
+/**
+ * Les noms à donner à AA quand ce module l'appelle lui-même (`AutomatedAnimations.playAnimation`, dist/autoanimations.js:18736) :
+ * cette fonction publique ne passe pas par `aa.getRequiredData`, mais sa recherche lit `overrideNames` (15661). Le libellé anglais
+ * trouvé par nos clés en tête (réglage `aaNames`), puis le nom de l'activité comme AA le met de lui-même.
+ */
+export function aaOverrideNames(item, activity=null) {
+  const out = [];
+  if ( setting("aaNames") ) {
+    const nativeNames = nativeNamesOf(item, activity);
+    const found = resolveLabel(autorec(), { keys: keysOf(item, activity), nativeNames, itemName: item?.name ?? "" });
+    if ( found ) out.push(found.label);
+  }
+  if ( activity?.name && !["heal", "summon"].includes(activity.name.trim()) ) out.push(activity.name);
+  return out;
 }
 
 /**

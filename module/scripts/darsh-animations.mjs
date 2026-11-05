@@ -6,7 +6,7 @@
  * aussi s'animer sans lui (runtime/consumables.mjs), et les zones de sort qu'il n'anime pas, en Token Magic FX (runtime/areas.mjs). Ce que ce module joue lui-même passe par BLFX, sinon Token Magic FX, sinon un
  * rendu autonome (runtime/renderer.mjs, runtime/native.mjs) — avec, entre BLFX et Token Magic FX, JB2A gratuit et les sons de PSFX.
  * Automated Animations reconnaît les objets dans toutes les langues, et se tait devant BLFX (runtime/aa.mjs). Les châtiments que DAS · Core
- * ajoute à une attaque d'arme jouent l'animation BLFX de leur sort (runtime/smites.mjs). BLFX est recommandé,
+ * ajoute à une attaque d'arme jouent l'animation BLFX de leur sort, sinon celle d'Automated Animations (runtime/smites.mjs). BLFX est recommandé,
  * pas requis.
  */
 
@@ -44,7 +44,7 @@ Hooks.once("init", () => {
     areaState, drawArea: args => drawArea(canvas.scene?.regions.get(args?.regionId ?? args)),
     // Incantation BLFX d'un sort à zone dont la pose est annulée : arrêtée (runtime/casting.mjs). Pour les scénarios.
     previewCancelledCast, castingEffects,
-    // Châtiments ajoutés par DAS · Core à une attaque : l'animation BLFX du sort (runtime/smites.mjs). `playSmite({ item, target })`.
+    // Châtiments ajoutés par DAS · Core à une attaque : l'animation BLFX du sort, sinon AA (runtime/smites.mjs). `playSmite({ item, target })`.
     playSmite: smite => playSmite(smite),
     // Serrures de porte de DAS · Core (hooks `noise` et `doorUnlocked`) : `previewDoor({ wallId, moment })` pour vérifier.
     playDoor, previewDoor,

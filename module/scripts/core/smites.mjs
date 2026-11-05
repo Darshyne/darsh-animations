@@ -22,3 +22,15 @@ export function smiteAnimation(map, { type, name="", identifier=null }={}) {
   const anim = table[key]?.[SMITE_TRIGGER];
   return (typeof anim?.macro === "function") ? anim : null;
 }
+
+/**
+ * Qui joue le châtiment (SPEC §18 bis, issue GitHub darsh-animations #5) : BLFX s'il a une animation « après les dégâts » pour ce sort,
+ * sinon Automated Animations s'il a une entrée (ou des drapeaux) pour ce sort, sinon personne. Un seul des deux, jamais les deux.
+ * @param {{ blfx?: boolean, aa?: boolean }} available
+ * @returns {"blfx"|"aa"|null}
+ */
+export function smiteBackend({ blfx=false, aa=false }={}) {
+  if ( blfx ) return "blfx";
+  if ( aa ) return "aa";
+  return null;
+}
