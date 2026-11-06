@@ -26,6 +26,7 @@ import { aaPlays, aaResolve, addNames, registerAA } from "./runtime/aa.mjs";
 import { playSmite, registerSmites } from "./runtime/smites.mjs";
 import { playDoor, previewDoor, registerDoors } from "./runtime/doors.mjs";
 import { playStrike, previewStrike, registerStrikes } from "./runtime/strikes.mjs";
+import { previewSummon, registerSummons } from "./runtime/summons.mjs";
 
 Hooks.once("init", () => {
   // La dernière table versée (empreinte) : on ne revient vers BLFX que si elle a changé.
@@ -51,6 +52,8 @@ Hooks.once("init", () => {
     playDoor, previewDoor,
     // Attaques d'arme jouées par ce module (JB2A + PSFX, SPEC §21) : `previewStrike({ item, source, targets, miss, critical, attackMode })`.
     previewStrike, playStrike,
+    // Apparition d'une créature invoquée sans BLFX (JB2A + PSFX) : `previewSummon({ tokenId })` pour vérifier.
+    previewSummon,
     // Automated Animations : `aaResolve({ item, activity, isTemplate })` (ce qu'il trouvera), `aaNames(map)` (noms d'une langue
     // sans table, ou d'objets maison : nom local → nom anglais).
     aaResolve, aaNames: addNames, aaPlays: async ({ item, activity=null, isTemplate=false }={}) => {
@@ -70,6 +73,7 @@ Hooks.once("init", () => {
   registerSmites();
   registerDoors();
   registerStrikes();
+  registerSummons();
 });
 
 // Après tous les `init` : les autres modules donnent leurs tables par le hook `darsh-animations.register`.
