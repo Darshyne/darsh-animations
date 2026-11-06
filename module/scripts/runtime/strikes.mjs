@@ -162,9 +162,14 @@ function onAttackMessage(message) {
  * `item` : uuid ; `source`, `targets` : tokens de la scène affichée, par nom ou id.
  */
 export async function previewStrike({ item, activity=null, source, targets=[], miss=false, critical=false, attackMode=null }={}) {
-  const doc = await fromUuid(item);
-  if ( !doc ) throw new Error(`item not found: ${item}`);
   const find = ref => canvas.scene?.tokens.find(t => (t.id === ref) || (t.name === ref))?.object ?? null;
+  // `item` : uuid, ou nom / identifiant d'un objet de l'acteur de `source`.
+  const owned = find(source)?.actor?.items.find(i => (i.name === item) || (i.system?.identifier === item)) ?? null;
+  const doc = owned ?? await fromUuid(item).catch(() => null);
+  if ( !doc ) {
+    const list = find(source)?.actor?.items.filter(i => i.system?.activities?.some(a => a.type === "attack")).map(i => i.name) ?? [];
+    throw new Error(`item not found: ${item} (attacks of ${source}: ${list.join(", ")})`);
+  }
   const act = activity ? doc.system?.activities?.get(activity)
     : (doc.system?.activities?.find?.(a => a.type === "attack") ?? null);
   return playStrike({ item: doc, activity: act, source: find(source), attackMode,
