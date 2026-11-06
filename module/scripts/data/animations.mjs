@@ -87,6 +87,14 @@ const turnUndead = (activityId, sear) => ({ trigger: "afterItemUse", template: "
     ANIMATION3: sear ? "blfx.spell.impact.holy.sacred_flame1.color1" : "blfx.spell.cast.impact.holy_light1.color1",
     ...sound(3, sear ? "blfx.sound.spell.sacred_flame1.impact.1" : "blfx.sound.misc.impact.radiant1.1") } });
 
+/**
+ * Une invocation (modèle « Summon » de BLFX, déclencheur « After Summon ») : un tourbillon sur le lanceur, puis la créature apparaît
+ * (partie 3 : `HIDDEN_TARGET3`, BLFX la cache et la révèle dans l'éclat). Pas de rayon (partie 2).
+ */
+const summon = (cast, castSound, appear, appearSound, { scale=2, note }={}) => entry("afterSummon", "summon",
+  { ENABLED1: true, ANIMATION1: cast, SCALE1: 2, ...sound(1, castSound), ENABLED2: false,
+    ENABLED3: true, ANIMATION3: appear, SCALE3: scale, ...sound(3, appearSound) }, note ? { note } : {});
+
 /** Une animation d'attaque que BLFX a déjà (arme, attaque naturelle). */
 const strike = (alias, extra={}) => ({ trigger: "afterAttack", activity: "attack", alias, ...extra });
 
@@ -140,6 +148,22 @@ export const ANIMATIONS = Object.freeze({
   "channel-divinity": [turnUndead("aOptL5pMaj3WtR8S", false)],
   "channel-divinity-cleric": [turnUndead("aOptL5pMaj3WtR8S", false)],
   "sear-undead": [turnUndead("fW3U8L8Ca9a6O9Wx", true)],
+
+  /* ---- Invocations sans animation BLFX (issue dnd5e-combat#38) ---- */
+  // BLFX 3.5.4 anime à la pose (« After Summon ») Bête, Fée, Mort-vivant, Aberration, Élémentaire, Construct, Animation des morts…
+  // (animationMap.js), pas ces sorts-ci : la créature apparaissait sans rien. Le profil choisi (Vengeur / Défenseur…) ne change rien.
+  "summon-celestial": [summon("blfx.spell.cast.swirl1.magic1.light_wheels.1.color1", "blfx.sound.spell.cast.bless.1",
+    "blfx.spell.cast.impact.holy_light2.color1", "blfx.sound.misc.impact.radiant1.1", { note: "celestial spirit: holy light" })],
+  "summon-fiend": [summon("blfx.spell.cast.swirl1.fire1.orange", "blfx.sound.spell.cast.fire.1",
+    "blfx.misc.spell.bubble1.explosion1.fire.above.orange", "blfx.sound.misc.impact.fire1.2", { note: "fiendish spirit: hellfire" })],
+  "summon-dragon": [summon("blfx.spell.cast.swirl1.magic1.light_wheels.1.color1", "blfx.sound.misc.impact.summon1.3",
+    "blfx.spell.impact.thunderous_smite.1.color1", "blfx.sound.ability.roar.dragon.4", { scale: 2.5, note: "draconic spirit: roar" })],
+  "conjure-elemental": [summon("blfx.spell.cast.swirl1.magic1.light_wheels.1.color1", "blfx.sound.misc.impact.summon1.3",
+    "blfx.spell.template.circle.school.conjuration1.loop.color1", "blfx.sound.misc.teleport1.conjure1.summon1.2")],
+  "animate-objects": [summon("blfx.spell.cast.swirl1.magic1.light_wheels.1.color1", "blfx.sound.misc.impact.summon1.1",
+    "blfx.spell.template.circle.school.conjuration1.loop.color1", "blfx.sound.misc.teleport1.conjure1.summon1.4", { scale: 1.5 })],
+  "create-undead": [summon("blfx.spell.template.circle.school.necromancy1.loop.color1", "blfx.sound.spell.summon_undead1.complete.1",
+    "blfx.spell.impact.damage.necrotic.1.color1", null, { note: "undead rising" })],
 
   /* ---- Sorts sans animation BLFX (Xanathar's, haut niveau) ---- */
   "absorb-elements": [onSelf("blfx.spell.misc.shield5.magic.protection.energy.fire1.loop.color1", "blfx.sound.spell.resistance.1", 1.5)],

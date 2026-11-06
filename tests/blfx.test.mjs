@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { aliasCommand, applyParams, buildEntries, fingerprint, isOurs, mergeInto, slugify, TAG } from "../module/scripts/core/blfx.mjs";
+import { activityNames, aliasCommand, applyParams, buildEntries, fingerprint, isOurs, mergeInto, slugify, TAG } from "../module/scripts/core/blfx.mjs";
 
 // Un en-tête de modèle à la manière de ceux de BLFX (pas une copie : le leur est sous licence).
 const TEMPLATE = [
@@ -122,5 +122,21 @@ describe("buildEntries : une activité désignée par son id", () => {
     const { entries, problems } = buildEntries({ items, table, templates: { target: TEMPLATE_ID }, version: "0.1.0" });
     expect(problems).toEqual([]);
     expect(Object.keys(entries["channel-divinity"])).toEqual([slugify("Turn Undead")]);
+  });
+});
+
+describe("activityNames : une activité sans nom, dans chaque langue installée (issue dnd5e-combat#38)", () => {
+  const titles = { summon: ["Summon", "Invoquer", "Invocar"] };
+  it("une activité nommée garde son nom seul", () => {
+    expect(activityNames({ name: "Créer une illusion", ownName: "Créer une illusion", type: "summon" }, titles)).toEqual(["Créer une illusion"]);
+  });
+  it("une activité sans nom : le nom vu ici, puis le titre de son type dans chaque langue, sans doublon", () => {
+    expect(activityNames({ name: "Summon", ownName: null, type: "summon" }, titles)).toEqual(["Summon", "Invoquer", "Invocar"]);
+    expect(activityNames({ name: "Invoquer", type: "summon" }, titles)).toEqual(["Invoquer", "Summon", "Invocar"]);
+  });
+  it("buildEntries range l'animation sous chacun de ces noms", () => {
+    const { entries } = buildEntries({ items: [{ name: "Convocation de céleste", identifier: "x", activities: [{ name: "Summon", type: "summon" }] }],
+      table: { x: [{ trigger: "afterSummon", activity: "summon", alias: "spell.find-steed" }] }, templates: {}, version: "0.1.0", titles });
+    expect(Object.keys(entries["convocation-de-cleste"]).sort()).toEqual(["invocar", "invoquer", "summon"]);
   });
 });

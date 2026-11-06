@@ -103,9 +103,10 @@ await anim.macro({ sourceToken, targetTokens, templateDocument, item, roll, acti
  * @param {Record<string, object[]>} args.table      Identifiant dnd5e → animations (data/animations.mjs).
  * @param {Record<string, string>} args.templates    Clé de TEMPLATES → texte du modèle BLFX.
  * @param {string} args.version
+ * @param {Record<string, string[]>} [args.titles]  Type d'activité → son titre dans chaque langue installée (`activityNames`).
  * @returns {{ entries: Record<string, Record<string, Record<string, object>>>, problems: string[] }}
  */
-export function buildEntries({ items, table, templates, version }) {
+export function buildEntries({ items, table, templates, version, titles={} }) {
   const entries = {};
   const problems = [];
   for ( const item of items ) {
@@ -127,12 +128,12 @@ export function buildEntries({ items, table, templates, version }) {
           command = applyParams(template, animation.params);
         }
       } catch(err) { problems.push(`${item.name}: ${err.message}`); continue; }
-      for ( const activity of activities ) {
-        const activitySlug = slugify(activity.name);
+      for ( const activity of activities ) for ( const activityName of activityNames(activity, titles) ) {
+        const activitySlug = slugify(activityName);
         ((entries[itemSlug] ??= {})[activitySlug] ??= {})[animation.trigger] = {
-          animationName: `${item.name} — ${activity.name}`,
+          animationName: `${item.name} — ${activityName}`,
           itemName: item.name,
-          activityName: activity.name,
+          activityName,
           triggerName: TRIGGERS[animation.trigger],
           note: `${TAG} ${version} · ${item.identifier}`,
           animationData: { command, eventType: TRIGGERS[animation.trigger], macroType: TEMPLATES[animation.template]?.macroType ?? "" }
@@ -141,6 +142,23 @@ export function buildEntries({ items, table, templates, version }) {
     }
   }
   return { entries, problems };
+}
+
+/**
+ * Les noms sous lesquels BLFX cherchera une activité. Une activité qui a son propre nom : celui-là. Une activité sans nom (la plupart
+ * des activités « summon », « cast », « utility » des modules premium) prend chez chaque client le titre de son type DANS LA LANGUE
+ * DE CE CLIENT (« Summon » en anglais, « Invoquer » en français) : BLFX, qui cherche par ce nom (`slugify(activity.name)`), ne trouvait
+ * rien chez un joueur français quand le MJ qui a versé la table jouait en anglais (issue dnd5e-combat#38). On la range donc sous
+ * le titre de son type dans chaque langue installée (`titles`), en plus du nom vu ici.
+ * @param {{name: string, ownName?: string|null, type: string}} activity
+ * @param {Record<string, string[]>} titles   Type d'activité → ses titres, une langue par entrée.
+ * @returns {string[]}
+ */
+export function activityNames(activity, titles={}) {
+  if ( activity?.ownName ) return [activity.ownName];
+  const names = [activity?.name, ...(titles[activity?.type] ?? [])].filter(n => (typeof n === "string") && n.trim());
+  const seen = new Set();
+  return names.filter(n => { const slug = slugify(n); if ( !slug || seen.has(slug) ) return false; seen.add(slug); return true; });
 }
 
 /** L'entrée est-elle à nous ? */

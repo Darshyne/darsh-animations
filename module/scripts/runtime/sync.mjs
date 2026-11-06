@@ -25,7 +25,8 @@ export async function collectItems() {
   const take = item => {
     const identifier = item?.system?.identifier;
     if ( !wanted.has(identifier) ) return;
-    const activities = (item.system.activities?.contents ?? []).map(a => ({ id: a.id, name: a.name, type: a.type }));
+    const activities = (item.system.activities?.contents ?? []).map(a => ({ id: a.id, name: a.name, type: a.type,
+      ownName: a._source?.name || null }));
     found.set(`${identifier}|${item.name}|${activities.map(a => a.name).join(",")}`, { name: item.name, identifier, activities });
   };
   for ( const item of game.items ) take(item);
@@ -40,6 +41,26 @@ export async function collectItems() {
     }
   }
   return [...found.values()];
+}
+
+/**
+ * Le titre par défaut de chaque type d'activité dans chaque langue installée (fichiers de langue du système et des modules actifs) :
+ * le nom qu'une activité sans nom prend chez un client de cette langue (core/blfx.mjs, `activityNames`).
+ */
+export async function activityTitles() {
+  const keys = Object.entries(CONFIG.DND5E?.activityTypes ?? {}).map(([type, c]) => [type, c?.documentClass?.metadata?.title]).filter(([, k]) => k);
+  const titles = Object.fromEntries(keys.map(([type, key]) => [type, [game.i18n.localize(key)]]));
+  const files = [game.system, ...game.modules.filter(m => m.active)].flatMap(p => Array.from(p.languages ?? []).map(l => l.path)).filter(Boolean);
+  for ( const path of new Set(files) ) {
+    let flat;
+    try { flat = foundry.utils.flattenObject(await foundry.utils.fetchJsonWithTimeout(foundry.utils.getRoute(path))); }
+    catch(err) { continue; }
+    for ( const [type, key] of keys ) {
+      const value = flat[key];
+      if ( (typeof value === "string") && value.trim() && !value.includes("{") ) titles[type].push(value);
+    }
+  }
+  return Object.fromEntries(Object.entries(titles).map(([type, list]) => [type, [...new Set(list)]]));
 }
 
 /** Les modèles de l'éditeur BLFX, lus dans son compendium de macros. */
@@ -67,7 +88,8 @@ export async function sync({ force=false }={}) {
   const items = await collectItems();
   const templates = await loadTemplates();
   const version = game.modules.get(MODULE_ID).version;
-  const { entries, problems } = buildEntries({ items, table: animations(), templates, version });
+  const titles = await activityTitles();
+  const { entries, problems } = buildEntries({ items, table: animations(), templates, version, titles });
   const existing = game.settings.get(BLFX, "blfxCustomAutoRecognition") ?? {};
   const { merged, added, removed, kept } = mergeInto(existing, entries, game.system.id);
 

@@ -25,6 +25,7 @@ import { castingEffects, previewCancelledCast, registerCasting } from "./runtime
 import { aaPlays, aaResolve, addNames, registerAA } from "./runtime/aa.mjs";
 import { playSmite, registerSmites } from "./runtime/smites.mjs";
 import { playDoor, previewDoor, registerDoors } from "./runtime/doors.mjs";
+import { previewSummon, registerSummons } from "./runtime/summons.mjs";
 
 Hooks.once("init", () => {
   // La dernière table versée (empreinte) : on ne revient vers BLFX que si elle a changé.
@@ -48,6 +49,8 @@ Hooks.once("init", () => {
     playSmite: smite => playSmite(smite),
     // Serrures de porte de DAS · Core (hooks `noise` et `doorUnlocked`) : `previewDoor({ wallId, moment })` pour vérifier.
     playDoor, previewDoor,
+    // Apparition d'une créature invoquée sans BLFX (JB2A + PSFX) : `previewSummon({ tokenId })` pour vérifier.
+    previewSummon,
     // Automated Animations : `aaResolve({ item, activity, isTemplate })` (ce qu'il trouvera), `aaNames(map)` (noms d'une langue
     // sans table, ou d'objets maison : nom local → nom anglais).
     aaResolve, aaNames: addNames, aaPlays: async ({ item, activity=null, isTemplate=false }={}) => {
@@ -66,6 +69,7 @@ Hooks.once("init", () => {
   registerAA();
   registerSmites();
   registerDoors();
+  registerSummons();
 });
 
 // Après tous les `init` : les autres modules donnent leurs tables par le hook `darsh-animations.register`.
