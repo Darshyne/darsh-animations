@@ -6,8 +6,8 @@
  * aussi s'animer sans lui (runtime/consumables.mjs), et les zones de sort qu'il n'anime pas, en Token Magic FX (runtime/areas.mjs). Ce que ce module joue lui-même passe par BLFX, sinon Token Magic FX, sinon un
  * rendu autonome (runtime/renderer.mjs, runtime/native.mjs) — avec, entre BLFX et Token Magic FX, JB2A gratuit et les sons de PSFX.
  * Automated Animations reconnaît les objets dans toutes les langues, et se tait devant BLFX (runtime/aa.mjs). Les châtiments que DAS · Core
- * ajoute à une attaque d'arme jouent l'animation BLFX de leur sort, sinon celle d'Automated Animations (runtime/smites.mjs). BLFX est recommandé,
- * pas requis.
+ * ajoute à une attaque d'arme jouent l'animation BLFX de leur sort, sinon celle d'Automated Animations (runtime/smites.mjs). Les attaques
+ * d'arme que ni BLFX ni AA n'animent sont jouées en JB2A + PSFX (runtime/strikes.mjs). BLFX est recommandé, pas requis.
  */
 
 import { MODULE_ID } from "./runtime/shared.mjs";
@@ -25,6 +25,7 @@ import { castingEffects, previewCancelledCast, registerCasting } from "./runtime
 import { aaPlays, aaResolve, addNames, registerAA } from "./runtime/aa.mjs";
 import { playSmite, registerSmites } from "./runtime/smites.mjs";
 import { playDoor, previewDoor, registerDoors } from "./runtime/doors.mjs";
+import { playStrike, previewStrike, registerStrikes } from "./runtime/strikes.mjs";
 
 Hooks.once("init", () => {
   // La dernière table versée (empreinte) : on ne revient vers BLFX que si elle a changé.
@@ -48,6 +49,8 @@ Hooks.once("init", () => {
     playSmite: smite => playSmite(smite),
     // Serrures de porte de DAS · Core (hooks `noise` et `doorUnlocked`) : `previewDoor({ wallId, moment })` pour vérifier.
     playDoor, previewDoor,
+    // Attaques d'arme jouées par ce module (JB2A + PSFX, SPEC §21) : `previewStrike({ item, source, targets, miss, critical, attackMode })`.
+    previewStrike, playStrike,
     // Automated Animations : `aaResolve({ item, activity, isTemplate })` (ce qu'il trouvera), `aaNames(map)` (noms d'une langue
     // sans table, ou d'objets maison : nom local → nom anglais).
     aaResolve, aaNames: addNames, aaPlays: async ({ item, activity=null, isTemplate=false }={}) => {
@@ -66,6 +69,7 @@ Hooks.once("init", () => {
   registerAA();
   registerSmites();
   registerDoors();
+  registerStrikes();
 });
 
 // Après tous les `init` : les autres modules donnent leurs tables par le hook `darsh-animations.register`.

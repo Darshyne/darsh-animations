@@ -67,6 +67,14 @@ function keysOf(item, activity=null) {
   }, names);
 }
 
+/**
+ * Toutes les clés anglaises d'un objet, son propre nom compris (normalisées) : pour le rendu des attaques (runtime/strikes.mjs), qui
+ * cherche par identifiant, nom d'origine Babele, table de la langue, puis nom.
+ */
+export function englishKeysOf(item, activity=null) {
+  return [...new Set([...keysOf(item, activity), normalize(item?.system?.identifier), normalize(item?.name)].filter(Boolean))];
+}
+
 /** Les noms qu'AA essaie de lui-même : l'activité (sauf « heal » / « summon », 108967), puis l'objet. */
 function nativeNamesOf(item, activity=null) {
   const out = [];

@@ -15,5 +15,7 @@
   "DARSHANIM.Settings.AaNames.Hint": "Automated Animations recognises items by their English name. When it finds nothing with the translated name, give it the matching entry from the item's English name (Babele), its dnd5e identifier, its base weapon, or the translation table of the world's language (French included). Replaces the \"Automated Animation for Babele\" module. Your own entries in another language still win.",
   "DARSHANIM.Settings.AaYield.Name": "Automated Animations gives way to BLFX",
   "DARSHANIM.Settings.AaYield.Hint": "When Boss Loot (BLFX) and Automated Animations are both active, Automated Animations stays silent for the items BLFX animates, so nothing plays twice. Its critical-hit animation is not covered (turn it off in its own settings if needed).",
+  "DARSHANIM.Settings.Strikes.Name": "Weapon attack animations",
+  "DARSHANIM.Settings.Strikes.Hint": "Weapon attacks (melee, ranged, thrown, natural attacks) are animated by this module with JB2A (free or Premium) and PSFX sounds: a swing or a shot toward each target, a miss that goes past it, a bigger impact on a critical hit. With DAS · Core the animation follows its verdict (after Shield). Whatever Boss Loot (BLFX) or Automated Animations already animates is left to them. Automated Animations is not needed.",
   "DARSHANIM.AA.BabeleCompanion": "DAS · Animations: Automated Animations already recognises translated items through this module. \"Automated Animation for Babele\" can be disabled."
 }
