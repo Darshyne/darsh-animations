@@ -7,6 +7,8 @@
     "catalogue": "node tools/catalogue.mjs",
     "inventaire": "node tools/inventaire.mjs",
     "catalogue:libre": "node tools/catalogue-libre.mjs",
+    "catalogue:premium": "node tools/catalogue-premium.mjs",
+    "releve:aa": "node tools/releve-aa.mjs",
     "noms:fr": "node tools/noms-fr.mjs"
   },
   "devDependencies": {
