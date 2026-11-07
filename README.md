@@ -72,8 +72,9 @@ Module settings → **"Animation sources"** (GM only; a tool of the DAS settings
 - **By domain** — attacks and spells, conditions, consumables, traps, spell walls, spell areas, door locks, summons:
   the source that will play with what is installed, and a box to turn the domain off.
 
-BLFX plays whatever its Auto-Rec recognises by itself, and nothing can stop it item by item: its place in the list
-only decides whether DAS · Animations plays those items too (a source placed above BLFX plays them as well).
+BLFX always stays first when it is active: it plays whatever its Auto-Rec recognises by itself, and the other sources
+give way to it for those items. Unticking it only stops what DAS · Animations asks of it (consumables, traps, walls,
+doors, smites).
 
 ## Installation
 

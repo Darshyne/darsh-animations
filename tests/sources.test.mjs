@@ -15,10 +15,9 @@ describe("sources : valeur", () => {
 
   it("normalise : inconnus et doublons retirés, sources oubliées remises à leur place", () => {
     const v = normalizeSources({ order: ["jb2a", "zzz", "jb2a", "blfx"], off: ["tokenmagic", "bad"], domains: { traps: false, nope: false } });
-    // Une source oubliée suit sa plus proche devancière de l'ordre par défaut (Token Magic suit JB2A, AA suit BLFX).
-    expect(v.order).toEqual(["jb2a", "tokenmagic", "native", "blfx", "aa"]);
+    // Une source oubliée suit sa plus proche devancière de l'ordre par défaut (Token Magic suit JB2A, AA suit BLFX) ; BLFX en tête.
+    expect(v.order).toEqual(["blfx", "jb2a", "tokenmagic", "native", "aa"]);
     expect(new Set(v.order)).toEqual(new Set(SOURCES));
-    expect(v.order.indexOf("jb2a")).toBeLessThan(v.order.indexOf("blfx"));
     expect(v.off).toEqual(["tokenmagic"]);
     expect(v.domains.traps).toBe(false);
     expect(v.domains.nope).toBeUndefined();
@@ -28,12 +27,14 @@ describe("sources : valeur", () => {
   it("monter, descendre, glisser", () => {
     let v = moveSource(defaultSources(), "jb2a", -1);
     expect(v.order.slice(0, 3)).toEqual(["blfx", "jb2a", "aa"]);
-    v = moveSource(v, "blfx", -1);
-    expect(v.order[0]).toBe("blfx");
+    // BLFX reste en tête : rien ne passe avant lui, il ne descend pas.
+    expect(moveSource(v, "jb2a", -1).order[0]).toBe("blfx");
+    expect(moveSource(v, "blfx", 1).order[0]).toBe("blfx");
     v = placeSource(defaultSources(), "native", "blfx");
-    expect(v.order[0]).toBe("native");
-    v = placeSource(defaultSources(), "blfx", null);
-    expect(v.order.at(-1)).toBe("blfx");
+    expect(v.order.slice(0, 2)).toEqual(["blfx", "native"]);
+    expect(placeSource(defaultSources(), "blfx", null).order[0]).toBe("blfx");
+    v = placeSource(defaultSources(), "native", "aa");
+    expect(v.order).toEqual(["blfx", "native", "aa", "jb2a", "tokenmagic"]);
   });
 });
 
@@ -52,11 +53,11 @@ describe("sources : anciens réglages", () => {
     expect(v.domains.walls).toBe(false);
     expect(v.domains.strikes).toBe(true);
   });
-  it("attaques et états éteints, AA personnalisé devant BLFX", () => {
-    const v = migrateSources({ strikes: false, conditions: false, aaYieldToBlfx: false });
+  it("attaques et états éteints ; « AA devant BLFX » pas repris, BLFX reste en tête", () => {
+    const v = migrateSources({ strikes: false, conditions: false, aaYieldToBlfx: false, conditionsWithBlfx: true });
     expect(v.domains.strikes).toBe(false);
     expect(v.domains.conditions).toBe(false);
-    expect(ranksBefore(v, "aa", "blfx")).toBe(true);
+    expect(ranksBefore(v, "blfx", "aa")).toBe(true);
   });
 });
 
@@ -72,9 +73,9 @@ describe("sources : choix par domaine", () => {
     expect(pickSource("walls", v, { tokenmagic: true })).toBe(null);
   });
   it("AA n'est jamais la source d'un domaine, seulement dans la chaîne", () => {
-    const v = placeSource(defaultSources(), "aa", "blfx");
+    const v = placeSource(normalizeSources({ off: ["blfx"] }), "aa", "jb2a");
     expect(sourceChain("strikes", v, ALL)[0]).toBe("aa");
-    expect(pickSource("strikes", v, ALL)).toBe("blfx");
+    expect(pickSource("strikes", v, ALL)).toBe("jb2a");
   });
   it("une source décochée est sautée ; un domaine coupé ne rend rien", () => {
     const v = normalizeSources({ ...defaultSources(), off: ["blfx"] });
@@ -97,12 +98,12 @@ describe("sources : BLFX de lui-même", () => {
     // Les consommables, BLFX ne les joue que si ce module le lui demande.
     expect(yieldsToBlfx("consumables", v, "jb2a")).toBe(false);
   });
-  it("JB2A avant BLFX : les deux jouent, signalé dans le tableau", () => {
-    const v = placeSource(defaultSources(), "jb2a", "blfx");
-    expect(yieldsToBlfx("strikes", v, "jb2a")).toBe(false);
+  it("BLFX décoché : JB2A prend le domaine, mais se tait encore devant l'Auto-Rec de BLFX (signalé)", () => {
+    const v = normalizeSources({ off: ["blfx"] });
+    expect(yieldsToBlfx("strikes", v, "jb2a")).toBe(true);
     const row = sourceTable(v, ALL).find(r => r.domain === "strikes");
     expect(row.source).toBe("jb2a");
-    expect(row.notes).toContain("blfxAlso");
+    expect(row.notes).toContain("blfxFirst");
   });
   it("BLFX décoché ne change pas sa place pour son Auto-Rec", () => {
     const v = normalizeSources({ ...defaultSources(), off: ["blfx"] });

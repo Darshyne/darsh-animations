@@ -30,7 +30,7 @@
   "DARSHANIM.Sources.Detection": "Détection",
   "DARSHANIM.Sources.AllGood": "Rien à signaler.",
   "DARSHANIM.Sources.Order": "Ordre des sources",
-  "DARSHANIM.Sources.OrderHint": "Glissez une ligne, ou utilisez les flèches. Une source décochée n'est plus utilisée par DAS · Animations.",
+  "DARSHANIM.Sources.OrderHint": "Glissez une ligne, ou utilisez les flèches ; BLFX reste en tête. Une source décochée n'est plus utilisée par DAS · Animations.",
   "DARSHANIM.Sources.Domains": "Par domaine",
   "DARSHANIM.Sources.DomainsHint": "La source qui jouera avec ce qui est installé. Décochez un domaine pour que DAS · Animations n'y joue plus rien.",
   "DARSHANIM.Sources.Use": "Utiliser",
@@ -47,7 +47,7 @@
   "DARSHANIM.Sources.Source.jb2a": "DAS · Animations + JB2A + PSFX",
   "DARSHANIM.Sources.Source.tokenmagic": "Token Magic FX",
   "DARSHANIM.Sources.Source.native": "Rendu intégré",
-  "DARSHANIM.Sources.Role.blfx": "Joue de lui-même ce que son Auto-Rec reconnaît, même décoché : rien ne l'arrête objet par objet. Sa place décide si DAS · Animations joue aussi ces objets ; la case règle ce que DAS · Animations lui demande (consommables, pièges, murs, portes, châtiments).",
+  "DARSHANIM.Sources.Role.blfx": "Toujours en tête quand il est actif : il joue de lui-même ce que son Auto-Rec reconnaît, et les autres sources se taisent devant lui pour ces objets. La case règle seulement ce que DAS · Animations lui demande (consommables, pièges, murs, portes, châtiments).",
   "DARSHANIM.Sources.Role.aa": "Seulement les animations que vous avez personnalisées dans Automated Animations ; ses animations livrées se taisent toujours devant DAS · Animations. Placé après une source, il se tait devant elle ; décoché, il se tait partout.",
   "DARSHANIM.Sources.Role.jb2a": "Le rendu propre de DAS · Animations : attaques, sorts, soins, états, et le reste. JB2A Premium est préféré au gratuit ; sans PSFX, pas de son.",
   "DARSHANIM.Sources.Role.tokenmagic": "Filtres sur les tokens et les zones : consommables, pièges, zones de sort.",
@@ -70,7 +70,6 @@
   "DARSHANIM.Sources.Table.none": "aucune",
   "DARSHANIM.Sources.Table.offShort": "coupé",
   "DARSHANIM.Sources.Table.nothing": "Aucune source installée et cochée ne sait faire ce domaine.",
-  "DARSHANIM.Sources.Table.blfxAlso": "Placée avant BLFX : les objets que BLFX reconnaît sont joués par les deux.",
   "DARSHANIM.Sources.Table.aaFirst": "Une animation personnalisée d'Automated Animations passe devant.",
   "DARSHANIM.Sources.Domain.strikes": "Attaques, sorts, soins, aptitudes",
   "DARSHANIM.Sources.Domain.conditions": "États (Effrayé, Charmé…)",
@@ -79,5 +78,7 @@
   "DARSHANIM.Sources.Domain.walls": "Murs de sort",
   "DARSHANIM.Sources.Domain.areas": "Zones de sort",
   "DARSHANIM.Sources.Domain.doors": "Serrures de porte",
-  "DARSHANIM.Sources.Domain.summons": "Invocations"
+  "DARSHANIM.Sources.Domain.summons": "Invocations",
+  "DARSHANIM.Sources.Pinned": "BLFX reste toujours en tête.",
+  "DARSHANIM.Sources.Table.blfxFirst": "BLFX joue d'abord ce que son Auto-Rec reconnaît."
 }

@@ -4,16 +4,18 @@
  *
  * - **Ordre** : une liste de sources, la première disponible qui sait faire le domaine joue. « Automated Animations » ne joue que ses
  *   animations **personnalisées**, objet par objet : placé avant une source, il passe devant elle ; placé après, elle le fait taire.
- * - **BLFX joue de lui-même** ce que son Auto-Rec reconnaît (attaques, sorts, zones, invocations, quelques états) : rien ne l'arrête
- *   objet par objet. Une source de DAS placée **avant** BLFX joue alors **aussi** ces objets (les deux se voient) ; placée après, elle se
- *   tait devant lui.
+ * - **BLFX toujours en tête** (décision utilisateur, 2026-11-07) : il joue de lui-même ce que son Auto-Rec reconnaît (attaques, sorts,
+ *   zones, invocations, quelques états), et toute autre source se tait devant lui pour ces objets. Sa case ne règle que ce que ce module
+ *   lui demande (consommables, pièges, murs, portes, châtiments).
  * - **Domaine coupé** : rien de DAS · Animations n'y joue (BLFX et AA continuent ce qu'ils font d'eux-mêmes).
  */
 
-/** Les sources, dans l'ordre par défaut. */
-// BLFX d'abord : une animation personnalisée d'AA se tait devant lui (ancien réglage `aaYieldToBlfx`, allumé par défaut), mais passe
-// devant le rendu propre de ce module (SPEC §21.5, D2).
+/** Les sources, dans l'ordre par défaut. BLFX est toujours la première (`PINNED`) ; une animation personnalisée d'AA passe devant le
+ * rendu propre de ce module (SPEC §21.5, D2). */
 export const SOURCES = Object.freeze(["blfx", "aa", "jb2a", "tokenmagic", "native"]);
+
+/** La source fixée en tête de l'ordre : elle ne se déplace pas. */
+export const PINNED = "blfx";
 
 /** Les domaines de la fenêtre, et les sources qui savent les jouer (dans l'ordre par défaut). */
 export const DOMAINS = Object.freeze({
@@ -55,6 +57,9 @@ export function normalizeSources(value) {
     const before = SOURCES.slice(0, SOURCES.indexOf(s)).reverse().find(p => order.includes(p));
     order.splice(before ? order.indexOf(before) + 1 : 0, 0, s);
   }
+  // BLFX toujours en tête.
+  order.splice(order.indexOf(PINNED), 1);
+  order.unshift(PINNED);
   const off = [...new Set((Array.isArray(value.off) ? value.off : []).filter(s => SOURCES.includes(s)))];
   const domains = { ...base.domains };
   for ( const d of Object.keys(DOMAINS) ) if ( value.domains?.[d] === false ) domains[d] = false;
@@ -75,9 +80,7 @@ export function migrateSources({ renderer="auto", strikes=true, conditions=true,
   }
   if ( strikes === false ) value.domains.strikes = false;
   if ( conditions === false ) value.domains.conditions = false;
-  // L'ancien « AA personnalisé laisse la place à BLFX » éteint : AA passe avant BLFX.
-  if ( aaYieldToBlfx === false ) value.order = ["aa", "blfx", ...SOURCES.filter(s => !["aa", "blfx"].includes(s))];
-  // L'ancien « états aussi devant BLFX » n'est pas repris : passer JB2A avant BLFX ferait aussi doubler les attaques que BLFX joue.
+  // Les anciens « AA personnalisé laisse la place à BLFX » et « états aussi devant BLFX » ne sont pas repris : BLFX reste en tête.
   return value;
 }
 
@@ -110,16 +113,15 @@ export function pickSource(domain, value, available={}) {
 
 /**
  * La source `own` de ce module se tait-elle devant BLFX, pour un objet que l'Auto-Rec de BLFX reconnaît ? Oui dans les domaines où BLFX
- * joue de lui-même, quand BLFX est placé avant elle — même coupé dans la fenêtre : couper BLFX ne règle que ce que ce module lui
- * demande (consommables, pièges, murs, portes, châtiments), pas son Auto-Rec.
+ * joue de lui-même : BLFX est toujours en tête, même décoché (sa case ne règle que ce que ce module lui demande).
  */
 export function yieldsToBlfx(domain, value, own) {
-  return BLFX_OWN.includes(domain) && ranksBefore(value, "blfx", own);
+  return BLFX_OWN.includes(domain) && (own !== PINNED);
 }
 
 /**
- * Le tableau de la fenêtre : par domaine, la source qui jouera ce que ce module joue, et les remarques. `notes` : "blfxAlso" (une
- * source de DAS passe avant BLFX là où il joue de lui-même : les deux se voient), "aaFirst" (AA personnalisé passe devant), "off",
+ * Le tableau de la fenêtre : par domaine, la source qui jouera ce que ce module joue, et les remarques. `notes` : "blfxFirst" (BLFX
+ * actif joue d'abord ce que son Auto-Rec reconnaît), "aaFirst" (AA personnalisé passe devant), "off",
  * "nothing" (aucune source utilisable).
  */
 export function sourceTable(value, available={}) {
@@ -131,7 +133,7 @@ export function sourceTable(value, available={}) {
     const source = chain.find(s => s !== "aa") ?? null;
     const notes = [];
     if ( !source ) notes.push("nothing");
-    if ( available.blfx && source && (source !== "blfx") && !yieldsToBlfx(domain, v, source) && BLFX_OWN.includes(domain) ) notes.push("blfxAlso");
+    if ( available.blfx && source && (source !== PINNED) && yieldsToBlfx(domain, v, source) ) notes.push("blfxFirst");
     if ( chain.includes("aa") && source && ranksBefore(v, "aa", source) ) notes.push("aaFirst");
     return { domain, on: true, source, capable, notes };
   });
@@ -145,7 +147,7 @@ export function moveSource(value, source, delta) {
   if ( (i < 0) || (j < 0) || (j >= v.order.length) ) return v;
   const order = [...v.order];
   [order[i], order[j]] = [order[j], order[i]];
-  return { ...v, order };
+  return normalizeSources({ ...v, order });
 }
 
 /** Place une source avant une autre (glisser-déposer). Rend une nouvelle valeur. */
@@ -155,7 +157,7 @@ export function placeSource(value, source, before) {
   const order = v.order.filter(s => s !== source);
   const at = before ? order.indexOf(before) : -1;
   order.splice(at < 0 ? order.length : at, 0, source);
-  return { ...v, order };
+  return normalizeSources({ ...v, order });
 }
 
 /**

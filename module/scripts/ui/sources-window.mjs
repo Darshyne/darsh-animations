@@ -7,7 +7,7 @@
 
 import { MODULE_ID } from "../runtime/shared.mjs";
 import { detection, saveSources, sourcesValue } from "../runtime/sources.mjs";
-import { DOMAINS, defaultSources, detectionNotes, moveSource, normalizeSources, placeSource, sourceTable } from "../core/sources.mjs";
+import { DOMAINS, PINNED, defaultSources, detectionNotes, moveSource, normalizeSources, placeSource, sourceTable } from "../core/sources.mjs";
 
 const t = (key, data) => data ? game.i18n.format(`DARSHANIM.Sources.${key}`, data) : game.i18n.localize(`DARSHANIM.Sources.${key}`);
 const esc = s => foundry.utils.escapeHTML(String(s ?? ""));
@@ -36,6 +36,7 @@ const STYLE = `
 .das-sources ol.order li.over { outline: 2px dashed var(--color-warm-2, #ff6400); }
 .das-sources ol.order li.unavailable .name { opacity: 0.55; }
 .das-sources .grip { cursor: grab; opacity: 0.6; text-align: center; }
+.das-sources li.pinned .grip { cursor: default; }
 .das-sources .rank { font-weight: bold; text-align: center; }
 .das-sources .name strong { display: block; }
 .das-sources .name small { display: block; opacity: 0.8; }
@@ -166,16 +167,21 @@ function renderBody(value, det) {
   const rows = v.order.map((source, i) => {
     const usable = det.available[source];
     const on = !v.off.includes(source);
-    return `<li data-source="${source}" draggable="true" class="${usable ? "" : "unavailable"}">
-      <span class="grip"><i class="fa-solid fa-grip-vertical"></i></span>
+    // BLFX est fixé en tête : ni poignée, ni flèches, et rien ne se dépose avant lui.
+    const pinned = source === PINNED;
+    const grip = pinned ? `<span class="grip" data-tooltip="${esc(t("Pinned"))}"><i class="fa-solid fa-lock"></i></span>`
+      : `<span class="grip"><i class="fa-solid fa-grip-vertical"></i></span>`;
+    const arrows = pinned ? `<span class="arrows"></span>` : `<span class="arrows">
+        <button type="button" data-action="up" ${i <= 1 ? "disabled" : ""} data-tooltip="${esc(t("Up"))}"><i class="fa-solid fa-arrow-up"></i></button>
+        <button type="button" data-action="down" ${i === v.order.length - 1 ? "disabled" : ""} data-tooltip="${esc(t("Down"))}"><i class="fa-solid fa-arrow-down"></i></button>
+      </span>`;
+    return `<li data-source="${source}" draggable="${pinned ? "false" : "true"}" class="${usable ? "" : "unavailable"} ${pinned ? "pinned" : ""}">
+      ${grip}
       <span class="rank">${i + 1}</span>
       <span class="name"><strong>${esc(t(`Source.${source}`))}</strong><small>${sourceDetail(source, det)}</small>
         <small class="role">${esc(t(`Role.${source}`))}</small></span>
       <label class="use"><input type="checkbox" data-off="${source}" ${on ? "checked" : ""}> ${esc(t("Use"))}</label>
-      <span class="arrows">
-        <button type="button" data-action="up" ${i === 0 ? "disabled" : ""} data-tooltip="${esc(t("Up"))}"><i class="fa-solid fa-arrow-up"></i></button>
-        <button type="button" data-action="down" ${i === v.order.length - 1 ? "disabled" : ""} data-tooltip="${esc(t("Down"))}"><i class="fa-solid fa-arrow-down"></i></button>
-      </span>
+      ${arrows}
     </li>`;
   }).join("");
   const table = sourceTable(v, det.available).map(row => {
