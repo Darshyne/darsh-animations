@@ -21,6 +21,8 @@ import { CRITICAL_SCALE, SAVED_IMPACT, chooseAction, hitDelay, judgeAgainstAc, r
 
 const ENGINE = "dnd5e-combat";
 const played = new Set();
+/** Les utilisations (id du message d'utilisation) dont l'incantation a déjà été jouée, avant les dés. */
+const casts = new Set();
 
 const setting = key => { try { return game.settings.get(MODULE_ID, key); } catch { return true; } };
 
@@ -99,9 +101,9 @@ function playWeapon(sequence, choice, source, live) {
 }
 
 /** Un sort ciblé ou un soin (lot 2) : incantation sur le lanceur, projectile ou effet sur la cible, impact du type de dégâts. */
-function playSpell(sequence, choice, source, live) {
+function playSpell(sequence, choice, source, live, { skipCast=false }={}) {
   const file = firstKnown(choice.animation);
-  const castFile = firstKnown(choice.cast);
+  const castFile = skipCast ? null : firstKnown(choice.cast);
   const impactFile = firstKnown(choice.impact?.animation);
   if ( !file && !castFile && !impactFile ) return { skipped: `no known animation for ${choice.family}`, tried: choice.animation };
   const sounds = [];
@@ -110,7 +112,7 @@ function playSpell(sequence, choice, source, live) {
     sequence.effect().file(castFile).atLocation(source).scaleToObject(1.8).belowTokens();
     lead = 500;
   }
-  if ( choice.castSound && addSound(sequence, choice.castSound) ) sounds.push(choice.castSound);
+  if ( !skipCast && choice.castSound && addSound(sequence, choice.castSound) ) sounds.push(choice.castSound);
   const at = (choice.kind === "shot") ? hitDelay("shot") : 250;
   let first = true;
   for ( const step of spellTimeline(live) ) {
@@ -143,20 +145,51 @@ function playSpell(sequence, choice, source, live) {
  * `{ played, family, … }` ou `{ skipped }`.
  * @param {{ item: Item, activity?: object, source: Token, targets: object[], attackMode?: string }} action
  */
-export function playStrike({ item, activity=null, source, targets=[], attackMode=null }, { force=false }={}) {
+/** Ce qui arrête un rendu avant même de choisir : `{ skipped }`, ou null. */
+function gate({ item, activity, source }, force) {
   if ( !force && !setting("strikes") ) return { skipped: "strike animations turned off" };
   if ( !jb2aActive() ) return { skipped: "JB2A (free or Premium) and Sequencer needed" };
   if ( !source ) return { skipped: "acting token not on the viewed scene" };
-  const live = targets.filter(t => t.token);
-  if ( !live.length ) return { skipped: "no target on the viewed scene" };
   // Sort de zone : la zone est jouée ailleurs (BLFX, ou runtime/areas.mjs) ; pas d'impact par cible en plus.
   if ( activity?.target?.template?.type && (activity.type !== "attack") ) return { skipped: "area spell (played with its area)" };
-  const choice = chooseAction(strikeSummary(item, activity, { attackMode }));
-  if ( !choice ) return { skipped: "nothing to animate for this activity" };
   if ( !force && blfxPlays(item) ) return { skipped: "played by BLFX" };
   if ( !force && aaPlays(item, { activity }) ) return { skipped: "played by Automated Animations" };
+  return null;
+}
+
+/**
+ * L'incantation seule, sur le lanceur, dès le lancement d'un sort (avant les dés : décision utilisateur, 2026-11-07). Le reste (projectile,
+ * effet, impact) suit au verdict, sans la rejouer. Rien pour une attaque d'arme.
+ */
+export function playCast({ item, activity=null, source }, { force=false }={}) {
+  const stop = gate({ item, activity, source }, force);
+  if ( stop ) return stop;
+  const choice = chooseAction(strikeSummary(item, activity));
+  if ( choice?.action !== "spell" ) return { skipped: "not a spell" };
+  const castFile = firstKnown(choice.cast);
+  if ( !castFile ) return { skipped: `no known cast for ${choice.family}` };
   const sequence = new Sequence({ moduleName: MODULE_ID });
-  const result = (choice.action === "weapon") ? playWeapon(sequence, choice, source, live) : playSpell(sequence, choice, source, live);
+  sequence.effect().file(castFile).atLocation(source).scaleToObject(1.8).belowTokens();
+  const sounds = (choice.castSound && addSound(sequence, choice.castSound)) ? [choice.castSound] : [];
+  sequence.play();
+  log(`cast (${choice.family}): ${item.name}`);
+  return { cast: castFile, sounds, family: choice.family };
+}
+
+/**
+ * Joue une action : attaque d'arme, sort ciblé, soin. `targets` : `[{ token: Token, hit, critical, reason, save, times }]`. `skipCast` :
+ * l'incantation est déjà jouée (playCast). Rend `{ played, family, … }` ou `{ skipped }`.
+ */
+export function playStrike({ item, activity=null, source, targets=[], attackMode=null }, { force=false, skipCast=false }={}) {
+  const stop = gate({ item, activity, source }, force);
+  if ( stop ) return stop;
+  const live = targets.filter(t => t.token);
+  if ( !live.length ) return { skipped: "no target on the viewed scene" };
+  const choice = chooseAction(strikeSummary(item, activity, { attackMode }));
+  if ( !choice ) return { skipped: "nothing to animate for this activity" };
+  const sequence = new Sequence({ moduleName: MODULE_ID });
+  const result = (choice.action === "weapon") ? playWeapon(sequence, choice, source, live)
+    : playSpell(sequence, choice, source, live, { skipCast });
   if ( result.skipped ) return result;
   sequence.play();
   log(`${choice.action} (${choice.family}): ${item.name} → ${live.map(t => `${t.token.name}${t.hit === false ? " (miss)"
@@ -169,22 +202,31 @@ export function playStrike({ item, activity=null, source, targets=[], attackMode
 /* -------------------------------------------- */
 
 async function onResolution(resolution, event) {
+  const usage = resolution?.origin ?? resolution?.carrier;
   const moment = resolutionMoment(resolution, event);
-  if ( !moment ) return;
-  const key = `${resolution.id}:${resolution.attack?.messageId ?? moment}`;
-  if ( played.has(key) ) return;
-  played.add(key);
+  const opening = (event?.type === "opened") && usage && !casts.has(usage);
+  if ( !moment && !opening ) return;
+  if ( opening ) casts.add(usage);
   const activity = await fromUuid(resolution.activity).catch(() => null);
   const item = activity?.item ?? null;
   if ( !item ) return;
   const message = game.messages.get(resolution.attack?.messageId ?? resolution.carrier);
   const source = sourceTokenOf(item.actor, message?.speaker);
+  // Incantation dès l'ouverture de la résolution (la carte d'utilisation), avant les dés.
+  if ( opening && !moment ) {
+    if ( playCast({ item, activity, source }).skipped ) casts.delete(usage);
+    return;
+  }
+  if ( opening ) casts.delete(usage);   // ouverte avec son verdict (jet hors carte) : tout se joue d'un coup
+  const key = `${resolution.id}:${resolution.attack?.messageId ?? moment}`;
+  if ( played.has(key) ) return;
+  played.add(key);
   const targets = (resolution.targets ?? []).filter(t => !t.unaffected && ((resolution.plan.darts > 0) ? (t.times ?? 0) > 0 : true))
     .map(t => ({ token: fromUuidSync(t.token, { strict: false })?.object ?? null, hit: t.hit, critical: t.critical, reason: t.reason,
       save: t.save, times: (resolution.plan.darts > 0) ? t.times : 1 }))
     .filter(t => t.token && (t.token.scene === canvas.scene));
   const attackMode = message?.rolls?.[0]?.options?.attackMode ?? message?.system?.mode ?? null;
-  const result = playStrike({ item, activity, source, targets, attackMode });
+  const result = playStrike({ item, activity, source, targets, attackMode }, { skipCast: casts.has(usage) });
   if ( result.skipped ) log(`animation skipped (${item.name}): ${result.skipped}`);
 }
 
@@ -209,9 +251,17 @@ function onMessage(message) {
     if ( !item ) return;
     const roll = message.rolls?.[0];
     const targets = judgeAgainstAc(roll, notedTargets(message)).filter(t => t.token && (t.token.scene === canvas.scene));
+    const usage = message.system?.origin ?? message.getFlag?.("dnd5e", "originatingMessage") ?? null;
     const result = playStrike({ item, activity, source: sourceTokenOf(item.actor, message.speaker), targets,
-      attackMode: roll?.options?.attackMode ?? message.system?.mode ?? null });
+      attackMode: roll?.options?.attackMode ?? message.system?.mode ?? null }, { skipCast: !!usage && casts.has(usage) });
     if ( result.skipped ) log(`animation skipped (${item.name}): ${result.skipped}`);
+    return;
+  }
+  // Carte d'utilisation d'un sort à jet d'attaque : l'incantation tout de suite, avant le jet ; le projectile suivra au message d'attaque.
+  if ( (message.type === "usage") && (activity?.type === "attack") ) {
+    played.add(message.id);
+    const item = activity.item;
+    if ( !playCast({ item, activity, source: sourceTokenOf(item?.actor, message.speaker) }).skipped ) casts.add(message.id);
     return;
   }
   // Carte d'utilisation d'une activité sans jet d'attaque : sauvegarde (résultats inconnus ici), soin, dégâts.

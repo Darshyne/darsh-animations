@@ -63,13 +63,14 @@ describe("sorts : recettes", () => {
 const spell = (extra) => ({ itemType: "spell", classification: "spell", damageTypes: [], keys: [], ...extra });
 
 describe("sorts : choix", () => {
-  it("Trait de feu : projectile du sort, son du sort, impact de feu ; pas d'incantation au sol", () => {
+  it("Trait de feu : incantation de feu (jouée avant les dés), projectile du sort, son du sort, impact de feu", () => {
     const c = chooseAction(spell({ keys: ["firebolt"], activityType: "attack", attackType: "ranged", damageTypes: ["fire"] }));
     expect(c.action).toBe("spell");
     expect(c.kind).toBe("shot");
     expect(c.animation.at(-1)).toBe("jb2a.fire_bolt.white");
     expect(c.animation[0]).toBe("jb2a.fire_bolt.orange");
-    expect(c.cast).toEqual([]);
+    expect(c.cast).toEqual(["jb2a.cast_generic.fire.01.orange"]);
+    expect(c.castSound).toBe(S.SPELL_SOUNDS.castFire);
     expect(c.sound).toBe("psfx.cantrips.fire-bolt.v1");
     expect(c.impact.animation).toEqual(["jb2a.impact.fire.01.orange"]);
   });

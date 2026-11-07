@@ -193,8 +193,8 @@ export function chooseSpell(s) {
   else if ( kind === "shot" ) animation = SPELL_PROJECTILES[type] ?? SPELL_PROJECTILES.none;
   else animation = [];   // sur la cible, sans exception : l'impact du type de dégâts suffit
   const castKey = (kind === "heal") ? "heal" : (SPELL_CASTS[type] ? type : "none");
-  // Projectile : il part de la main, pas d'incantation au sol en plus (sauf exception).
-  const cast = own?.cast ?? ((kind === "shot") ? [] : SPELL_CASTS[castKey].animation);
+  // Incantation sur le lanceur pour tous les sorts : jouée dès le lancement, pendant les dés (décision utilisateur, 2026-11-07).
+  const cast = own?.cast ?? SPELL_CASTS[castKey].animation;
   // Sans type de dégâts (Immobilisation de personne…) : un impact magique neutre sur la cible.
   const impactOf = IMPACTS[type] ?? { animation: "jb2a.impact.011.blue", scale: 0.9, sound: SPELL_SOUNDS.magical };
   const impact = ((own?.impact === false) || (kind === "heal") || !impactOf) ? null
@@ -202,7 +202,7 @@ export function chooseSpell(s) {
   return {
     form, family: key ? `spell:${key}` : `${kind}:${type ?? "none"}`, kind, color,
     animation: expand(animation, vars), cast: expand(cast, vars),
-    castSound: own?.castSound ?? ((kind === "shot") ? null : SPELL_CASTS[castKey].sound),
+    castSound: own?.castSound ?? SPELL_CASTS[castKey].sound,
     sound: own?.sound ?? ((kind === "heal") ? HEAL.sound : (kind === "shot") ? SPELL_SOUNDS.projectile : null),
     impact
   };
