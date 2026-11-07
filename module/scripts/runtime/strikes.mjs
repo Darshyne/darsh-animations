@@ -16,7 +16,8 @@ import { MODULE_ID, jb2aActive, log } from "./shared.mjs";
 import { addSound, known } from "./sequencer.mjs";
 import { blfxPlays } from "./blfxmap.mjs";
 import { aaPlays, englishKeysOf } from "./aa.mjs";
-import { CRITICAL_SCALE, SAVED_IMPACT, chooseAction, chooseRider, hitDelay, judgeAgainstAc, resolutionMoment, spellTimeline,
+import { strikes as registeredStrikes } from "./registry.mjs";
+import { CRITICAL_SCALE, SAVED_IMPACT, applyAliases, chooseAction, chooseRider, hitDelay, judgeAgainstAc, resolutionMoment, spellTimeline,
   strikeTimeline } from "../core/strikes.mjs";
 
 const ENGINE = "dnd5e-combat";
@@ -48,9 +49,10 @@ export function strikeSummary(item, activity=null, { attackMode=null }={}) {
   const parts = activity?.damage?.parts ?? [];
   const base = sys.damage?.base?.types ? [...sys.damage.base.types] : [];
   const damageTypes = [...new Set([...base, ...parts.flatMap(p => [...(p.types ?? [])])])];
+  const { keys, own, ownKey } = applyAliases(englishKeysOf(item, activity), registeredStrikes());
   return {
-    itemType: item?.type, weaponType: sys.type?.value, baseItem: sys.type?.baseItem || null,
-    keys: englishKeysOf(item, activity), properties: [...(sys.properties ?? [])], attackMode, activityType: activity?.type ?? null,
+    itemType: item?.type, weaponType: sys.type?.value, baseItem: sys.type?.baseItem || null, own, ownKey,
+    keys, properties: [...(sys.properties ?? [])], attackMode, activityType: activity?.type ?? null,
     attackType: activity?.attack?.type?.value ?? null, classification: activity?.attack?.type?.classification ?? null, damageTypes,
     affects: activity?.target?.affects?.type ?? null
   };

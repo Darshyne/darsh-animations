@@ -1,7 +1,7 @@
 /**
  * Les animations d'autres modules — API publique, deux chemins équivalents :
  *
- *   Hooks.once("darsh-animations.register", register => register("mon-module", { animations, without, sources }));
+ *   Hooks.once("darsh-animations.register", register => register("mon-module", { animations, without, sources, strikes }));
  *   game.modules.get("darsh-animations")?.api?.register("mon-module", { animations, without, sources });
  *
  * `animations` : `{ identifiant dnd5e: [animation…] }`, la forme de data/animations.mjs ; `without` (facultatif) : les
@@ -45,5 +45,7 @@ export function collectRegistrations() {
 export const animations = () => current.animations;
 export const without = () => current.without;
 export const sources = () => current.sources;
+/** Les exceptions du rendu propre (SPEC §21, lot 4) enregistrées par d'autres modules : `{ identifiant: like | recette }`. */
+export const strikes = () => current.strikes;
 /** `{ source: [identifiants] }`. */
 export const registered = () => Object.fromEntries(Array.from(REGISTERED, ([s, t]) => [s, Object.keys(t.animations)]));

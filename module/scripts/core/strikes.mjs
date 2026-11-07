@@ -3,7 +3,8 @@
  * module décide ici : quelle forme (coup, tir, lancer, sur la cible), quels noms candidats (dans l'ordre), quel son, quel impact.
  */
 import { COLOR_FALLBACKS, DAMAGE_COLORS, DART_GAP, ELEMENTS, FEATURES, GENERIC, HEAL, NATURAL, RIDERS, SAVED, SMITES, SOUNDS, SPELLS,
-  SPELL_CASTS, SPELL_PROJECTILES, SPELL_SOUNDS, STRIKE_IMPACTS, SWOOSH_BY_DAMAGE, TIMING, UNARMED, UTILITY, WEAPONS } from "../data/strikes.mjs";
+  SPELL_CASTS, SPELL_PROJECTILES, SPELL_SOUNDS, STRIKE_IMPACTS, SWOOSH_BY_DAMAGE, TIMING, UNARMED, UTILITY, WEAPONS, ALIASES, RECIPE_KINDS }
+  from "../data/strikes.mjs";
 import { IMPACTS } from "../data/jb2a.mjs";
 
 const PHYSICAL = new Set(["bludgeoning", "piercing", "slashing"]);
@@ -171,11 +172,14 @@ export function spellForm(s) {
   if ( s.activityType === "teleport" ) return "teleport";
   // Lot 3 : utilitaire — une exception par identifiant (aptitude, sort), sinon un sort seulement (jamais une action de base ni un objet).
   if ( s.activityType === "utility" ) {
-    const own = (s.keys ?? []).map(k => SPELLS_BY_KEY[k]).find(Boolean);
+    const own = s.own ?? (s.keys ?? []).map(k => SPELLS_BY_KEY[k]).find(Boolean);
     if ( own ) return own.kind;
     return (s.itemType === "spell") ? "utility" : null;
   }
   if ( s.activityType === "attack" ) {
+    // Une attaque « comme une arme » qui porte une exception de sort (lot 4 : Dards radiants → Éclair traçant) se joue comme le sort.
+    const spellLike = (s.keys ?? []).map(k => SPELLS_BY_KEY[k]).find(Boolean);
+    if ( spellLike && isWeaponAttack(s) && (s.itemType !== "weapon") ) return spellLike.kind;
     if ( isWeaponAttack(s) ) return null;
     return (s.attackType === "melee") ? "onTarget" : "shot";
   }
@@ -191,9 +195,9 @@ export function chooseSpell(s) {
   const form = spellForm(s);
   if ( !form ) return null;
   const keys = s.keys ?? [];
-  const key = keys.find(k => SPELLS_BY_KEY[k]);
-  // Une téléportation sans exception prend celle de Foulée brumeuse.
-  const own = key ? SPELLS_BY_KEY[key] : ((form === "teleport") ? FEATURES["misty-step"] : null);
+  const key = s.own ? (s.ownKey ?? "registered") : keys.find(k => SPELLS_BY_KEY[k]);
+  // Une recette donnée par un autre module (lot 4), sinon une exception ; une téléportation sans exception prend Foulée brumeuse.
+  const own = s.own ?? (key ? SPELLS_BY_KEY[key] : ((form === "teleport") ? FEATURES["misty-step"] : null));
   const type = extraDamage(s.damageTypes) ?? (s.damageTypes ?? [])[0] ?? null;
   const util = (!own && (form === "utility")) ? ((s.affects === "enemy") ? UTILITY.bane : UTILITY.boon) : null;
   const kind = own?.kind ?? util?.kind ?? form;
@@ -227,7 +231,13 @@ export function chooseSpell(s) {
 
 /** Attaque d'arme (lot 1) ou sort (lot 2) : `{ ...choix, action: "weapon" | "spell" }`, ou null. */
 export function chooseAction(s) {
-  if ( (s.activityType === "attack") || !s.activityType ) {
+  // Une recette complète donnée par un autre module (lot 4) : rendue comme un sort, quelle que soit l'activité.
+  if ( s.own ) {
+    const spell = chooseSpell({ ...s, activityType: (s.activityType === "attack") ? "attack" : (s.activityType ?? "utility") });
+    if ( spell ) return { ...spell, kind: s.own.kind, action: "spell" };
+  }
+  const spellLike = (s.itemType !== "weapon") && (s.keys ?? []).some(k => SPELLS_BY_KEY[k]);
+  if ( ((s.activityType === "attack") || !s.activityType) && !spellLike ) {
     const weapon = chooseStrike(s);
     if ( weapon ) return { ...weapon, action: "weapon" };
   }
@@ -298,4 +308,43 @@ export function chooseSmite(keys=[], damageTypes=[]) {
   const impact = IMPACTS[type];
   if ( !impact ) return null;
   return { animation: [impact.animation], scale: (impact.scale ?? 1.2) * 1.2, tint: impact.tint ?? null, sound: impact.sound };
+}
+
+/* -------------------------------------------- */
+/*  Lot 4 : « joue comme » et recettes données    */
+/* -------------------------------------------- */
+
+/**
+ * Applique les exceptions par identifiant : `{ keys, own, ownKey }`. `extra` : les tables enregistrées par d'autres modules,
+ * `{ identifiant: "clé anglaise" | { like } | recette }`, prioritaires sur `ALIASES`. Un « joue comme » met sa clé anglaise
+ * (normalisée) en tête ; une recette devient `own`.
+ * @param {string[]} keys      clés normalisées de l'objet
+ * @param {object} [extra]
+ */
+export function applyAliases(keys=[], extra={}) {
+  const table = { ...Object.fromEntries(Object.entries(ALIASES).map(([k, v]) => [norm(k), v])),
+    ...Object.fromEntries(Object.entries(extra ?? {}).map(([k, v]) => [norm(k), v])) };
+  const hit = keys.find(k => table[k] !== undefined);
+  if ( !hit ) return { keys, own: null, ownKey: null };
+  const entry = table[hit];
+  const like = (typeof entry === "string") ? entry : entry?.like;
+  if ( like ) return { keys: [norm(like), ...keys], own: null, ownKey: null };
+  return { keys, own: entry, ownKey: hit };
+}
+
+/** Les erreurs d'une table `strikes` enregistrée (vide si elle est bonne). */
+export function checkStrikes(strikes) {
+  const errors = [];
+  if ( strikes === undefined ) return errors;
+  if ( !strikes || (typeof strikes !== "object") ) return ["strikes: { identifier: like | recipe } expected"];
+  for ( const [id, v] of Object.entries(strikes) ) {
+    if ( typeof v === "string" ) continue;
+    if ( typeof v?.like === "string" ) continue;
+    if ( !RECIPE_KINDS.includes(v?.kind) ) { errors.push(`strikes.${id}.kind: one of ${RECIPE_KINDS.join(", ")}`); continue; }
+    if ( !Array.isArray(v.animation) || !v.animation.length || v.animation.some(n => !/^jb2a\./.test(n)) ) {
+      errors.push(`strikes.${id}.animation: a list of jb2a.* names`);
+    }
+    for ( const f of ["sound", "castSound", "arriveSound"] ) if ( (v[f] !== undefined) && !/^psfx\./.test(v[f]) ) errors.push(`strikes.${id}.${f}: a psfx.* name`);
+  }
+  return errors;
 }

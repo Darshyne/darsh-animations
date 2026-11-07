@@ -339,6 +339,19 @@ export const FEATURES = Object.freeze({
     color: "yellow", sound: SPELL_SOUNDS.heal, noCast: true },
   "second-wind": { kind: "heal", animation: ["jb2a.healing_generic.burst.greenorange"], color: "orange", sound: SPELL_SOUNDS.heal,
     noCast: true },
+  "eyebite": { kind: "onTarget", animation: ["jb2a.eyes.01.{color}.single", "jb2a.eyes.01.dark_green.single"], color: "dark_green",
+    sound: FEATURE_SOUNDS.bane },
+  "cause-fear": { kind: "onTarget", animation: ["jb2a.markers.fear.dark_purple.01"], color: "dark_purple", sound: FEATURE_SOUNDS.bane },
+  "finger-of-death": { kind: "onTarget", animation: ["jb2a.toll_the_dead.{color}.skull_smoke", "jb2a.toll_the_dead.green.skull_smoke"],
+    color: "green", sound: "psfx.impacts.magicaleffects.necrotic", impact: false },
+  "absorb-elements": { kind: "onTarget", animation: ["jb2a.energy_strands.overlay.{color}.01", "jb2a.energy_strands.overlay.blue.01"],
+    color: "blue", sound: FEATURE_SOUNDS.boon, noCast: true },
+  "channel-divinity": { kind: "onTarget", animation: ["jb2a.sacred_flame.target.{color}", "jb2a.sacred_flame.target.yellow"],
+    color: "yellow", cast: ["jb2a.sacred_flame.source.{color}", "jb2a.sacred_flame.source.yellow"],
+    castSound: "psfx.cantrips.sacred-flame.v1.001.caster", sound: "psfx.cantrips.sacred-flame.v1.001.target", impact: false },
+  "channel-divinity-cleric": { kind: "onTarget", animation: ["jb2a.sacred_flame.target.{color}", "jb2a.sacred_flame.target.yellow"],
+    color: "yellow", cast: ["jb2a.sacred_flame.source.{color}", "jb2a.sacred_flame.source.yellow"],
+    castSound: "psfx.cantrips.sacred-flame.v1.001.caster", sound: "psfx.cantrips.sacred-flame.v1.001.target", impact: false },
   "divine-smite": { kind: "onTarget", animation: ["jb2a.divine_smite.target.{color}", "jb2a.divine_smite.target.blueyellow"],
     color: "yellow", cast: ["jb2a.divine_smite.caster.blueyellow"], castSound: FEATURE_SOUNDS.smiteCaster, sound: FEATURE_SOUNDS.smiteTarget,
     impact: false }
@@ -370,3 +383,24 @@ export const SMITES = Object.freeze({
   "blinding-smite": { damage: "radiant" }, "shining-smite": { damage: "radiant" }, "staggering-smite": { damage: "psychic" },
   "branding-smite": { damage: "radiant" }, "banishing-smite": { damage: "force" }
 });
+
+/* -------------------------------------------- */
+/*  Lot 4 : exceptions par identifiant            */
+/* -------------------------------------------- */
+
+/**
+ * Identifiant → identifiant anglais qui a déjà sa recette (« joue comme ») : une arme (`scimitar`), un mot d'attaque naturelle (`bite`,
+ * `claw`), un sort ou une aptitude des tables ci-dessus. Pour les capacités de suppléments (Ravenloft) qui ressemblent à une capacité
+ * connue. D'autres modules en ajoutent par le champ `strikes` du hook `darsh-animations.register` (créatures de campagne, identifiants
+ * dans leur langue : `cos-morsure` → `bite`), ou y donnent une recette complète (même forme que `FEATURES`).
+ */
+export const ALIASES = Object.freeze({
+  "radiant-flame": "guiding-bolt",
+  "vampiric-bite": "bite",
+  "morsure-vampirique": "bite",
+  "sear-undead": "sacred-flame",
+  "raise-dead": "heal"
+});
+
+/** Les formes de recette qu'une table enregistrée peut donner (rendues par le rendu des sorts). */
+export const RECIPE_KINDS = Object.freeze(["shot", "onTarget", "heal", "teleport"]);

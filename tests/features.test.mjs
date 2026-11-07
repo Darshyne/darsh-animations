@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import * as S from "../module/scripts/data/strikes.mjs";
-import { chooseAction, chooseRider, chooseSmite, expand } from "../module/scripts/core/strikes.mjs";
+import { applyAliases, chooseAction, chooseRider, chooseSmite, expand } from "../module/scripts/core/strikes.mjs";
 
 const root = path.resolve(import.meta.dirname, "..");
 const read = file => JSON.parse(fs.readFileSync(file, "utf8")).entries;
@@ -75,3 +75,37 @@ describe("riders et châtiments", () => {
     expect(chooseSmite(["frappe-maison"], [])).toBeNull();
   });
 });
+
+describe("exceptions par identifiant (lot 4)", () => {
+  const weaponish = { itemType: "weapon", weaponType: "natural", activityType: "attack", attackType: "melee", classification: "weapon",
+    damageTypes: ["piercing"] };
+  it("« joue comme » : Morsure vampirique → morsure ; Flamme radiante → Éclair traçant", () => {
+    const bite = applyAliases(["vampiricbite"]);
+    expect(chooseAction({ ...weaponish, keys: bite.keys }).family).toBe("natural:bite");
+    const flame = applyAliases(["radiantflame"]);
+    expect(chooseAction({ itemType: "feat", activityType: "attack", attackType: "ranged", classification: "spell", damageTypes: ["radiant"],
+      keys: flame.keys }).family).toBe("spell:guidingbolt");
+  });
+  it("une table enregistrée : identifiants dans une autre langue, « joue comme » une arme ou une recette complète", () => {
+    const extra = { "cos-morsure": "bite", "cos-rahadin-sabre": { like: "scimitar" },
+      "cos-rayon": { kind: "shot", animation: ["jb2a.guiding_bolt.01.blueyellow"], sound: "psfx.ranged-magic.generic.beam.001" } };
+    expect(chooseAction({ ...weaponish, keys: applyAliases(["cosmorsure"], extra).keys }).family).toBe("natural:bite");
+    expect(chooseAction({ ...weaponish, weaponType: "martialM", damageTypes: ["slashing"],
+      keys: applyAliases(["cosrahadinsabre"], extra).keys }).family).toBe("scimitar");
+    const own = applyAliases(["cosrayon"], extra);
+    const c = chooseAction({ itemType: "feat", activityType: "save", damageTypes: ["radiant"], keys: own.keys, own: own.own, ownKey: own.ownKey });
+    expect(c.kind).toBe("shot");
+    expect(c.animation[0]).toBe("jb2a.guiding_bolt.01.blueyellow");
+  });
+  it("une aptitude de créature attaquant « comme une arme » mais jouée comme un sort (Dards radiants → Éclair traçant)", () => {
+    const keys = applyAliases(["cosithurieldardsradiants"], { "cos-ithuriel-dards-radiants": "guiding-bolt" }).keys;
+    expect(chooseAction({ ...weaponish, itemType: "feat", weaponType: undefined, attackType: "ranged", damageTypes: ["radiant"], keys }).family)
+      .toBe("spell:guidingbolt");
+  });
+  it("Regard mortel, Doigt de mort, Absorption des éléments, Conduit divin ont leur recette", () => {
+    for ( const k of ["eyebite", "fingerofdeath", "absorbelements", "channeldivinity"] ) {
+      expect(chooseAction({ itemType: "spell", keys: [k], activityType: "save", damageTypes: [] })?.family, k).toBe(`spell:${k}`);
+    }
+  });
+});
+

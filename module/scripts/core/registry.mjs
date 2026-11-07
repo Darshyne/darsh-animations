@@ -3,12 +3,16 @@
  * validation et leur fusion avec la table livrée (data/animations.mjs). Le registre vivant est dans runtime/registry.mjs.
  *
  * Une table enregistrée a la forme de la table livrée :
- *   { animations: { identifiant: [animation…] }, without?: { identifiant: raison }, sources?: [id de compendium…] }
+ *   { animations: { identifiant: [animation…] }, without?: { identifiant: raison }, sources?: [id de compendium…],
+ *     strikes?: { identifiant: "clé anglaise" | { like } | recette } }
+ * `strikes` (SPEC §21, lot 4) sert au rendu propre JB2A + PSFX (sans BLFX) : « joue comme » une arme, une attaque naturelle, un sort
+ * connus, ou une recette (core/strikes.mjs, `checkStrikes`).
  *
  * Aucune référence à `game`, `canvas`, `Hooks`, `CONFIG`, `foundry` ici.
  */
 
 import { TEMPLATES, TRIGGERS } from "./blfx.mjs";
+import { checkStrikes } from "./strikes.mjs";
 
 /** Les types d'activité dnd5e 6 qu'une animation peut viser. */
 export const ACTIVITY_TYPES = Object.freeze(["attack", "cast", "check", "damage", "enchant", "forward", "heal", "save", "summon",
@@ -36,8 +40,11 @@ export function checkAnimation(a, at="") {
  */
 export function checkRegistration(data) {
   const errors = [];
-  const table = { animations: {}, without: {}, sources: [] };
-  if ( !data || (typeof data !== "object") ) return { table, errors: ["{ animations, without?, sources? } expected"] };
+  const table = { animations: {}, without: {}, sources: [], strikes: {} };
+  if ( !data || (typeof data !== "object") ) return { table, errors: ["{ animations, without?, sources?, strikes? } expected"] };
+  const strikeErrors = checkStrikes(data.strikes);
+  if ( strikeErrors.length ) errors.push(...strikeErrors);
+  else Object.assign(table.strikes, data.strikes ?? {});
   for ( const [id, list] of Object.entries(data.animations ?? {}) ) {
     if ( !Array.isArray(list) ) { errors.push(`${id}: list of animations expected`); continue; }
     const bad = list.flatMap((a, i) => checkAnimation(a, `${id}[${i}]`));
@@ -62,8 +69,9 @@ export function checkRegistration(data) {
  * @param {Iterable<{animations: object, without: object, sources: string[]}>} tables
  */
 export function combine(base, tables) {
-  const out = { animations: { ...base.animations }, without: { ...base.without }, sources: [...base.sources] };
+  const out = { animations: { ...base.animations }, without: { ...base.without }, sources: [...base.sources], strikes: { ...(base.strikes ?? {}) } };
   for ( const t of tables ) {
+    Object.assign(out.strikes, t.strikes ?? {});
     Object.assign(out.animations, t.animations);
     Object.assign(out.without, t.without);
     for ( const id of t.sources ) if ( !out.sources.includes(id) ) out.sources.push(id);

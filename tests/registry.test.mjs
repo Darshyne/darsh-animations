@@ -16,7 +16,16 @@ describe("tables enregistrées par d'autres modules", () => {
   it("une table bien formée passe entière", () => {
     const { table, errors } = checkRegistration(REGISTRATION);
     expect(errors).toEqual([]);
-    expect(table).toEqual(REGISTRATION);
+    expect(table).toEqual({ ...REGISTRATION, strikes: {} });
+  });
+
+  it("le champ strikes (lot 4) : « joue comme » et recettes gardés, une recette fausse refuse la table strikes", () => {
+    const good = { "cos-morsure": "bite", "cos-sabre": { like: "scimitar" },
+      "cos-rayon": { kind: "shot", animation: ["jb2a.guiding_bolt.01.blueyellow"], sound: "psfx.ranged-magic.generic.beam.001" } };
+    expect(checkRegistration({ animations: {}, strikes: good })).toEqual({ table: { animations: {}, without: {}, sources: [], strikes: good }, errors: [] });
+    const bad = checkRegistration({ animations: {}, strikes: { x: { kind: "swing", animation: ["foo"] } } });
+    expect(bad.table.strikes).toEqual({});
+    expect(bad.errors.length).toBeGreaterThan(0);
   });
 
   it("une animation fausse est écartée, le reste gardé", () => {
