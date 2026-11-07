@@ -17,6 +17,7 @@ import { addSound, known } from "./sequencer.mjs";
 import { blfxPlays } from "./blfxmap.mjs";
 import { aaPlays, englishKeysOf } from "./aa.mjs";
 import { strikes as registeredStrikes } from "./registry.mjs";
+import { chain, domainOn, yieldBlfx } from "./sources.mjs";
 import { CRITICAL_SCALE, SAVED_IMPACT, applyAliases, chooseAction, chooseRider, hitDelay, judgeAgainstAc, resolutionMoment, spellTimeline,
   strikeTimeline } from "../core/strikes.mjs";
 
@@ -161,15 +162,20 @@ function playSpell(sequence, choice, source, live, { skipCast=false }={}) {
  * `{ played, family, … }` ou `{ skipped }`.
  * @param {{ item: Item, activity?: object, source: Token, targets: object[], attackMode?: string }} action
  */
+/** JB2A est-il une source utilisable des attaques (présent, pas coupé dans la fenêtre « Sources d'animation ») ? */
+const ownOn = () => chain("strikes").includes("jb2a");
+/** BLFX joue-t-il cet objet de lui-même, placé avant JB2A ? (Placé après : les deux jouent.) */
+const blfxFirst = item => yieldBlfx("strikes", "jb2a") && blfxPlays(item);
+
 /** Ce qui arrête un rendu avant même de choisir : `{ skipped }`, ou null. */
 function gate({ item, activity, source }, force) {
-  if ( !force && !setting("strikes") ) return { skipped: "strike animations turned off" };
-  if ( !jb2aActive() ) return { skipped: "JB2A (free or Premium) and Sequencer needed" };
+  if ( !force && !domainOn("strikes") ) return { skipped: "strike animations turned off" };
+  if ( !(force ? jb2aActive() : ownOn()) ) return { skipped: "JB2A (free or Premium) and Sequencer needed, and not turned off" };
   if ( !source ) return { skipped: "acting token not on the viewed scene" };
   // Sort de zone : la zone est jouée ailleurs (BLFX, ou runtime/areas.mjs) ; pas d'impact par cible en plus.
   if ( activity?.target?.template?.type && (activity.type !== "attack") ) return { skipped: "area spell (played with its area)" };
-  if ( !force && blfxPlays(item) ) return { skipped: "played by BLFX" };
-  if ( !force && aaPlays(item, { activity }) ) return { skipped: "played by Automated Animations" };
+  if ( !force && blfxFirst(item) ) return { skipped: "played by BLFX" };
+  if ( !force && aaPlays(item, { activity, domain: "strikes" }) ) return { skipped: "played by Automated Animations" };
   return null;
 }
 
@@ -221,9 +227,9 @@ export function playStrike({ item, activity=null, source, targets=[], attackMode
  * présent, pas une zone, une recette trouvée, BLFX ne le joue pas.
  */
 export function strikesWouldPlay(item, activity=null) {
-  if ( !setting("strikes") || !jb2aActive() ) return false;
+  if ( !domainOn("strikes") || !ownOn() ) return false;
   if ( activity?.target?.template?.type && (activity.type !== "attack") ) return false;
-  if ( blfxPlays(item) ) return false;
+  if ( blfxFirst(item) ) return false;
   const acts = activity ? [activity] : [...(item?.system?.activities ?? [])];
   return acts.some(a => !!chooseAction(strikeSummary(item, a)));
 }
@@ -329,7 +335,7 @@ function onRiders(message) {
     if ( !rider?.target ) continue;
     played.add(message.id);
     const item = rider.item ? fromUuidSync(rider.item, { strict: false }) : null;
-    if ( !setting("strikes") || !jb2aActive() || (item && blfxPlays(item)) ) continue;
+    if ( !domainOn("strikes") || !ownOn() || (item && blfxFirst(item)) ) continue;
     const doc = fromUuidSync(rider.target, { strict: false });
     const target = doc?.object ?? doc?.getActiveTokens?.(false, false)?.[0] ?? null;
     const choice = chooseRider(key);
@@ -388,7 +394,7 @@ export async function previewStrike({ item, activity=null, source, targets=[], m
 export function registerStrikes() {
   game.settings.register(MODULE_ID, "strikes", {
     name: "DARSHANIM.Settings.Strikes.Name", hint: "DARSHANIM.Settings.Strikes.Hint",
-    scope: "world", config: true, type: Boolean, default: true
+    scope: "world", config: false, type: Boolean, default: true
   });
   Hooks.on(`${ENGINE}.resolution`, (resolution, event) => {
     onResolution(resolution, event).catch(err => console.error(`${MODULE_ID} | strike animation`, err));

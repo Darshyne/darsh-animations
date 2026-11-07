@@ -6,14 +6,14 @@
  */
 
 import { MODULE_ID, blfxActive } from "./shared.mjs";
-import { renderer } from "./renderer.mjs";
+import { chain, yieldBlfx } from "./sources.mjs";
 import { JB2A_SUMMON } from "../data/summons.mjs";
 import { addSound, known } from "./sequencer.mjs";
 
 /** Joue l'apparition sur des tokens (TokenDocument ou Token). Rend ce qui a été lancé, ou la raison de ne rien jouer. */
 export function playSummon(tokens, { force=false }={}) {
-  if ( blfxActive() && !force ) return { skipped: "BLFX plays its own After Summon" };
-  if ( renderer() !== "jb2a" ) return { skipped: `no summon animation for ${renderer() ?? "none"}` };
+  if ( !chain("summons").includes("jb2a") ) return { skipped: "summons: JB2A not available or turned off" };
+  if ( blfxActive() && yieldBlfx("summons", "jb2a") && !force ) return { skipped: "BLFX plays its own After Summon" };
   const placed = (tokens ?? []).map(t => t?.object ?? t).filter(t => t?.document?.parent === canvas.scene);
   if ( !placed.length ) return { skipped: "no summoned token on the viewed scene" };
   const sequence = new Sequence({ moduleName: MODULE_ID });

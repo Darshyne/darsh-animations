@@ -8,11 +8,11 @@
  * On ne lit que les régions : leurs formes et l'item qui les a posées (`flags.dnd5e.item`) — aucun lien avec le moteur.
  */
 
-import { MODULE_ID, blfxActive, jb2aActive } from "./shared.mjs";
+import { MODULE_ID } from "./shared.mjs";
 import { wallShape, ringSegments, animationFor, soundSpots, cellCenters } from "../core/walls.mjs";
 import { WALLS } from "../data/walls.mjs";
 import * as JB2A from "../data/jb2a.mjs";
-import { renderer } from "./renderer.mjs";
+import { pick } from "./sources.mjs";
 import { aaPlays } from "./aa.mjs";
 import { addSound, fileOf, known } from "./sequencer.mjs";
 
@@ -22,11 +22,9 @@ import { addSound, fileOf, known } from "./sequencer.mjs";
  */
 export function wallTable() {
   let backend = null;
-  try { backend = renderer(); } catch { backend = null; }
-  if ( backend === null ) return {};
+  try { backend = pick("walls"); } catch { backend = null; }
+  if ( backend === "blfx" ) return WALLS;
   if ( backend === "jb2a" ) return JB2A.WALLS;
-  if ( blfxActive() ) return WALLS;
-  if ( jb2aActive() ) return JB2A.WALLS;
   return {};
 }
 
@@ -41,7 +39,7 @@ function entryOf(region) {
   const entry = wallTable()[item?.system?.identifier] ?? null;
   if ( !entry ) return null;
   const activity = fromUuidSync(region.flags.dnd5e.activity ?? "", { strict: false });
-  return aaPlays(item, { activity, isTemplate: true }) ? null : entry;
+  return aaPlays(item, { activity, isTemplate: true, domain: "walls" }) ? null : entry;
 }
 
 /** L'animation d'anneau toute faite, si son module est actif et que Sequencer la connaît. */

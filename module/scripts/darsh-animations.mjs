@@ -28,6 +28,9 @@ import { playDoor, previewDoor, registerDoors } from "./runtime/doors.mjs";
 import { playStrike, previewStrike, registerStrikes } from "./runtime/strikes.mjs";
 import { previewCondition, reconcile as reconcileConditions, registerConditions } from "./runtime/conditions.mjs";
 import { previewSummon, registerSummons } from "./runtime/summons.mjs";
+import { registerSources, sourcesSetting, sourcesValue, detection } from "./runtime/sources.mjs";
+import { openSources, registerSourcesMenu } from "./ui/sources-window.mjs";
+import { reconcileScene as reconcileConditionScene } from "./runtime/conditions.mjs";
 
 Hooks.once("init", () => {
   // La dernière table versée (empreinte) : on ne revient vers BLFX que si elle a changé.
@@ -41,6 +44,8 @@ Hooks.once("init", () => {
     drawWall: args => drawWall(canvas.scene?.regions.get(args?.regionId ?? args)),
     // Potions et consommables : joués par nous à la carte d'utilisation (réglage « renderer » : BLFX > Token Magic FX > autonome).
     previewConsumable, renderer: () => renderer(),
+    // Sources d'animation (SPEC §23) : la fenêtre, la valeur en vigueur, ce qui est détecté ; `sourcesSetting({ value })` pour les scénarios.
+    openSources, sources: () => sourcesValue(), detection: () => detection(), sourcesSetting,
     // Pour les scénarios : change le réglage « renderer » (MJ), rend l'ancienne valeur.
     rendererSetting,
     // Zones de sort sans BLFX (ou qu'il ne reconnaît pas) : effet Token Magic par type de dégâts sur une région compagne.
@@ -65,6 +70,9 @@ Hooks.once("init", () => {
     } };
   // `mcp` : ce que le connecteur MCP appelle par `call-module-api`, comme pour le moteur de combat.
   game.modules.get(MODULE_ID).api = { ...api, mcp: api };
+  // Fenêtre « Sources d'animation » (SPEC §23) : ordre des sources et domaines ; le bouton se range avant les autres réglages.
+  registerSources(() => reconcileConditionScene().catch(err => console.error(`${MODULE_ID} | condition animations`, err)));
+  registerSourcesMenu();
   registerRenderer();
   registerNative();
   registerTraps();

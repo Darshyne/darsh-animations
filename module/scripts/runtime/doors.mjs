@@ -8,7 +8,7 @@
  */
 
 import { MODULE_ID } from "./shared.mjs";
-import { renderer } from "./renderer.mjs";
+import { pick } from "./sources.mjs";
 import { doorMoment } from "../core/doors.mjs";
 import { BLFX_DOORS, JB2A_DOORS } from "../data/doors.mjs";
 import { addSound, known } from "./sequencer.mjs";
@@ -30,9 +30,9 @@ function doorCenter(wall) {
  * raison de ne rien jouer.
  */
 export function playDoor(moment, { point=null, scene=null }={}) {
-  const backend = renderer();
+  const backend = pick("doors");
   const parts = TABLES[backend]?.[moment];
-  if ( !parts ) return { skipped: backend ? `no door animation for ${backend}` : "renderer set to none" };
+  if ( !parts ) return { skipped: backend ? `no door animation for ${backend}` : "doors turned off" };
   if ( !point ) return { skipped: "no door position" };
   if ( scene && (scene !== canvas.scene) ) return { skipped: "door on another scene" };
   const size = canvas.grid?.size ?? 100;
@@ -72,7 +72,7 @@ export function registerDoors() {
   Hooks.on(FEEDBACK_HOOK, ({ action, outcome }={}) => {
     const moment = (outcome === "success") ? doorMoment("doorUnlocked", { method: action })
       : (((action === "force") && (outcome === "failure")) ? doorMoment("noise", { cause: "forceDoor" }) : null);
-    if ( moment && TABLES[renderer()]?.[moment]?.some(part => known(part.animation)) ) return false;
+    if ( moment && TABLES[pick("doors")]?.[moment]?.some(part => known(part.animation)) ) return false;
   });
 }
 

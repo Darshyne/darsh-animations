@@ -8,7 +8,7 @@
  */
 
 import { MODULE_ID } from "./shared.mjs";
-import { renderer } from "./renderer.mjs";
+import { pick } from "./sources.mjs";
 import { placeTokenMagic } from "./consumables.mjs";
 import { playNative } from "./native.mjs";
 import { COLORS } from "../data/consumables.mjs";
@@ -39,10 +39,10 @@ function areaOf(region) {
  * @param {{ actor: Actor, activity?: object, targets?: TokenDocument[], region?: Region, effectRegion?: Region }} payload
  */
 export function playTrap({ actor, activity=null, targets=[], region=null, effectRegion=null }={}) {
-  // BLFX > JB2A + PSFX > Token Magic FX > rendu autonome (runtime/renderer.mjs) : sans les deux premiers, une lueur rouge et une
+  // BLFX > JB2A + PSFX > Token Magic FX > rendu autonome par défaut (fenêtre « Sources d'animation », runtime/sources.mjs) : sans les deux premiers, une lueur rouge et une
   // onde, ou un anneau rouge, sur chaque victime — un piège est toujours une mauvaise nouvelle.
-  const backend = renderer();
-  if ( !backend ) return { skipped: "renderer set to none" };
+  const backend = pick("traps");
+  if ( !backend ) return { skipped: "traps turned off" };
   if ( !TABLES[backend] ) return playTrapFallback(backend, targets);
   const { traps, byDamage } = TABLES[backend];
   // Source de compendium : `_stats.compendiumSource`, ou l'ancien drapeau `core.sourceId` (acteur copié à la main).

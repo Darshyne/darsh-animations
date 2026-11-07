@@ -62,7 +62,7 @@ export function planConsumable({ item, activity=null, user=null, targets=[] }, b
     return { skipped: "played by BLFX" };
   }
   // Automated Animations le joue (une entrée de son Auto-Rec, ou des drapeaux sur l'objet) : pas deux fois.
-  if ( aaPlays(item, { activity }) ) return { skipped: "played by Automated Animations" };
+  if ( aaPlays(item, { activity, domain: "consumables" }) ) return { skipped: "played by Automated Animations" };
   if ( !user ) return { skipped: "no token on the viewed scene" };
   // Sur soi : une activité « soi », ou sans cible désignée. Une flasque lancée a besoin d'une cible.
   const self = (activity?.target?.affects?.type === "self") || !targets.length;

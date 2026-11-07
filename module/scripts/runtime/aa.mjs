@@ -6,8 +6,8 @@
  *   recherche), si AA ne trouve rien avec ses propres noms, on retrouve son entrée par les clés anglaises de l'objet (nom d'origine
  *   de Babele, table de la langue `module/names/<langue>.json`, identifiant dnd5e, arme de base — core/aa.mjs) et on met son
  *   libellé exact en tête de `overrideNames`. Remplace le module « Automated Animation for Babele ».
- * - **BLFX d'abord** (réglage `aaYieldToBlfx`) : au hook `AutomatedAnimations-WorkflowStart` (15848), si BLFX joue déjà cet objet, AA
- *   s'arrête (`stopWorkflow`, lu en 15850). Ne couvre pas l'animation de critique d'AA, jouée plus tôt (108966).
+ * - **Ordre des sources** (fenêtre « Sources d'animation », SPEC §23 ; l'ancien réglage `aaYieldToBlfx` n'en donne que la valeur de
+ *   départ) : au hook `AutomatedAnimations-WorkflowStart` (15848), AA s'arrête (`stopWorkflow`, lu en 15850) devant ce qui passe avant lui. Ne couvre pas l'animation de critique d'AA, jouée plus tôt (108966).
  * - **`aaPlays`** : les consommables, zones et murs que ce module joue lui-même se taisent quand AA les joue (même calcul, mêmes
  *   réglages du monde, chez le MJ).
  */
@@ -16,6 +16,7 @@ import { AA, MODULE_ID, aaActive, blfxActive, log } from "./shared.mjs";
 import { blfxPlays } from "./blfxmap.mjs";
 import { MENUS, englishKeys, normalize, resolveLabel, aaWhich } from "../core/aa.mjs";
 import { renderer } from "./renderer.mjs";
+import { before, chain, domainOf, pick } from "./sources.mjs";
 import { strikesWouldPlay } from "./strikes.mjs";
 
 /** Marque posée sur les données d'un appel à AA fait par ce module pour un châtiment (lue à `AutomatedAnimations-WorkflowStart`). */
@@ -103,14 +104,16 @@ function onRequiredData(data) {
  */
 function dasPlays(item, activity, isTemplate) {
   if ( blfxPlays(item) ) return true;
-  if ( isTemplate || (item.type === "consumable") ) return renderer() !== null;
+  if ( isTemplate ) return pick("areas") !== null;
+  if ( item.type === "consumable" ) return renderer() !== null;
   return strikesWouldPlay(item, activity);
 }
 
 /**
  * `AutomatedAnimations-WorkflowStart` : AA ne joue que ses animations **personnalisées** (lot 5). Une entrée livrée se tait dès que
- * DAS · Animations ou BLFX joue l'objet ; une animation personnalisée se tait seulement devant BLFX (réglage `aaYieldToBlfx`, BLFX
- * n'ayant aucun moyen d'être arrêté objet par objet).
+ * DAS · Animations ou BLFX joue l'objet. Une animation personnalisée suit sa place dans l'ordre de la fenêtre « Sources d'animation »
+ * (SPEC §23) : elle se tait devant BLFX placé avant elle (pour un objet que BLFX reconnaît), devant une source de ce module placée avant
+ * elle (qui a quelque chose pour l'objet), et toujours quand AA est coupé dans la fenêtre.
  */
 function onWorkflowStart(data, animation) {
   // Un châtiment que ce module confie lui-même à AA (runtime/smites.mjs) : AA joue.
@@ -121,9 +124,12 @@ function onWorkflowStart(data, animation) {
   const isTemplate = !!data.isTemplate;
   const kind = aaKind(item, { activity, isTemplate });
   if ( kind === "custom" ) {
-    if ( !(setting("aaYieldToBlfx") && blfxActive() && blfxPlays(item)) ) return;
+    if ( aaPlays(item, { activity, isTemplate }) ) return;
+    const off = !chain(domainOf(item, { isTemplate })).includes("aa");
+    const other = blfxPlays(item) ? "BLFX" : (dasPlays(item, activity, isTemplate) ? "DAS · Animations" : null);
+    if ( !off && !other ) return;
     data.stopWorkflow = true;
-    log(`Automated Animations: ${item.name} (custom) left to BLFX`);
+    log(`Automated Animations: ${item.name} (custom) ${off ? "turned off in the sources window" : `left to ${other}`}`);
     return;
   }
   if ( !dasPlays(item, activity, isTemplate) ) return;
@@ -145,16 +151,22 @@ export function aaKind(item, { activity=null, isTemplate=false }={}) {
 
 /**
  * AA jouera-t-il cette utilisation **avec une animation personnalisée** ? Alors ce module se tait (attaques, sorts, consommables,
- * zones, murs, châtiments). Une entrée livrée d'AA ne compte pas : c'est elle qui se tait (lot 5). Faux aussi quand l'animation
- * personnalisée se tait devant BLFX pour cet objet.
+ * zones, murs, châtiments). Une entrée livrée d'AA ne compte pas : c'est elle qui se tait (lot 5). Selon l'ordre de la fenêtre
+ * « Sources d'animation » (SPEC §23) : faux quand AA y est coupé, quand BLFX est placé avant AA et reconnaît l'objet, ou quand la source
+ * de ce module pour ce domaine (sauf BLFX, compté par son Auto-Rec) est placée avant AA.
  * @param {Item} item
- * @param {{ activity?: object, isTemplate?: boolean, ignoreBlfx?: boolean }} [options]   `ignoreBlfx` : ne pas se taire devant BLFX
- *   (les châtiments, que BLFX ne joue pas quand il n'a pas d'animation de dégâts pour eux)
+ * @param {{ activity?: object, isTemplate?: boolean, ignoreBlfx?: boolean, domain?: string }} [options]   `ignoreBlfx` : ne pas se
+ *   taire devant BLFX (les châtiments, que BLFX ne joue pas quand il n'a pas d'animation de dégâts pour eux) ; `domain` : celui de la
+ *   fenêtre (déduit de l'objet sinon)
  */
-export function aaPlays(item, { activity=null, isTemplate=false, ignoreBlfx=false }={}) {
+export function aaPlays(item, { activity=null, isTemplate=false, ignoreBlfx=false, domain=null }={}) {
   if ( !aaActive() || (item?.documentName !== "Item") ) return false;
-  if ( !ignoreBlfx && setting("aaYieldToBlfx") && blfxActive() && blfxPlays(item) ) return false;
-  return aaKind(item, { activity, isTemplate }) === "custom";
+  const d = domain ?? domainOf(item, { isTemplate });
+  if ( !chain(d).includes("aa") ) return false;
+  if ( !ignoreBlfx && blfxActive() && before("blfx", "aa") && blfxPlays(item) ) return false;
+  if ( aaKind(item, { activity, isTemplate }) !== "custom" ) return false;
+  const own = pick(d);
+  return !(own && (own !== "blfx") && before(own, "aa"));
 }
 
 /**
@@ -198,7 +210,7 @@ export function registerAA() {
   });
   game.settings.register(MODULE_ID, "aaYieldToBlfx", {
     name: "DARSHANIM.Settings.AaYield.Name", hint: "DARSHANIM.Settings.AaYield.Hint",
-    scope: "world", config: true, type: Boolean, default: true
+    scope: "world", config: false, type: Boolean, default: true
   });
   Hooks.on("aa.getRequiredData", data => {
     try { onRequiredData(data); } catch(err) { console.error(`${MODULE_ID} | Automated Animations names`, err); }

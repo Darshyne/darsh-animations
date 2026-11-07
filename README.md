@@ -22,7 +22,7 @@ ring, for as long as the spell's region is on the scene).
 or administered, a poison applied, a flask thrown (Alchemist's Fire, Acid, Holy Water, Oil), a scroll read, food and
 drink. Every Player's Handbook and Dungeon Master's Guide potion has its own colour, and the striking ones a
 signature effect (Invisibility fades, Gaseous Form turns to mist, Flying spreads wings, Growth and Diminution
-swell or shrink…). Four renderers, in this order (world setting **"Effect renderer"**, *Auto* by default):
+swell or shrink…). Four renderers, in this order by default (change it in the **"Animation sources"** window, below):
 
 1. **Boss Loot (BLFX)** — drinking sounds, glows, splashes and signature animations from the BLFX asset pack;
 2. **JB2A + PSFX** — animations from the **free** JB2A module (`JB2A_DnD5e`; the Patreon version works too, it keeps
@@ -58,6 +58,22 @@ this module or BLFX animates the item. With BLFX also active, **"Automated Anima
 (on by default) keeps your customised animations silent for the items BLFX animates, since BLFX cannot be silenced item by
 item. Not covered: Automated Animations' critical-hit animation, active effects and ammunition (it only looks at their
 own, translated, names).
+
+## Animation sources
+
+Module settings → **"Animation sources"** (GM only; a tool of the DAS settings window when DAS · Core is active) shows:
+
+- **Detection** — BLFX, JB2A (free or Premium), PSFX, Token Magic FX, Automated Animations and Sequencer, with their
+  state and version, and what to fix (Sequencer missing, both JB2A versions active, PSFX missing, the BLFX setting
+  "Custom Auto-Rec Updates" not ticked, a module installed but not enabled).
+- **Source order** — drag the rows or use the arrows; untick a source so DAS · Animations stops using it. Default:
+  BLFX, Automated Animations + JB2A + PSFX (your **customised** AA animations only), DAS · Animations + JB2A + PSFX, Token
+  Magic FX, built-in.
+- **By domain** — attacks and spells, conditions, consumables, traps, spell walls, spell areas, door locks, summons:
+  the source that will play with what is installed, and a box to turn the domain off.
+
+BLFX plays whatever its Auto-Rec recognises by itself, and nothing can stop it item by item: its place in the list
+only decides whether DAS · Animations plays those items too (a source placed above BLFX plays them as well).
 
 ## Installation
 

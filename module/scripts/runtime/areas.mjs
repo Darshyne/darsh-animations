@@ -15,7 +15,7 @@
  * apparition : une zone instantanée est retirée vite par le moteur.
  */
 import { MODULE_ID, jb2aActive, log } from "./shared.mjs";
-import { renderer, tokenMagicActive } from "./renderer.mjs";
+import { chain, pick, yieldBlfx } from "./sources.mjs";
 import { areaPreset } from "../core/areas.mjs";
 import { lineEnds } from "../core/walls.mjs";
 import { BY_DAMAGE, BY_IDENTIFIER, MIN_VISIBLE_MS } from "../data/areas.mjs";
@@ -37,16 +37,16 @@ const companions = new Map();
 const fxName = regionId => `${MODULE_ID}.area.${regionId}`;
 
 /**
- * Le rendu des zones : JB2A + PSFX ou Token Magic FX. Avec BLFX choisi mais qui ne connaît pas le sort : JB2A s'il est là, sinon
- * Token Magic. Le rendu autonome n'anime pas les zones.
+ * Le rendu des zones : JB2A + PSFX ou Token Magic FX, le premier des deux dans l'ordre de la fenêtre « Sources d'animation »
+ * (runtime/sources.mjs). BLFX joue de lui-même les sorts qu'il reconnaît ; le rendu autonome n'anime pas les zones.
  */
 function areaBackend() {
-  const backend = renderer();
-  if ( backend === "jb2a" ) return "jb2a";
-  if ( (backend === "tokenmagic") && tokenMagicActive() ) return "tokenmagic";
-  if ( backend === "blfx" ) return jb2aActive() ? "jb2a" : (tokenMagicActive() ? "tokenmagic" : null);
-  return null;
+  const backend = pick("areas");
+  if ( backend !== "blfx" ) return backend;
+  // BLFX en tête : pour les sorts qu'il ne reconnaît pas, la source suivante.
+  return ["jb2a", "tokenmagic"].find(s => chainHas(s)) ?? null;
 }
+const chainHas = s => chain("areas").includes(s);
 
 /** Ce qu'une zone montrerait : `{ backend, key, item, … }` (préréglage Token Magic, ou entrée JB2A), ou `{ skipped }`. */
 export function areaPlan(region) {
@@ -54,13 +54,12 @@ export function areaPlan(region) {
   const activity = fromUuidSync(region.flags?.dnd5e?.activity ?? "", { strict: false });
   const item = activity?.item ?? fromUuidSync(region.flags?.dnd5e?.item ?? "", { strict: false });
   if ( !item ) return { skipped: "not an activity area" };
-  const backend = renderer();
   const draw = areaBackend();
-  if ( !draw ) return { skipped: `renderer ${backend ?? "none"}` };
+  if ( !draw ) return { skipped: `areas: no source (${pick("areas") ?? "turned off"})` };
   // Un mur de sort est dessiné par runtime/walls.mjs.
   if ( wallTable()[item.system?.identifier] ) return { skipped: "wall drawn by runtime/walls.mjs" };
-  if ( (backend === "blfx") && blfxPlays(item) ) return { skipped: "played by BLFX" };
-  if ( aaPlays(item, { activity, isTemplate: true }) ) return { skipped: "played by Automated Animations" };
+  if ( yieldBlfx("areas", draw) && blfxPlays(item) ) return { skipped: "played by BLFX" };
+  if ( aaPlays(item, { activity, isTemplate: true, domain: "areas" }) ) return { skipped: "played by Automated Animations" };
   const activities = [activity, ...(item.system?.activities ?? [])].filter(Boolean);
   const damageTypes = [...new Set(activities.flatMap(a => (a.damage?.parts ?? []).flatMap(p => [...(p.types ?? [])])))];
   const healing = activities.some(a => a.type === "heal");

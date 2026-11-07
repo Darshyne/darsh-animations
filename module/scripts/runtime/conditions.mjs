@@ -10,6 +10,7 @@
  */
 import { MODULE_ID, blfxActive, jb2aActive, log } from "./shared.mjs";
 import { known } from "./sequencer.mjs";
+import { chain, domainOn, yieldBlfx } from "./sources.mjs";
 import { CONDITIONS, CONDITION_OPACITY } from "../data/conditions.mjs";
 import { conditionDiff, conditionName, wantedConditions } from "../core/conditions.mjs";
 
@@ -27,8 +28,11 @@ function playingOn(token) {
 /** Met les boucles d'un token d'accord avec les statuts de son acteur. Rend `{ add, remove }` (ce qui a changé). */
 export async function reconcile(token, { force=false }={}) {
   if ( !token?.actor || (token.scene !== canvas.scene) ) return { add: [], remove: [] };
-  const on = force || setting("conditions");
-  const wanted = (on && jb2aActive()) ? wantedConditions(token.actor.statuses, { blfx: blfxActive(), withBlfx: setting("conditionsWithBlfx") }) : [];
+  // Fenêtre « Sources d'animation » : domaine « conditions » allumé et JB2A utilisable ; JB2A placé avant BLFX joue aussi les états que
+  // BLFX anime de lui-même (ancien réglage `conditionsWithBlfx`).
+  const on = force || domainOn("conditions");
+  const jb2a = force ? jb2aActive() : chain("conditions").includes("jb2a");
+  const wanted = (on && jb2a) ? wantedConditions(token.actor.statuses, { blfx: blfxActive(), withBlfx: !yieldBlfx("conditions", "jb2a") }) : [];
   const diff = conditionDiff(wanted, playingOn(token));
   for ( const status of diff.remove ) await Sequencer.EffectManager.endEffects({ object: token, name: conditionName(status) });
   const added = [];
@@ -61,7 +65,7 @@ function schedule(actor) {
 const actorOf = effect => ((effect?.parent?.documentName === "Actor") ? effect.parent : effect?.parent?.actor) ?? null;
 
 /** Toute la scène affichée (au chargement, et quand un réglage change). */
-async function reconcileScene() {
+export async function reconcileScene() {
   if ( !isExecutor() || !canvas.ready ) return;
   for ( const token of canvas.tokens.placeables ) await reconcile(token).catch(() => {});
 }
@@ -78,11 +82,11 @@ export async function previewCondition({ token, status=null }={}) {
 export function registerConditions() {
   game.settings.register(MODULE_ID, "conditions", {
     name: "DARSHANIM.Settings.Conditions.Name", hint: "DARSHANIM.Settings.Conditions.Hint",
-    scope: "world", config: true, type: Boolean, default: true, onChange: () => reconcileScene()
+    scope: "world", config: false, type: Boolean, default: true, onChange: () => reconcileScene()
   });
   game.settings.register(MODULE_ID, "conditionsWithBlfx", {
     name: "DARSHANIM.Settings.ConditionsWithBlfx.Name", hint: "DARSHANIM.Settings.ConditionsWithBlfx.Hint",
-    scope: "world", config: true, type: Boolean, default: false, onChange: () => reconcileScene()
+    scope: "world", config: false, type: Boolean, default: false, onChange: () => reconcileScene()
   });
   for ( const hook of ["createActiveEffect", "deleteActiveEffect", "updateActiveEffect"] ) {
     Hooks.on(hook, effect => schedule(actorOf(effect)));

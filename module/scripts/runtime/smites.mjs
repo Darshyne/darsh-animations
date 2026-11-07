@@ -13,8 +13,9 @@ import { BLFX, MODULE_ID, aaActive, blfxActive, jb2aActive, log } from "./shared
 import { addSound, known } from "./sequencer.mjs";
 import { chooseSmite } from "../core/strikes.mjs";
 import { ANIMATION_MAP_PATH } from "../core/blfx.mjs";
-import { smiteAnimation, smiteBackend } from "../core/smites.mjs";
-import { SMITE_MARK, aaOverrideNames, aaPlays, englishKeysOf } from "./aa.mjs";
+import { smiteAnimation } from "../core/smites.mjs";
+import { SMITE_MARK, aaKind, aaOverrideNames, englishKeysOf } from "./aa.mjs";
+import { chain, domainOn } from "./sources.mjs";
 
 const ENGINE = "dnd5e-combat";
 let map = null;
@@ -33,9 +34,7 @@ function blfxAutoRec() {
 
 /** Notre rendu d'un châtiment, sur la cible (JB2A + PSFX). */
 function playOwnSmite(item, targetTokens) {
-  let on = true;
-  try { on = game.settings.get(MODULE_ID, "strikes") !== false; } catch {}
-  if ( !on || !jb2aActive() ) return null;
+  if ( !domainOn("strikes") || !chain("strikes").includes("jb2a") ) return null;
   const damageTypes = [...(item.system?.activities ?? [])].flatMap(a => (a.damage?.parts ?? []).flatMap(p => [...(p.types ?? [])]));
   const choice = chooseSmite(englishKeysOf(item), damageTypes);
   const file = choice?.animation.find(known);
@@ -60,7 +59,11 @@ export async function playSmite(smite, { roll=null }={}) {
   const anim = blfxOn
     ? smiteAnimation(await animationMap(), { type: item.type, name: item.name, identifier: item.system?.identifier })
     : null;
-  const backend = smiteBackend({ blfx: !!anim, aa: !anim && aaActive() && aaPlays(item, { activity, ignoreBlfx: true }) });
+  // Le premier de l'ordre des attaques (fenêtre « Sources d'animation ») qui a quelque chose : BLFX (que ce module lance lui-même ici),
+  // une animation personnalisée d'AA, sinon le nôtre (JB2A).
+  const has = { blfx: !!anim, aa: aaActive() && (aaKind(item, { activity }) === "custom"), jb2a: true };
+  const first = domainOn("strikes") ? (chain("strikes").find(s => has[s]) ?? null) : null;
+  const backend = ["blfx", "aa"].includes(first) ? first : null;
   const sourceToken = item.actor?.getActiveTokens(true)[0] ?? null;
   const target = smite.target ? await fromUuid(smite.target).catch(() => null) : null;
   const targetTokens = target?.object ? [target.object] : [];
