@@ -23,9 +23,6 @@
         "Name": "Automated Animations dá prioridade ao BLFX",
         "Hint": "Quando Boss Loot (BLFX) e Automated Animations estão ativos, o Automated Animations não executa efeitos para itens que o BLFX já anima, evitando animações duplicadas. A animação de acerto crítico não está incluída nessa regra (desative-a nas configurações do próprio módulo, se necessário)."
       }
-    },
-    "AA": {
-      "BabeleCompanion": "DAS · Animations: o Automated Animations já reconhece itens traduzidos por meio deste módulo. Você pode desativar \"Automated Animation for Babele\"."
     }
   }
 }

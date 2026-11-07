@@ -216,6 +216,18 @@ export function playStrike({ item, activity=null, source, targets=[], attackMode
   return { ...result, family: choice.family, action: choice.action, kind: choice.kind, targets: live.map(t => t.token.name) };
 }
 
+/**
+ * Ce rendu jouera-t-il cet objet (pour qu'une entrée livrée d'Automated Animations se taise, runtime/aa.mjs) ? Réglage allumé, JB2A
+ * présent, pas une zone, une recette trouvée, BLFX ne le joue pas.
+ */
+export function strikesWouldPlay(item, activity=null) {
+  if ( !setting("strikes") || !jb2aActive() ) return false;
+  if ( activity?.target?.template?.type && (activity.type !== "attack") ) return false;
+  if ( blfxPlays(item) ) return false;
+  const acts = activity ? [activity] : [...(item?.system?.activities ?? [])];
+  return acts.some(a => !!chooseAction(strikeSummary(item, a)));
+}
+
 /* -------------------------------------------- */
 /*  Voie DAS · Core                              */
 /* -------------------------------------------- */

@@ -47,13 +47,17 @@ entry of its own list, found from the item's English name kept by Babele, its dn
 (*Épée longue* → *Longsword*), or the translation table of the world's language — `module/names/fr.json` for French
 (3 700 names of the SRD, from [dnd5e_fr-FR](https://github.com/adgranger/foundryvtt-dnd5e-lang-fr-fr), MIT). Names with
 apostrophes (*Hunter's Mark*) and placed areas work too. Your own entries in another language still win. This replaces
-the "Automated Animation for Babele" module, which can be disabled. Other languages: add `module/names/<code>.json`
+the "Automated Animation for Babele" module. Other languages: add `module/names/<code>.json`
 (same shape), or call `game.modules.get("darsh-animations").api.aaNames({ "Local name": "English Name" })`.
 
-Nothing plays twice: with **"Automated Animations gives way to BLFX"** (on by default), Automated Animations stays
-silent for the items BLFX animates; and the potions, areas and walls this module plays itself are left to Automated
-Animations when it has an entry for them. Not covered: Automated Animations' critical-hit animation, active effects
-and ammunition (it only looks at their own, translated, names).
+**Automated Animations is not needed.** Without BLFX, this module alone animates weapon attacks, targeted spells, healing,
+features and conditions with Sequencer, JB2A (free or Premium) and PSFX sounds. Automated Animations stays useful as an
+optional **customisation tool**: the animations you customise in it (on an item, or an entry you add or edit in its
+Auto-Rec) still play, before this module, which then stays silent for that item; its built-in entries stay silent whenever
+this module or BLFX animates the item. With BLFX also active, **"Automated Animations: customised only, gives way to BLFX"**
+(on by default) keeps your customised animations silent for the items BLFX animates, since BLFX cannot be silenced item by
+item. Not covered: Automated Animations' critical-hit animation, active effects and ammunition (it only looks at their
+own, translated, names).
 
 ## Installation
 

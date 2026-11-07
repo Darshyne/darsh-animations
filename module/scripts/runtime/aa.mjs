@@ -14,9 +14,9 @@
 
 import { AA, MODULE_ID, aaActive, blfxActive, log } from "./shared.mjs";
 import { blfxPlays } from "./blfxmap.mjs";
-import { MENUS, englishKeys, normalize, resolveLabel, aaWillPlay } from "../core/aa.mjs";
-
-export const BABELE_COMPANION = "automated-animation-for-babele";
+import { MENUS, englishKeys, normalize, resolveLabel, aaWhich } from "../core/aa.mjs";
+import { renderer } from "./renderer.mjs";
+import { strikesWouldPlay } from "./strikes.mjs";
 
 /** Marque posée sur les données d'un appel à AA fait par ce module pour un châtiment (lue à `AutomatedAnimations-WorkflowStart`). */
 export const SMITE_MARK = "darshAnimationsSmite";
@@ -97,20 +97,56 @@ function onRequiredData(data) {
   log(`Automated Animations: ${item.name} → "${found.label}" (${found.menu}, by ${found.key})`);
 }
 
-/** `AutomatedAnimations-WorkflowStart` : AA se tait devant BLFX. */
-function onWorkflowStart(data, animation) {
-  // Un châtiment que ce module confie lui-même à AA (runtime/smites.mjs) : BLFX n'a pas d'animation de dégâts pour lui, AA joue.
-  if ( data?.[SMITE_MARK] ) return;
-  if ( !animation || !setting("aaYieldToBlfx") || !blfxActive() ) return;
-  const item = data?.item;
-  if ( item?.documentName !== "Item" || !blfxPlays(item) ) return;
-  data.stopWorkflow = true;
-  log(`Automated Animations: ${item.name} left to BLFX`);
+/**
+ * DAS · Animations (ou BLFX) jouera-t-il cette utilisation ? Alors une entrée **livrée** d'AA se tait (SPEC §21.5 D1–D2) : zones et
+ * consommables par le rendu en vigueur (runtime/renderer.mjs), attaques, sorts et aptitudes par runtime/strikes.mjs.
+ */
+function dasPlays(item, activity, isTemplate) {
+  if ( blfxPlays(item) ) return true;
+  if ( isTemplate || (item.type === "consumable") ) return renderer() !== null;
+  return strikesWouldPlay(item, activity);
 }
 
 /**
- * AA jouera-t-il cette utilisation ? Pour que ce module se taise (consommables, zones, murs). Faux si AA n'est pas là, ou s'il se
- * tait devant BLFX pour cet objet.
+ * `AutomatedAnimations-WorkflowStart` : AA ne joue que ses animations **personnalisées** (lot 5). Une entrée livrée se tait dès que
+ * DAS · Animations ou BLFX joue l'objet ; une animation personnalisée se tait seulement devant BLFX (réglage `aaYieldToBlfx`, BLFX
+ * n'ayant aucun moyen d'être arrêté objet par objet).
+ */
+function onWorkflowStart(data, animation) {
+  // Un châtiment que ce module confie lui-même à AA (runtime/smites.mjs) : AA joue.
+  if ( data?.[SMITE_MARK] || !animation ) return;
+  const item = data?.item;
+  if ( item?.documentName !== "Item" ) return;
+  const activity = data.activity ?? null;
+  const isTemplate = !!data.isTemplate;
+  const kind = aaKind(item, { activity, isTemplate });
+  if ( kind === "custom" ) {
+    if ( !(setting("aaYieldToBlfx") && blfxActive() && blfxPlays(item)) ) return;
+    data.stopWorkflow = true;
+    log(`Automated Animations: ${item.name} (custom) left to BLFX`);
+    return;
+  }
+  if ( !dasPlays(item, activity, isTemplate) ) return;
+  data.stopWorkflow = true;
+  log(`Automated Animations: ${item.name} (default entry) left to ${blfxPlays(item) ? "BLFX" : "DAS · Animations"}`);
+}
+
+/** Ce qu'AA jouera : "custom", "default" ou null (core/aa.mjs, `aaWhich`). */
+export function aaKind(item, { activity=null, isTemplate=false }={}) {
+  if ( !aaActive() || (item?.documentName !== "Item") ) return null;
+  let autorecDisabled = false;
+  try { autorecDisabled = !!game.settings.get(AA, "disableAutoRec"); } catch {}
+  return aaWhich({
+    itemFlags: item.flags?.autoanimations ?? null, activityFlags: activity?.flags?.autoanimations ?? null, autorecDisabled,
+    settings: autorec(), keys: keysOf(item, activity), nativeNames: nativeNamesOf(item, activity), itemName: item.name, isTemplate,
+    translate: !!setting("aaNames")
+  });
+}
+
+/**
+ * AA jouera-t-il cette utilisation **avec une animation personnalisée** ? Alors ce module se tait (attaques, sorts, consommables,
+ * zones, murs, châtiments). Une entrée livrée d'AA ne compte pas : c'est elle qui se tait (lot 5). Faux aussi quand l'animation
+ * personnalisée se tait devant BLFX pour cet objet.
  * @param {Item} item
  * @param {{ activity?: object, isTemplate?: boolean, ignoreBlfx?: boolean }} [options]   `ignoreBlfx` : ne pas se taire devant BLFX
  *   (les châtiments, que BLFX ne joue pas quand il n'a pas d'animation de dégâts pour eux)
@@ -118,13 +154,7 @@ function onWorkflowStart(data, animation) {
 export function aaPlays(item, { activity=null, isTemplate=false, ignoreBlfx=false }={}) {
   if ( !aaActive() || (item?.documentName !== "Item") ) return false;
   if ( !ignoreBlfx && setting("aaYieldToBlfx") && blfxActive() && blfxPlays(item) ) return false;
-  let autorecDisabled = false;
-  try { autorecDisabled = !!game.settings.get(AA, "disableAutoRec"); } catch {}
-  return aaWillPlay({
-    itemFlags: item.flags?.autoanimations ?? null, activityFlags: activity?.flags?.autoanimations ?? null, autorecDisabled,
-    settings: autorec(), keys: keysOf(item, activity), nativeNames: nativeNamesOf(item, activity), itemName: item.name, isTemplate,
-    translate: !!setting("aaNames")
-  });
+  return aaKind(item, { activity, isTemplate }) === "custom";
 }
 
 /**
@@ -156,7 +186,8 @@ export async function aaResolve({ item, activity=null, isTemplate=false }={}) {
   return {
     active: aaActive(), name: doc.name, keys: keysOf(doc, act), nativeNames,
     label: resolveLabel(settings, { keys: keysOf(doc, act), nativeNames, itemName: doc.name, isTemplate }),
-    plays: aaPlays(doc, { activity: act, isTemplate }), blfx: blfxPlays(doc), names: Object.keys(names).length
+    kind: aaKind(doc, { activity: act, isTemplate }), plays: aaPlays(doc, { activity: act, isTemplate }), blfx: blfxPlays(doc),
+    names: Object.keys(names).length
   };
 }
 
@@ -175,10 +206,5 @@ export function registerAA() {
   Hooks.on("AutomatedAnimations-WorkflowStart", (data, animation) => {
     try { onWorkflowStart(data, animation); } catch(err) { console.error(`${MODULE_ID} | Automated Animations and BLFX`, err); }
   });
-  Hooks.once("ready", () => {
-    loadNames();
-    if ( game.user.isGM && game.modules.get(BABELE_COMPANION)?.active && game.modules.get(AA)?.active && setting("aaNames") ) {
-      ui.notifications.info("DARSHANIM.AA.BabeleCompanion", { localize: true });
-    }
-  });
+  Hooks.once("ready", () => loadNames());
 }

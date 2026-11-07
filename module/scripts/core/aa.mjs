@@ -144,3 +144,32 @@ export function aaWillPlay({ itemFlags=null, activityFlags=null, autorecDisabled
   if ( aaNative(settings, { names: nativeNames, itemName, isTemplate }) ) return true;
   return !!(translate && resolveLabel(settings, { keys, nativeNames: [], itemName, isTemplate }));
 }
+
+/**
+ * SPEC §21.2 et §21.5 D1–D2 (lot 5) : une entrée livrée par AA porte `metaData: { default: true }` ; son menu retire `metaData` d'une
+ * entrée qu'il enregistre (dist/autoanimations.js, `delete $animation.metaData`), donc une entrée ajoutée ou modifiée par le MJ ne l'a
+ * plus. AA n'est plus nécessaire : seules ses animations **personnalisées** passent avant BLFX et ce module.
+ */
+export const isDefaultEntry = entry => entry?.metaData?.default === true;
+
+/**
+ * Ce qu'AA jouera pour cette utilisation : "custom" (drapeaux `isCustomized` de l'objet ou de l'activité, ou entrée d'Auto-Rec sans la
+ * marque des entrées livrées), "default" (une entrée livrée), ou null (rien). Mêmes règles que `aaWillPlay`.
+ */
+export function aaWhich({ itemFlags=null, activityFlags=null, autorecDisabled=false, settings={}, keys=[], nativeNames=[],
+  itemName="", isTemplate=false, translate=true }) {
+  for ( const flags of [activityFlags, itemFlags] ) {
+    if ( !flags ) continue;
+    if ( flags.killAnim || (flags.isEnabled === false) ) return null;
+  }
+  if ( activityFlags?.isCustomized || itemFlags?.isCustomized ) return "custom";
+  if ( autorecDisabled ) return null;
+  let entry = aaNative(settings, { names: nativeNames, itemName, isTemplate });
+  if ( !entry && translate ) {
+    const found = resolveLabel(settings, { keys, nativeNames: [], itemName, isTemplate });
+    if ( found ) entry = sortedEntries(settings).find(e => (e.label === found.label) && (e.menu === found.menu)) ?? null;
+  }
+  if ( !entry ) return null;
+  return isDefaultEntry(entry) ? "default" : "custom";
+}
+

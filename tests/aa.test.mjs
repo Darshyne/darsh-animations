@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { aaNative, aaSearch, aaWillPlay, englishKeys, keySearch, normalize, resolveLabel, sortedEntries }
+import { aaNative, aaSearch, aaWhich, aaWillPlay, englishKeys, keySearch, normalize, resolveLabel, sortedEntries }
   from "../module/scripts/core/aa.mjs";
 
 const here = import.meta.dirname;
@@ -76,6 +76,15 @@ describe("le libellé donné à AA", () => {
     expect(aaWillPlay({ ...base, activityFlags: { isEnabled: false } })).toBe(false);
     expect(aaWillPlay({ ...base, keys: [], itemFlags: { isCustomized: true } })).toBe(true);
     expect(aaWillPlay({ ...base, autorecDisabled: true })).toBe(false);
+  });
+  it("lot 5 : personnalisé contre livré (marque metaData.default des entrées livrées)", () => {
+    const livre = { ...menus, preset: menus.preset.map(e => ({ ...e, metaData: { default: true } })) };
+    const base = { keys: ["fireball"], nativeNames: ["Boule de feu"], itemName: "Boule de feu" };
+    expect(aaWhich({ ...base, settings: livre })).toBe("default");
+    expect(aaWhich({ ...base, settings: menus })).toBe("custom");   // la même entrée, enregistrée par le MJ : plus de marque
+    expect(aaWhich({ ...base, settings: livre, itemFlags: { isCustomized: true } })).toBe("custom");
+    expect(aaWhich({ ...base, settings: livre, itemFlags: { killAnim: true } })).toBeNull();
+    expect(aaWhich({ ...base, settings: livre, keys: [], nativeNames: ["Rien"] })).toBeNull();
   });
 });
 
