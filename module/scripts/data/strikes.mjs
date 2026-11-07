@@ -187,3 +187,112 @@ export const GENERIC = Object.freeze({
 
 /** Temps (ms) : où tombe le coup dans l'animation (impact, son), l'écart entre deux cibles, et l'échelle d'un critique (D6). */
 export const TIMING = Object.freeze({ swingHit: 450, shotHit: 600, onTargetHit: 250, between: 250, criticalScale: 1.3 });
+
+/* -------------------------------------------- */
+/*  Lot 2 : sorts ciblés et soins                */
+/* -------------------------------------------- */
+
+/** Sons PSFX des sorts. */
+export const SPELL_SOUNDS = Object.freeze({
+  cast: "psfx.casting.generic.002.001",
+  castFire: "psfx.casting.fire.001",
+  castWater: "psfx.casting.water.001",
+  castEarth: "psfx.casting.earth.001",
+  castSound: "psfx.casting.sound.001",
+  projectile: "psfx.ranged-magic.generic.projectile.ranged.001",
+  beam: "psfx.ranged-magic.generic.beam.001",
+  heal: "psfx.1st-level-spells.cure-wounds.v1.001",
+  magical: "psfx.impacts.magicaleffects.generic.002.001"
+});
+
+/** Projectile d'un sort à jet d'attaque à distance, par type de dégâts (sans exception par identifiant). */
+export const SPELL_PROJECTILES = Object.freeze({
+  fire: ["jb2a.fire_bolt.{color}", "jb2a.fire_bolt.orange"],
+  cold: ["jb2a.ray_of_frost.{color}", "jb2a.ray_of_frost.blue"],
+  lightning: ["jb2a.witch_bolt.{color}", "jb2a.witch_bolt.blue"],
+  thunder: ["jb2a.ranged.02.projectile.01.{color}", "jb2a.ranged.02.projectile.01.yellow"],
+  acid: ["jb2a.ranged.04.projectile.01.{color}", "jb2a.ranged.04.projectile.01.green"],
+  poison: ["jb2a.spell_projectile.poison.greenyellow", "jb2a.ranged.04.projectile.01.green"],
+  necrotic: ["jb2a.ranged.01.projectile.01.dark_purple", "jb2a.eldritch_blast.{color}", "jb2a.eldritch_blast.purple"],
+  radiant: ["jb2a.guiding_bolt.01.{color}", "jb2a.guiding_bolt.01.blueyellow"],
+  force: ["jb2a.eldritch_blast.{color}", "jb2a.eldritch_blast.purple"],
+  psychic: ["jb2a.ranged.03.projectile.01.pinkpurple", "jb2a.eldritch_blast.{color}", "jb2a.eldritch_blast.purple"],
+  none: ["jb2a.ranged.02.projectile.01.{color}", "jb2a.ranged.02.projectile.01.yellow"]
+});
+
+/** Incantation sur le lanceur d'un sort sans projectile (sauvegarde, contact, soin), par type de dégâts, et son son. */
+export const SPELL_CASTS = Object.freeze({
+  fire: { animation: ["jb2a.cast_generic.fire.01.orange"], sound: SPELL_SOUNDS.castFire },
+  cold: { animation: ["jb2a.cast_generic.ice.01.blue", "jb2a.cast_generic.water.02.blue"], sound: SPELL_SOUNDS.castWater },
+  acid: { animation: ["jb2a.cast_generic.earth.01.browngreen"], sound: SPELL_SOUNDS.castEarth },
+  poison: { animation: ["jb2a.cast_generic.earth.01.browngreen"], sound: SPELL_SOUNDS.castEarth },
+  thunder: { animation: ["jb2a.cast_generic.sound.01.pinkteal"], sound: SPELL_SOUNDS.castSound },
+  psychic: { animation: ["jb2a.cast_generic.sound.01.pinkteal"], sound: SPELL_SOUNDS.castSound },
+  necrotic: { animation: ["jb2a.cast_generic.dark.01.red", "jb2a.cast_generic.01.yellow"], sound: SPELL_SOUNDS.cast },
+  radiant: { animation: ["jb2a.cast_generic.01.yellow"], sound: SPELL_SOUNDS.cast },
+  heal: { animation: ["jb2a.cast_generic.01.yellow"], sound: SPELL_SOUNDS.cast },
+  none: { animation: ["jb2a.cast_generic.02.blue"], sound: SPELL_SOUNDS.cast }
+});
+
+/** Soin sur chaque soigné (sans exception). */
+export const HEAL = Object.freeze({
+  kind: "heal", animation: ["jb2a.healing_generic.400px.{color}", "jb2a.healing_generic.400px.yellow"], color: "yellow",
+  sound: SPELL_SOUNDS.heal
+});
+
+/**
+ * Sorts par identifiant dnd5e (exceptions). `kind` : "shot" (projectile du lanceur à la cible), "onTarget" (sur la cible), "heal".
+ * `color` : couleur voulue ; `cast` / `castSound` : sur le lanceur ; `sound` : son du sort ; `impact: false` : l'animation porte déjà
+ * l'impact (pas d'impact du type de dégâts en plus).
+ */
+export const SPELLS = Object.freeze({
+  "fire-bolt": { kind: "shot", animation: ["jb2a.fire_bolt.{color}", "jb2a.fire_bolt.orange"], color: "orange",
+    sound: "psfx.cantrips.fire-bolt.v1" },
+  "ray-of-frost": { kind: "shot", animation: ["jb2a.ray_of_frost.{color}", "jb2a.ray_of_frost.blue"], color: "blue",
+    sound: "psfx.cantrips.ray-of-frost.v1" },
+  "eldritch-blast": { kind: "shot", animation: ["jb2a.eldritch_blast.{color}", "jb2a.eldritch_blast.purple"], color: "purple",
+    sound: "psfx.cantrips.eldritch-blast.v1" },
+  "guiding-bolt": { kind: "shot", animation: ["jb2a.guiding_bolt.01.{color}", "jb2a.guiding_bolt.01.blueyellow"], color: "yellow",
+    sound: SPELL_SOUNDS.projectile },
+  "magic-missile": { kind: "shot", animation: ["jb2a.magic_missile.{color}", "jb2a.magic_missile.purple"], color: "purple",
+    sound: "psfx.1st-level-spells.magic-missile.v1", impact: false },
+  "scorching-ray": { kind: "shot", animation: ["jb2a.scorching_ray.01.{color}", "jb2a.scorching_ray.01.orange"], color: "orange",
+    sound: "psfx.2nd-level-spells.scorching-ray.v1" },
+  "witch-bolt": { kind: "shot", animation: ["jb2a.witch_bolt.{color}", "jb2a.witch_bolt.blue"], color: "blue", sound: SPELL_SOUNDS.beam },
+  "disintegrate": { kind: "shot", animation: ["jb2a.disintegrate.{color}", "jb2a.disintegrate.green"], color: "green",
+    sound: SPELL_SOUNDS.beam },
+  "sacred-flame": { kind: "onTarget", animation: ["jb2a.sacred_flame.target.{color}", "jb2a.sacred_flame.target.yellow"], color: "yellow",
+    cast: ["jb2a.sacred_flame.source.{color}", "jb2a.sacred_flame.source.yellow"], castSound: "psfx.cantrips.sacred-flame.v1.001.caster",
+    sound: "psfx.cantrips.sacred-flame.v1.001.target", impact: false },
+  "toll-the-dead": { kind: "onTarget", animation: ["jb2a.toll_the_dead.{color}.complete", "jb2a.toll_the_dead.green.complete"],
+    color: "green", sound: "psfx.cantrips.toll-the-dead.v1.001", impact: false },
+  "shocking-grasp": { kind: "onTarget", animation: ["jb2a.static_electricity.01.{color}", "jb2a.static_electricity.01.blue"], color: "blue",
+    sound: "psfx.cantrips.shocking-grasp.v1.001", impact: false },
+  "mind-sliver": { kind: "onTarget", animation: ["jb2a.icon.runes.{color}", "jb2a.icon.runes.orange"], color: "pink",
+    sound: "psfx.cantrips.mind-sliver.v1" },
+  "vicious-mockery": { kind: "onTarget", animation: ["jb2a.icon.music_note.{color}", "jb2a.icon.music_note.blue"], color: "purple",
+    sound: "psfx.1st-level-spells.dissonant-whispers.v1.001" },
+  "dissonant-whispers": { kind: "onTarget", animation: ["jb2a.icon.music_note.{color}", "jb2a.icon.music_note.blue"], color: "purple",
+    sound: "psfx.1st-level-spells.dissonant-whispers.v1.001" },
+  "poison-spray": { kind: "onTarget", animation: ["jb2a.icon.poison.{color}", "jb2a.icon.poison.dark_green"], color: "dark_green",
+    sound: "psfx.cantrips.poison-spray.v1" },
+  "cure-wounds": { kind: "heal", animation: ["jb2a.cure_wounds.400px.{color}", "jb2a.cure_wounds.400px.blue"], color: "blue",
+    sound: SPELL_SOUNDS.heal },
+  "mass-cure-wounds": { kind: "heal", animation: ["jb2a.cure_wounds.400px.{color}", "jb2a.cure_wounds.400px.blue"], color: "blue",
+    sound: SPELL_SOUNDS.heal },
+  "healing-word": { kind: "heal", animation: ["jb2a.healing_generic.200px.{color}", "jb2a.healing_generic.200px.green"], color: "green",
+    sound: SPELL_SOUNDS.heal },
+  "mass-healing-word": { kind: "heal", animation: ["jb2a.healing_generic.200px.{color}", "jb2a.healing_generic.200px.green"], color: "green",
+    sound: SPELL_SOUNDS.heal },
+  "heal": { kind: "heal", animation: ["jb2a.healing_generic.burst.yellowwhite", "jb2a.healing_generic.400px.yellow"], color: "yellow",
+    sound: SPELL_SOUNDS.heal },
+  "mass-heal": { kind: "heal", animation: ["jb2a.healing_generic.burst.yellowwhite", "jb2a.healing_generic.400px.yellow"], color: "yellow",
+    sound: SPELL_SOUNDS.heal },
+  "prayer-of-healing": { kind: "heal", animation: ["jb2a.healing_generic.03.burst.bluegreen"], color: "green", sound: SPELL_SOUNDS.heal }
+});
+
+/** Sauvegarde réussie (D8, défaut retenu) : impact plus petit et plus bas. */
+export const SAVED = Object.freeze({ scale: 0.6, volume: 0.35 });
+
+/** Écart entre deux projectiles d'un même sort (Projectile magique, Rayon ardent). */
+export const DART_GAP = 220;

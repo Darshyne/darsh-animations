@@ -1,27 +1,30 @@
 /**
- * SPEC §21, lot 1 : les attaques d'arme jouées par ce module (JB2A gratuit ou Premium + sons PSFX), pour se passer d'Automated
- * Animations. Recettes : data/strikes.mjs ; choix : core/strikes.mjs.
+ * SPEC §21 : les attaques d'arme (lot 1), les sorts ciblés et les soins (lot 2) joués par ce module (JB2A gratuit ou Premium + sons
+ * PSFX), pour se passer d'Automated Animations. Recettes : data/strikes.mjs ; choix : core/strikes.mjs.
  *
- * - **Avec DAS · Core** (niveau Assisté ou Complet, hors Théâtre de l'esprit) : au hook public `dnd5e-combat.resolution`, une fois le
- *   verdict de l'attaque connu **après les réactions** (Bouclier compris : le coup s'arrête alors sur le bouclier), une seule fois par jet.
- *   Le Core a déjà attendu les dés 3D ; il attend à son tour les animations Sequencer qui partent de l'auteur avant d'appliquer.
- * - **Sans lui** : au message d'attaque de dnd5e, chez son auteur, touché / raté calculé contre la CA des cibles notées sur le message.
- *   Jamais les deux voies pour un même jet.
+ * - **Avec DAS · Core** (niveau Assisté ou Complet, hors Théâtre de l'esprit) : au hook public `dnd5e-combat.resolution`. Une attaque
+ *   (arme ou sort) joue une fois son verdict connu **après les réactions** (Bouclier compris : pas d'impact sur la créature) ; un sort à
+ *   sauvegarde, une fois toutes les sauvegardes jetées (réussite : impact léger, D8) ; un soin ou des dégâts sans jet, au jet de dégâts.
+ *   Une seule fois par résolution. Le Core a déjà attendu les dés 3D.
+ * - **Sans lui** : au message d'attaque de dnd5e (touché contre la CA notée), ou à la carte d'utilisation d'une activité de sauvegarde, de
+ *   soin ou de dégâts (impact plein), chez son auteur. Jamais les deux voies pour une même action.
  * - On se tait quand BLFX joue l'objet (son Auto-Rec), ou quand Automated Animations le joue (lot 5 : seulement ses animations
- *   personnalisées). Réglage de monde `strikes`. Un joueur qui ne veut pas d'animations les coupe chez lui par le réglage de Sequencer.
+ *   personnalisées). Réglage de monde `strikes`. Un joueur coupe les effets chez lui par le réglage de Sequencer.
+ * - Sequencer masque un effet selon la vision du spectateur : dans le noir, il ne voit que ce que voient ses tokens (voulu).
  */
 import { MODULE_ID, jb2aActive, log } from "./shared.mjs";
 import { addSound, known } from "./sequencer.mjs";
 import { blfxPlays } from "./blfxmap.mjs";
 import { aaPlays, englishKeysOf } from "./aa.mjs";
-import { CRITICAL_SCALE, chooseStrike, hitDelay, judgeAgainstAc, strikeForm, strikeTimeline } from "../core/strikes.mjs";
+import { CRITICAL_SCALE, SAVED_IMPACT, chooseAction, hitDelay, judgeAgainstAc, resolutionMoment, spellTimeline, strikeTimeline }
+  from "../core/strikes.mjs";
 
 const ENGINE = "dnd5e-combat";
 const played = new Set();
 
 const setting = key => { try { return game.settings.get(MODULE_ID, key); } catch { return true; } };
 
-/** DAS · Core résout-il les attaques (et donc nous annonce le verdict) ? */
+/** DAS · Core résout-il les actions (et donc nous annonce le verdict) ? */
 export function engineResolves() {
   const engine = game.modules.get(ENGINE);
   if ( !engine?.active ) return false;
@@ -39,15 +42,15 @@ export function strikeSummary(item, activity=null, { attackMode=null }={}) {
   const damageTypes = [...new Set([...base, ...parts.flatMap(p => [...(p.types ?? [])])])];
   return {
     itemType: item?.type, weaponType: sys.type?.value, baseItem: sys.type?.baseItem || null,
-    keys: englishKeysOf(item, activity), properties: [...(sys.properties ?? [])], attackMode,
+    keys: englishKeysOf(item, activity), properties: [...(sys.properties ?? [])], attackMode, activityType: activity?.type ?? null,
     attackType: activity?.attack?.type?.value ?? null, classification: activity?.attack?.type?.classification ?? null, damageTypes
   };
 }
 
 /** Le premier nom que Sequencer connaît parmi des candidats. */
-const firstKnown = names => names.find(known) ?? null;
+const firstKnown = names => (names ?? []).find(known) ?? null;
 
-/** Le token de l'acteur qui attaque, sur la scène affichée. */
+/** Le token de l'acteur qui agit, sur la scène affichée. */
 function sourceTokenOf(actor, speaker=null) {
   const scene = canvas.scene;
   if ( !scene ) return null;
@@ -55,28 +58,18 @@ function sourceTokenOf(actor, speaker=null) {
   return actor?.getActiveTokens?.(false, false)?.find(t => t.scene === scene) ?? null;
 }
 
-/**
- * Joue une attaque d'arme. `targets` : `[{ token: Token, hit, critical, reason }]`. Rend `{ played, family, … }` ou `{ skipped }`.
- * @param {{ item: Item, activity?: object, source: Token, targets: object[], attackMode?: string }} attack
- */
-export function playStrike({ item, activity=null, source, targets=[], attackMode=null }, { force=false }={}) {
-  if ( !force && !setting("strikes") ) return { skipped: "strike animations turned off" };
-  if ( !jb2aActive() ) return { skipped: "JB2A (free or Premium) and Sequencer needed" };
-  if ( !source ) return { skipped: "attacker token not on the viewed scene" };
-  const live = targets.filter(t => t.token);
-  if ( !live.length ) return { skipped: "no target on the viewed scene" };
-  const summary = strikeSummary(item, activity, { attackMode });
-  if ( !strikeForm(summary) ) return { skipped: "not a weapon attack" };
-  if ( !force && blfxPlays(item) ) return { skipped: "played by BLFX" };
-  if ( !force && aaPlays(item, { activity }) ) return { skipped: "played by Automated Animations" };
-  const choice = chooseStrike(summary);
+/* -------------------------------------------- */
+/*  Rendus                                       */
+/* -------------------------------------------- */
+
+/** Un coup, un tir ou un lancer d'arme (lot 1). */
+function playWeapon(sequence, choice, source, live) {
   const file = firstKnown(choice.animation);
   if ( !file ) return { skipped: `no known animation for ${choice.family}`, tried: choice.animation };
   const back = firstKnown(choice.back);
-  const sequence = new Sequence({ moduleName: MODULE_ID });
   const sounds = [];
   if ( addSound(sequence, choice.swoosh) ) sounds.push(choice.swoosh);
-  const impactFile = firstKnown(choice.impact?.animation ?? []);
+  const impactFile = firstKnown(choice.impact?.animation);
   const at = hitDelay(choice.kind);
   for ( const step of strikeTimeline(live) ) {
     const target = step.token;
@@ -102,55 +95,136 @@ export function playStrike({ item, activity=null, source, targets=[], attackMode
       }
     }
   }
+  return { played: file, back, sounds };
+}
+
+/** Un sort ciblé ou un soin (lot 2) : incantation sur le lanceur, projectile ou effet sur la cible, impact du type de dégâts. */
+function playSpell(sequence, choice, source, live) {
+  const file = firstKnown(choice.animation);
+  const castFile = firstKnown(choice.cast);
+  const impactFile = firstKnown(choice.impact?.animation);
+  if ( !file && !castFile && !impactFile ) return { skipped: `no known animation for ${choice.family}`, tried: choice.animation };
+  const sounds = [];
+  let lead = 0;
+  if ( castFile ) {
+    sequence.effect().file(castFile).atLocation(source).scaleToObject(1.8).belowTokens();
+    lead = 500;
+  }
+  if ( choice.castSound && addSound(sequence, choice.castSound) ) sounds.push(choice.castSound);
+  const at = (choice.kind === "shot") ? hitDelay("shot") : 250;
+  let first = true;
+  for ( const step of spellTimeline(live) ) {
+    const target = step.token;
+    const scale = (step.critical ? CRITICAL_SCALE : 1) * (step.saved ? SAVED_IMPACT.scale : 1);
+    const start = lead + step.delay;
+    if ( file ) {
+      const fx = sequence.effect().file(file).delay(start);
+      if ( choice.kind === "shot" ) fx.atLocation(source).stretchTo(target).missed(!step.hit);
+      else fx.atLocation(target).scaleToObject(1.5 * scale);
+    }
+    // Le son du sort à chaque projectile (Projectile magique), une fois sinon.
+    if ( choice.sound && (first || (choice.kind === "shot")) && addSound(sequence, choice.sound, { delay: start,
+      volume: step.saved ? SAVED_IMPACT.volume : null }) ) sounds.push(choice.sound);
+    if ( step.impact && impactFile ) {
+      const impact = sequence.effect().file(impactFile).atLocation(target).scaleToObject((choice.impact.scale ?? 1) * scale)
+        .delay(start + at);
+      if ( choice.impact.tint ) impact.tint(choice.impact.tint);
+      if ( step.critical ) impact.repeats(2, 180);
+      if ( addSound(sequence, choice.impact.sound, { delay: start + at,
+        volume: step.saved ? SAVED_IMPACT.volume : (step.critical ? 1 : 0.7) }) ) sounds.push(choice.impact.sound);
+    }
+    first = false;
+  }
+  return { played: file ?? castFile ?? impactFile, cast: castFile, impact: impactFile, sounds };
+}
+
+/**
+ * Joue une action : attaque d'arme, sort ciblé, soin. `targets` : `[{ token: Token, hit, critical, reason, save, times }]`. Rend
+ * `{ played, family, … }` ou `{ skipped }`.
+ * @param {{ item: Item, activity?: object, source: Token, targets: object[], attackMode?: string }} action
+ */
+export function playStrike({ item, activity=null, source, targets=[], attackMode=null }, { force=false }={}) {
+  if ( !force && !setting("strikes") ) return { skipped: "strike animations turned off" };
+  if ( !jb2aActive() ) return { skipped: "JB2A (free or Premium) and Sequencer needed" };
+  if ( !source ) return { skipped: "acting token not on the viewed scene" };
+  const live = targets.filter(t => t.token);
+  if ( !live.length ) return { skipped: "no target on the viewed scene" };
+  // Sort de zone : la zone est jouée ailleurs (BLFX, ou runtime/areas.mjs) ; pas d'impact par cible en plus.
+  if ( activity?.target?.template?.type && (activity.type !== "attack") ) return { skipped: "area spell (played with its area)" };
+  const choice = chooseAction(strikeSummary(item, activity, { attackMode }));
+  if ( !choice ) return { skipped: "nothing to animate for this activity" };
+  if ( !force && blfxPlays(item) ) return { skipped: "played by BLFX" };
+  if ( !force && aaPlays(item, { activity }) ) return { skipped: "played by Automated Animations" };
+  const sequence = new Sequence({ moduleName: MODULE_ID });
+  const result = (choice.action === "weapon") ? playWeapon(sequence, choice, source, live) : playSpell(sequence, choice, source, live);
+  if ( result.skipped ) return result;
   sequence.play();
-  log(`strike (${choice.family}): ${item.name} → ${live.map(t => `${t.token.name}${t.hit === false ? " (miss)" : t.critical ? " (crit)" : ""}`).join(", ")}`);
-  return { played: file, family: choice.family, form: choice.form, back, sounds, targets: live.map(t => t.token.name) };
+  log(`${choice.action} (${choice.family}): ${item.name} → ${live.map(t => `${t.token.name}${t.hit === false ? " (miss)"
+    : t.critical ? " (crit)" : t.save?.success ? " (saved)" : ""}${(t.times > 1) ? ` ×${t.times}` : ""}`).join(", ")}`);
+  return { ...result, family: choice.family, action: choice.action, kind: choice.kind, targets: live.map(t => t.token.name) };
 }
 
 /* -------------------------------------------- */
 /*  Voie DAS · Core                              */
 /* -------------------------------------------- */
 
-const AWAITING = new Set(["awaitingAttack", "awaitingReaction"]);
-
 async function onResolution(resolution, event) {
-  if ( !resolution?.plan?.attack || !resolution.attack || AWAITING.has(resolution.step) ) return;
-  if ( !["attackRolled", "reactionResolved", "opened"].includes(event?.type) ) return;
-  const key = `${resolution.id}:${resolution.attack.messageId}`;
+  const moment = resolutionMoment(resolution, event);
+  if ( !moment ) return;
+  const key = `${resolution.id}:${resolution.attack?.messageId ?? moment}`;
   if ( played.has(key) ) return;
   played.add(key);
   const activity = await fromUuid(resolution.activity).catch(() => null);
   const item = activity?.item ?? null;
   if ( !item ) return;
-  const message = game.messages.get(resolution.attack.messageId);
+  const message = game.messages.get(resolution.attack?.messageId ?? resolution.carrier);
   const source = sourceTokenOf(item.actor, message?.speaker);
-  const targets = (resolution.targets ?? []).map(t => ({
-    token: fromUuidSync(t.token, { strict: false })?.object ?? null, hit: t.hit, critical: t.critical, reason: t.reason
-  })).filter(t => t.token && (t.token.scene === canvas.scene));
+  const targets = (resolution.targets ?? []).filter(t => !t.unaffected && ((resolution.plan.darts > 0) ? (t.times ?? 0) > 0 : true))
+    .map(t => ({ token: fromUuidSync(t.token, { strict: false })?.object ?? null, hit: t.hit, critical: t.critical, reason: t.reason,
+      save: t.save, times: (resolution.plan.darts > 0) ? t.times : 1 }))
+    .filter(t => t.token && (t.token.scene === canvas.scene));
   const attackMode = message?.rolls?.[0]?.options?.attackMode ?? message?.system?.mode ?? null;
   const result = playStrike({ item, activity, source, targets, attackMode });
-  if ( result.skipped ) log(`strike skipped (${item.name}): ${result.skipped}`);
+  if ( result.skipped ) log(`animation skipped (${item.name}): ${result.skipped}`);
 }
 
 /* -------------------------------------------- */
 /*  Voie dnd5e (sans DAS · Core)                 */
 /* -------------------------------------------- */
 
-function onAttackMessage(message) {
-  if ( (message.type !== "attack") || !message.isAuthor || engineResolves() ) return;
-  if ( played.has(message.id) ) return;
-  played.add(message.id);
+/** Les cibles notées sur un message dnd5e (`system.targets`), sur la scène affichée. */
+function notedTargets(message) {
+  return (message.system?.targets ?? []).map(t => {
+    const doc = fromUuidSync(t.token ?? t.actor, { strict: false });
+    return { token: doc?.object ?? doc?.getActiveTokens?.(false, false)?.[0] ?? null, ac: t.ac };
+  });
+}
+
+function onMessage(message) {
+  if ( !message.isAuthor || engineResolves() || played.has(message.id) ) return;
   const activity = message.getAssociatedActivity?.() ?? null;
-  const item = activity?.item ?? message.getAssociatedItem?.() ?? null;
-  if ( !item ) return;
-  const roll = message.rolls?.[0];
-  const noted = (message.system?.targets ?? []).map(t => ({ token: fromUuidSync(t.token ?? t.actor, { strict: false }), ac: t.ac }));
-  const targets = judgeAgainstAc(roll, noted)
-    .map(t => ({ ...t, token: t.token?.object ?? t.token?.getActiveTokens?.(false, false)?.[0] ?? null }))
-    .filter(t => t.token && (t.token.scene === canvas.scene));
-  const result = playStrike({ item, activity, source: sourceTokenOf(item.actor, message.speaker), targets,
-    attackMode: roll?.options?.attackMode ?? message.system?.mode ?? null });
-  if ( result.skipped ) log(`strike skipped (${item.name}): ${result.skipped}`);
+  if ( message.type === "attack" ) {
+    played.add(message.id);
+    const item = activity?.item ?? message.getAssociatedItem?.() ?? null;
+    if ( !item ) return;
+    const roll = message.rolls?.[0];
+    const targets = judgeAgainstAc(roll, notedTargets(message)).filter(t => t.token && (t.token.scene === canvas.scene));
+    const result = playStrike({ item, activity, source: sourceTokenOf(item.actor, message.speaker), targets,
+      attackMode: roll?.options?.attackMode ?? message.system?.mode ?? null });
+    if ( result.skipped ) log(`animation skipped (${item.name}): ${result.skipped}`);
+    return;
+  }
+  // Carte d'utilisation d'une activité sans jet d'attaque : sauvegarde (résultats inconnus ici), soin, dégâts.
+  if ( (message.type !== "usage") || !["save", "heal", "damage"].includes(activity?.type) ) return;
+  played.add(message.id);
+  const item = activity.item;
+  if ( item?.type === "consumable" ) return;   // potions et consommables : runtime/consumables.mjs
+  const targets = notedTargets(message).filter(t => t.token && (t.token.scene === canvas.scene));
+  const source = sourceTokenOf(item.actor, message.speaker);
+  // Un soin sans cible désignée soigne le lanceur.
+  if ( !targets.length && (activity.type === "heal") && source ) targets.push({ token: source });
+  const result = playStrike({ item, activity, source, targets });
+  if ( result.skipped ) log(`animation skipped (${item.name}): ${result.skipped}`);
 }
 
 /* -------------------------------------------- */
@@ -158,22 +232,25 @@ function onAttackMessage(message) {
 /* -------------------------------------------- */
 
 /**
- * Pour vérifier en jeu (MJ, connecteur MCP), sans jet : `previewStrike({ item, activity, source, targets, miss, critical, attackMode })`.
- * `item` : uuid ; `source`, `targets` : tokens de la scène affichée, par nom ou id.
+ * Pour vérifier en jeu (MJ, connecteur MCP), sans jet : `previewStrike({ item, activity, source, targets, miss, critical, saved, times,
+ * attackMode })`. `item` : uuid, ou nom / identifiant d'un objet de l'acteur de `source` ; `activity` : id, ou type ("attack", "save",
+ * "heal") ; `source`, `targets` : tokens de la scène affichée, par nom ou id.
  */
-export async function previewStrike({ item, activity=null, source, targets=[], miss=false, critical=false, attackMode=null }={}) {
+export async function previewStrike({ item, activity=null, source, targets=[], miss=false, critical=false, saved=false, times=1,
+  attackMode=null }={}) {
   const find = ref => canvas.scene?.tokens.find(t => (t.id === ref) || (t.name === ref))?.object ?? null;
-  // `item` : uuid, ou nom / identifiant d'un objet de l'acteur de `source`.
   const owned = find(source)?.actor?.items.find(i => (i.name === item) || (i.system?.identifier === item)) ?? null;
   const doc = owned ?? await fromUuid(item).catch(() => null);
   if ( !doc ) {
-    const list = find(source)?.actor?.items.filter(i => i.system?.activities?.some(a => a.type === "attack")).map(i => i.name) ?? [];
-    throw new Error(`item not found: ${item} (attacks of ${source}: ${list.join(", ")})`);
+    const list = find(source)?.actor?.items.filter(i => [...(i.system?.activities ?? [])].length).map(i => i.name) ?? [];
+    throw new Error(`item not found: ${item} (items with activities on ${source}: ${list.join(", ")})`);
   }
-  const act = activity ? doc.system?.activities?.get(activity)
-    : (doc.system?.activities?.find?.(a => a.type === "attack") ?? null);
+  const acts = doc.system?.activities;
+  const act = (activity ? (acts?.get(activity) ?? acts?.find?.(a => a.type === activity)) : null)
+    ?? acts?.find?.(a => ["attack", "save", "heal", "damage"].includes(a.type)) ?? null;
   return playStrike({ item: doc, activity: act, source: find(source), attackMode,
-    targets: targets.map(find).filter(Boolean).map(token => ({ token, hit: !miss, critical: critical && !miss, reason: miss ? "miss" : "hit" })) },
+    targets: targets.map(find).filter(Boolean).map(token => ({ token, hit: (act?.type === "attack") ? !miss : null,
+      critical: critical && !miss, reason: miss ? "miss" : "hit", save: (act?.type === "save") ? { success: saved } : null, times })) },
   { force: true });
 }
 
@@ -186,6 +263,6 @@ export function registerStrikes() {
     onResolution(resolution, event).catch(err => console.error(`${MODULE_ID} | strike animation`, err));
   });
   Hooks.on("createChatMessage", message => {
-    try { onAttackMessage(message); } catch(err) { console.error(`${MODULE_ID} | strike animation`, err); }
+    try { onMessage(message); } catch(err) { console.error(`${MODULE_ID} | strike animation`, err); }
   });
 }

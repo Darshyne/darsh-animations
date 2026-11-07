@@ -2,8 +2,9 @@
  * SPEC §21 : le choix d'une recette d'attaque d'arme (lot 1), sans Foundry. Le runtime résume l'objet et l'attaque, puis joue ce que ce
  * module décide ici : quelle forme (coup, tir, lancer, sur la cible), quels noms candidats (dans l'ordre), quel son, quel impact.
  */
-import { COLOR_FALLBACKS, DAMAGE_COLORS, ELEMENTS, GENERIC, NATURAL, SOUNDS, STRIKE_IMPACTS, SWOOSH_BY_DAMAGE, TIMING, UNARMED, WEAPONS }
-  from "../data/strikes.mjs";
+import { COLOR_FALLBACKS, DAMAGE_COLORS, DART_GAP, ELEMENTS, GENERIC, HEAL, NATURAL, SAVED, SOUNDS, SPELLS, SPELL_CASTS,
+  SPELL_PROJECTILES, SPELL_SOUNDS, STRIKE_IMPACTS, SWOOSH_BY_DAMAGE, TIMING, UNARMED, WEAPONS } from "../data/strikes.mjs";
+import { IMPACTS } from "../data/jb2a.mjs";
 
 const PHYSICAL = new Set(["bludgeoning", "piercing", "slashing"]);
 
@@ -149,4 +150,110 @@ export function judgeAgainstAc(roll, targets=[]) {
     const hit = roll.total >= t.ac;
     return { ...t, hit, critical: false, reason: hit ? "hit" : "miss" };
   });
+}
+
+/* -------------------------------------------- */
+/*  Lot 2 : sorts ciblés et soins                */
+/* -------------------------------------------- */
+
+/** Les sorts d'exception, par clé normalisée (sans tirets : core/aa.mjs `normalize`). */
+const SPELLS_BY_KEY = Object.fromEntries(Object.entries(SPELLS).map(([k, v]) => [k.replace(/[^a-z0-9]/g, ""), v]));
+
+/**
+ * La forme d'un sort ou d'une activité de soin / sauvegarde / dégâts : "shot", "onTarget", "heal", ou null (attaque d'arme : lot 1 ;
+ * activité sans cible ni dégât : rien). `s.activityType` : "attack", "save", "heal", "damage", "utility"…
+ */
+export function spellForm(s) {
+  if ( s.activityType === "heal" ) return "heal";
+  if ( s.activityType === "attack" ) {
+    if ( isWeaponAttack(s) ) return null;
+    return (s.attackType === "melee") ? "onTarget" : "shot";
+  }
+  if ( ["save", "damage"].includes(s.activityType) ) return "onTarget";
+  return null;
+}
+
+/**
+ * Ce qu'il faut jouer pour un sort (ou une activité de soin, de sauvegarde, de dégâts d'un objet) : `{ family, kind, color, animation[],
+ * cast[], castSound, sound, impact, saveScale }`, ou null.
+ */
+export function chooseSpell(s) {
+  const form = spellForm(s);
+  if ( !form ) return null;
+  const keys = s.keys ?? [];
+  const key = keys.find(k => SPELLS_BY_KEY[k]);
+  const own = key ? SPELLS_BY_KEY[key] : null;
+  const type = extraDamage(s.damageTypes) ?? (s.damageTypes ?? [])[0] ?? null;
+  const kind = own?.kind ?? form;
+  const color = own?.color ?? ((kind === "heal") ? HEAL.color : (DAMAGE_COLORS[type] ?? "white"));
+  const vars = { color, element: ELEMENTS[type] ?? "physical" };
+  let animation;
+  if ( own ) animation = own.animation;
+  else if ( kind === "heal" ) animation = HEAL.animation;
+  else if ( kind === "shot" ) animation = SPELL_PROJECTILES[type] ?? SPELL_PROJECTILES.none;
+  else animation = [];   // sur la cible, sans exception : l'impact du type de dégâts suffit
+  const castKey = (kind === "heal") ? "heal" : (SPELL_CASTS[type] ? type : "none");
+  // Projectile : il part de la main, pas d'incantation au sol en plus (sauf exception).
+  const cast = own?.cast ?? ((kind === "shot") ? [] : SPELL_CASTS[castKey].animation);
+  // Sans type de dégâts (Immobilisation de personne…) : un impact magique neutre sur la cible.
+  const impactOf = IMPACTS[type] ?? { animation: "jb2a.impact.011.blue", scale: 0.9, sound: SPELL_SOUNDS.magical };
+  const impact = ((own?.impact === false) || (kind === "heal") || !impactOf) ? null
+    : { animation: [impactOf.animation], scale: impactOf.scale ?? 1.2, tint: impactOf.tint ?? null, sound: impactOf.sound ?? SPELL_SOUNDS.magical };
+  return {
+    form, family: key ? `spell:${key}` : `${kind}:${type ?? "none"}`, kind, color,
+    animation: expand(animation, vars), cast: expand(cast, vars),
+    castSound: own?.castSound ?? ((kind === "shot") ? null : SPELL_CASTS[castKey].sound),
+    sound: own?.sound ?? ((kind === "heal") ? HEAL.sound : (kind === "shot") ? SPELL_SOUNDS.projectile : null),
+    impact
+  };
+}
+
+/** Attaque d'arme (lot 1) ou sort (lot 2) : `{ ...choix, action: "weapon" | "spell" }`, ou null. */
+export function chooseAction(s) {
+  if ( (s.activityType === "attack") || !s.activityType ) {
+    const weapon = chooseStrike(s);
+    if ( weapon ) return { ...weapon, action: "weapon" };
+  }
+  const spell = chooseSpell(s);
+  return spell ? { ...spell, action: "spell" } : null;
+}
+
+/**
+ * Le déroulé d'un sort, cible par cible et projectile par projectile : `[{ token, hit, critical, impact, saved, delay }]`. `targets` :
+ * `{ token, hit, critical, reason, save, times }` — `hit` null sans jet d'attaque ; `save` : `{ success }` ou null ; `times` : nombre de
+ * projectiles (Projectile magique : réparti par DAS · Core).
+ */
+export function spellTimeline(targets=[]) {
+  const out = [];
+  let delay = 0;
+  for ( const t of targets ) {
+    const times = Math.max(1, Number.isInteger(t.times) ? t.times : 1);
+    for ( let i = 0; i < times; i++ ) {
+      const hit = t.hit !== false;
+      out.push({ token: t.token, hit, critical: !!t.critical && (t.hit === true), impact: hit, saved: t.save?.success === true,
+        shielded: (t.hit === false) && (t.reason === "reaction"), delay });
+      delay += (times > 1) ? DART_GAP : TIMING.between;
+    }
+  }
+  return out;
+}
+
+/** Réglages d'un impact sur une sauvegarde réussie (D8). */
+export const SAVED_IMPACT = SAVED;
+
+/* DAS · Core : quand jouer une résolution (hook `dnd5e-combat.resolution`). */
+const AWAITING = new Set(["awaitingAttack", "awaitingReaction"]);
+
+/** Le moment de jouer une résolution, ou null : "attack" (verdict connu), "effect" (sauvegardes jetées, dégâts ou soin lancés). */
+export function resolutionMoment(resolution, event) {
+  if ( !resolution?.plan || ["undone"].includes(resolution.step) ) return null;
+  if ( resolution.plan.attack ) {
+    if ( !resolution.attack || AWAITING.has(resolution.step) ) return null;
+    return ["attackRolled", "reactionResolved", "opened"].includes(event?.type) ? "attack" : null;
+  }
+  const affected = (resolution.targets ?? []).filter(t => !t.unaffected);
+  if ( !affected.length ) return null;
+  if ( resolution.plan.save ) return affected.every(t => t.save) ? "effect" : null;
+  if ( (resolution.plan.darts > 0) && !resolution.allocated ) return null;
+  return ["damageRolled", "applied"].includes(event?.type) || (resolution.step === "done") ? "effect" : null;
 }

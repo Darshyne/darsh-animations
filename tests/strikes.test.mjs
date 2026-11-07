@@ -11,7 +11,16 @@ const free = leavesOf([...read(path.join(root, "docs/catalogue-jb2a.json")), ...
 // Le catalogue du Premium est privé (prive/, contenu payant) : ses tests sont sautés sans lui (CI comprise).
 const premiumFile = path.join(root, "prive/docs/catalogue-jb2a-premium.json");
 const premium = fs.existsSync(premiumFile) ? leavesOf(read(premiumFile)) : null;
-const existsIn = set => name => set.has(name) || [...set].some(l => l.startsWith(`${name}.`));
+// Un nom vaut s'il est une entrée ou un groupe (préfixe d'entrées) : tous les préfixes, calculés une fois par catalogue.
+const prefixes = new Map();
+const existsIn = set => {
+  if ( !prefixes.has(set) ) {
+    const all = new Set();
+    for ( const n of set ) { const p = n.split("."); for ( let i = 1; i <= p.length; i++ ) all.add(p.slice(0, i).join(".")); }
+    prefixes.set(set, all);
+  }
+  return name => prefixes.get(set).has(name);
+};
 
 /** Toutes les recettes de la table (coups, tirs, lancers, retours). */
 function recipes() {
