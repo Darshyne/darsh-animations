@@ -17,5 +17,9 @@
   "DARSHANIM.Settings.AaYield.Hint": "When Boss Loot (BLFX) and Automated Animations are both active, Automated Animations stays silent for the items BLFX animates, so nothing plays twice. Its critical-hit animation is not covered (turn it off in its own settings if needed).",
   "DARSHANIM.Settings.Strikes.Name": "Attack, spell and healing animations",
   "DARSHANIM.Settings.Strikes.Hint": "Weapon attacks (melee, ranged, thrown, natural attacks), targeted spells (attack roll or saving throw) and healing are animated by this module with JB2A (free or Premium) and PSFX sounds: a swing, a projectile or a spell effect toward each target, a miss that goes past it, a bigger impact on a critical hit, a lighter one on a successful save. With DAS · Core the animation follows its verdict (after Shield, after the saves). Area spells are left to their area. Whatever Boss Loot (BLFX) or Automated Animations already animates is left to them. Automated Animations is not needed.",
+  "DARSHANIM.Settings.Conditions.Name": "Condition animations",
+  "DARSHANIM.Settings.Conditions.Hint": "While a creature is Frightened, Charmed, Poisoned, Stunned, Incapacitated, Paralyzed, Restrained, Grappled, Blinded, Deafened, Silenced, Petrified or Cursed, a JB2A loop plays on its token and stops when the condition ends. Placed by the active GM, seen by everyone (subject to vision).",
+  "DARSHANIM.Settings.ConditionsWithBlfx.Name": "Condition animations even with BLFX",
+  "DARSHANIM.Settings.ConditionsWithBlfx.Hint": "Boss Loot (BLFX) plays its own loop for most of these conditions when one of its spells applies them. Off: those conditions are left to BLFX. On: this module plays them too (they may then show twice).",
   "DARSHANIM.AA.BabeleCompanion": "DAS · Animations: Automated Animations already recognises translated items through this module. \"Automated Animation for Babele\" can be disabled."
 }

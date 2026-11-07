@@ -26,6 +26,7 @@ import { aaPlays, aaResolve, addNames, registerAA } from "./runtime/aa.mjs";
 import { playSmite, registerSmites } from "./runtime/smites.mjs";
 import { playDoor, previewDoor, registerDoors } from "./runtime/doors.mjs";
 import { playStrike, previewStrike, registerStrikes } from "./runtime/strikes.mjs";
+import { previewCondition, reconcile as reconcileConditions, registerConditions } from "./runtime/conditions.mjs";
 import { previewSummon, registerSummons } from "./runtime/summons.mjs";
 
 Hooks.once("init", () => {
@@ -52,6 +53,8 @@ Hooks.once("init", () => {
     playDoor, previewDoor,
     // Attaques d'arme jouées par ce module (JB2A + PSFX, SPEC §21) : `previewStrike({ item, source, targets, miss, critical, attackMode })`.
     previewStrike, playStrike,
+    // États : une boucle JB2A tant que l'état dure (SPEC §21, lot 3 bis). `previewCondition({ token, status })` bascule l'état et rend ce qui tourne.
+    previewCondition, reconcileConditions,
     // Apparition d'une créature invoquée sans BLFX (JB2A + PSFX) : `previewSummon({ tokenId })` pour vérifier.
     previewSummon,
     // Automated Animations : `aaResolve({ item, activity, isTemplate })` (ce qu'il trouvera), `aaNames(map)` (noms d'une langue
@@ -73,6 +76,7 @@ Hooks.once("init", () => {
   registerSmites();
   registerDoors();
   registerStrikes();
+  registerConditions();
   registerSummons();
 });
 
