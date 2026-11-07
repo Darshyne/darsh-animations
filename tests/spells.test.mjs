@@ -95,7 +95,7 @@ describe("sorts : choix", () => {
   });
   it("soins : Soins des blessures par identifiant, un soin quelconque en lueur jaune", () => {
     expect(chooseAction(spell({ keys: ["curewounds"], activityType: "heal" })).animation.at(-1)).toBe("jb2a.cure_wounds.400px.white");
-    const potion = chooseAction({ itemType: "feat", keys: ["secondwind"], activityType: "heal" });
+    const potion = chooseAction({ itemType: "feat", keys: ["healingtouch"], activityType: "heal" });
     expect(potion.kind).toBe("heal");
     expect(potion.animation[0]).toBe("jb2a.healing_generic.400px.yellow");
   });

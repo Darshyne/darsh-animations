@@ -296,3 +296,77 @@ export const SAVED = Object.freeze({ scale: 0.6, volume: 0.35 });
 
 /** Écart entre deux projectiles d'un même sort (Projectile magique, Rayon ardent). */
 export const DART_GAP = 220;
+
+/* -------------------------------------------- */
+/*  Lot 3 : aptitudes, marques, bénédictions     */
+/* -------------------------------------------- */
+
+/** Sons PSFX des aptitudes. */
+export const FEATURE_SOUNDS = Object.freeze({
+  boon: "psfx.conditions.boon.002.01",
+  bane: "psfx.conditions.generic-layer.002",
+  bless: "psfx.1st-level-spells.bless.v1.001",
+  shield: "psfx.1st-level-spells.shield-spell.intro.v1.003",
+  mistyOut: "psfx.2nd-level-spells.misty-step.v1.intro.generic",
+  mistyIn: "psfx.2nd-level-spells.misty-step.v1.outro.generic",
+  inspiration: "psfx.class-features.bardic-inspiration.v1.keyOfC.001",
+  smiteCaster: "psfx.class-features.divine-smite.v1.001.caster",
+  smiteTarget: "psfx.class-features.divine-smite.v1.001.target"
+});
+
+/**
+ * Aptitudes et sorts sans dégâts, par identifiant dnd5e (exceptions, même forme que SPELLS). `kind` "onTarget" : sur chaque cible (le
+ * lanceur s'il n'en désigne pas) ; "teleport" : disparition sur place, réapparition à l'arrivée (Foulée brumeuse) ; `noCast` : pas
+ * d'incantation (aptitude de classe, réaction).
+ */
+export const FEATURES = Object.freeze({
+  "hunters-mark": { kind: "onTarget", animation: ["jb2a.hunters_mark.pulse.01.{color}", "jb2a.hunters_mark.pulse.01.green"], color: "green",
+    sound: FEATURE_SOUNDS.bane },
+  "hex": { kind: "onTarget", animation: ["jb2a.icon.skull.{color}", "jb2a.icon.skull.purple"], color: "purple", sound: FEATURE_SOUNDS.bane },
+  "bless": { kind: "onTarget", animation: ["jb2a.bless.400px.intro.{color}", "jb2a.bless.400px.intro.yellow"], color: "yellow",
+    sound: FEATURE_SOUNDS.bless },
+  "bane": { kind: "onTarget", animation: ["jb2a.markers.fear.dark_purple.01"], color: "dark_purple", sound: FEATURE_SOUNDS.bane },
+  "shield": { kind: "onTarget", animation: ["jb2a.shield.01.complete.01.{color}", "jb2a.shield.01.complete.01.blue"], color: "blue",
+    sound: FEATURE_SOUNDS.shield, noCast: true },
+  "shield-of-faith": { kind: "onTarget", animation: ["jb2a.shield.01.complete.01.{color}", "jb2a.shield.01.complete.01.blue"],
+    color: "yellow", sound: FEATURE_SOUNDS.boon },
+  "bardic-inspiration": { kind: "onTarget", animation: ["jb2a.bardic_inspiration.{color}", "jb2a.bardic_inspiration.greenorange"],
+    color: "orange", sound: FEATURE_SOUNDS.inspiration, noCast: true },
+  "misty-step": { kind: "teleport", animation: ["jb2a.misty_step.01.{color}", "jb2a.misty_step.01.blue"],
+    arrive: ["jb2a.misty_step.02.{color}", "jb2a.misty_step.02.blue"], color: "blue", sound: FEATURE_SOUNDS.mistyOut,
+    arriveSound: FEATURE_SOUNDS.mistyIn, noCast: true },
+  "lay-on-hands": { kind: "heal", animation: ["jb2a.healing_generic.burst.yellowwhite", "jb2a.healing_generic.400px.yellow"],
+    color: "yellow", sound: SPELL_SOUNDS.heal, noCast: true },
+  "second-wind": { kind: "heal", animation: ["jb2a.healing_generic.burst.greenorange"], color: "orange", sound: SPELL_SOUNDS.heal,
+    noCast: true },
+  "divine-smite": { kind: "onTarget", animation: ["jb2a.divine_smite.target.{color}", "jb2a.divine_smite.target.blueyellow"],
+    color: "yellow", cast: ["jb2a.divine_smite.caster.blueyellow"], castSound: FEATURE_SOUNDS.smiteCaster, sound: FEATURE_SOUNDS.smiteTarget,
+    impact: false }
+});
+
+/**
+ * Sort ou aptitude utilitaire sans exception (activité « utility » d'un sort) : bienfait sur un allié ou soi, marque sur un ennemi.
+ * Les actions de base (Foncer, Esquiver…) et les objets ne sont jamais animés par cette règle.
+ */
+export const UTILITY = Object.freeze({
+  boon: { kind: "onTarget", animation: ["jb2a.condition.boon.01.001.green"], color: "green", sound: FEATURE_SOUNDS.boon },
+  bane: { kind: "onTarget", animation: ["jb2a.condition.curse.01.001.red"], color: "red", sound: FEATURE_SOUNDS.bane }
+});
+
+/**
+ * Dégâts ajoutés au jet d'une arme par DAS · Core (carte de dégâts `flags.dnd5e-combat.<clé>`) : joués sur la cible au jet de dégâts.
+ * Les châtiments (`smite`) passent par runtime/smites.mjs (BLFX, sinon AA, sinon `SMITES`).
+ */
+export const RIDERS = Object.freeze({
+  sneak: { animation: ["jb2a.sneak_attack.{color}", "jb2a.sneak_attack.dark_green"], color: "dark_green", scale: 1.3,
+    sound: "psfx.impacts.slashing.v1" }
+});
+
+/** Châtiments joués par ce module quand ni BLFX ni AA ne les jouent, par identifiant ; sinon l'impact de leur type de dégâts. */
+export const SMITES = Object.freeze({
+  "divine-smite": { animation: ["jb2a.divine_smite.target.{color}", "jb2a.divine_smite.target.blueyellow"], color: "yellow",
+    sound: FEATURE_SOUNDS.smiteTarget },
+  "searing-smite": { damage: "fire" }, "thunderous-smite": { damage: "thunder" }, "wrathful-smite": { damage: "psychic" },
+  "blinding-smite": { damage: "radiant" }, "shining-smite": { damage: "radiant" }, "staggering-smite": { damage: "psychic" },
+  "branding-smite": { damage: "radiant" }, "banishing-smite": { damage: "force" }
+});

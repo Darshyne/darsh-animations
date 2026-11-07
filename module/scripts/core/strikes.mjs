@@ -2,8 +2,8 @@
  * SPEC §21 : le choix d'une recette d'attaque d'arme (lot 1), sans Foundry. Le runtime résume l'objet et l'attaque, puis joue ce que ce
  * module décide ici : quelle forme (coup, tir, lancer, sur la cible), quels noms candidats (dans l'ordre), quel son, quel impact.
  */
-import { COLOR_FALLBACKS, DAMAGE_COLORS, DART_GAP, ELEMENTS, GENERIC, HEAL, NATURAL, SAVED, SOUNDS, SPELLS, SPELL_CASTS,
-  SPELL_PROJECTILES, SPELL_SOUNDS, STRIKE_IMPACTS, SWOOSH_BY_DAMAGE, TIMING, UNARMED, WEAPONS } from "../data/strikes.mjs";
+import { COLOR_FALLBACKS, DAMAGE_COLORS, DART_GAP, ELEMENTS, FEATURES, GENERIC, HEAL, NATURAL, RIDERS, SAVED, SMITES, SOUNDS, SPELLS,
+  SPELL_CASTS, SPELL_PROJECTILES, SPELL_SOUNDS, STRIKE_IMPACTS, SWOOSH_BY_DAMAGE, TIMING, UNARMED, UTILITY, WEAPONS } from "../data/strikes.mjs";
 import { IMPACTS } from "../data/jb2a.mjs";
 
 const PHYSICAL = new Set(["bludgeoning", "piercing", "slashing"]);
@@ -156,8 +156,10 @@ export function judgeAgainstAc(roll, targets=[]) {
 /*  Lot 2 : sorts ciblés et soins                */
 /* -------------------------------------------- */
 
-/** Les sorts d'exception, par clé normalisée (sans tirets : core/aa.mjs `normalize`). */
-const SPELLS_BY_KEY = Object.fromEntries(Object.entries(SPELLS).map(([k, v]) => [k.replace(/[^a-z0-9]/g, ""), v]));
+/** Une clé de table en clé normalisée (sans tirets : core/aa.mjs `normalize`). */
+const norm = k => k.replace(/[^a-z0-9]/g, "");
+/** Les sorts et aptitudes d'exception (lots 2 et 3), par clé normalisée. */
+const SPELLS_BY_KEY = Object.fromEntries([...Object.entries(SPELLS), ...Object.entries(FEATURES)].map(([k, v]) => [norm(k), v]));
 
 /**
  * La forme d'un sort ou d'une activité de soin / sauvegarde / dégâts : "shot", "onTarget", "heal", ou null (attaque d'arme : lot 1 ;
@@ -165,6 +167,14 @@ const SPELLS_BY_KEY = Object.fromEntries(Object.entries(SPELLS).map(([k, v]) => 
  */
 export function spellForm(s) {
   if ( s.activityType === "heal" ) return "heal";
+  // Activité de téléportation de dnd5e 6 (Foulée brumeuse, Porte dimensionnelle…).
+  if ( s.activityType === "teleport" ) return "teleport";
+  // Lot 3 : utilitaire — une exception par identifiant (aptitude, sort), sinon un sort seulement (jamais une action de base ni un objet).
+  if ( s.activityType === "utility" ) {
+    const own = (s.keys ?? []).map(k => SPELLS_BY_KEY[k]).find(Boolean);
+    if ( own ) return own.kind;
+    return (s.itemType === "spell") ? "utility" : null;
+  }
   if ( s.activityType === "attack" ) {
     if ( isWeaponAttack(s) ) return null;
     return (s.attackType === "melee") ? "onTarget" : "shot";
@@ -182,28 +192,35 @@ export function chooseSpell(s) {
   if ( !form ) return null;
   const keys = s.keys ?? [];
   const key = keys.find(k => SPELLS_BY_KEY[k]);
-  const own = key ? SPELLS_BY_KEY[key] : null;
+  // Une téléportation sans exception prend celle de Foulée brumeuse.
+  const own = key ? SPELLS_BY_KEY[key] : ((form === "teleport") ? FEATURES["misty-step"] : null);
   const type = extraDamage(s.damageTypes) ?? (s.damageTypes ?? [])[0] ?? null;
-  const kind = own?.kind ?? form;
-  const color = own?.color ?? ((kind === "heal") ? HEAL.color : (DAMAGE_COLORS[type] ?? "white"));
+  const util = (!own && (form === "utility")) ? ((s.affects === "enemy") ? UTILITY.bane : UTILITY.boon) : null;
+  const kind = own?.kind ?? util?.kind ?? form;
+  const color = own?.color ?? util?.color ?? ((kind === "heal") ? HEAL.color : (DAMAGE_COLORS[type] ?? "white"));
   const vars = { color, element: ELEMENTS[type] ?? "physical" };
   let animation;
   if ( own ) animation = own.animation;
+  else if ( util ) animation = util.animation;
   else if ( kind === "heal" ) animation = HEAL.animation;
   else if ( kind === "shot" ) animation = SPELL_PROJECTILES[type] ?? SPELL_PROJECTILES.none;
   else animation = [];   // sur la cible, sans exception : l'impact du type de dégâts suffit
   const castKey = (kind === "heal") ? "heal" : (SPELL_CASTS[type] ? type : "none");
   // Incantation sur le lanceur pour tous les sorts : jouée dès le lancement, pendant les dés (décision utilisateur, 2026-11-07).
-  const cast = own?.cast ?? SPELL_CASTS[castKey].animation;
+  const cast = own?.noCast ? [] : (own?.cast ?? SPELL_CASTS[castKey].animation);
   // Sans type de dégâts (Immobilisation de personne…) : un impact magique neutre sur la cible.
   const impactOf = IMPACTS[type] ?? { animation: "jb2a.impact.011.blue", scale: 0.9, sound: SPELL_SOUNDS.magical };
-  const impact = ((own?.impact === false) || (kind === "heal") || !impactOf) ? null
+  // Pas d'impact pour un soin, un utilitaire, une téléportation, ni une exception sans dégâts (son animation suffit).
+  const noImpact = (own?.impact === false) || ["heal", "teleport"].includes(kind) || util || (form === "utility") || (own && !type);
+  const impact = (noImpact || !impactOf) ? null
     : { animation: [impactOf.animation], scale: impactOf.scale ?? 1.2, tint: impactOf.tint ?? null, sound: impactOf.sound ?? SPELL_SOUNDS.magical };
   return {
-    form, family: key ? `spell:${key}` : `${kind}:${type ?? "none"}`, kind, color,
+    form, family: key ? `spell:${key}` : util ? `utility:${(util === UTILITY.bane) ? "bane" : "boon"}` : `${kind}:${type ?? "none"}`,
+    kind, color,
     animation: expand(animation, vars), cast: expand(cast, vars),
-    castSound: own?.castSound ?? SPELL_CASTS[castKey].sound,
-    sound: own?.sound ?? ((kind === "heal") ? HEAL.sound : (kind === "shot") ? SPELL_SOUNDS.projectile : null),
+    castSound: own?.noCast ? null : (own?.castSound ?? SPELL_CASTS[castKey].sound),
+    sound: own?.sound ?? util?.sound ?? ((kind === "heal") ? HEAL.sound : (kind === "shot") ? SPELL_SOUNDS.projectile : null),
+    arrive: own?.arrive ? expand(own.arrive, vars) : [], arriveSound: own?.arriveSound ?? null,
     impact
   };
 }
@@ -256,4 +273,29 @@ export function resolutionMoment(resolution, event) {
   if ( resolution.plan.save ) return affected.every(t => t.save) ? "effect" : null;
   if ( (resolution.plan.darts > 0) && !resolution.allocated ) return null;
   return ["damageRolled", "applied"].includes(event?.type) || (resolution.step === "done") ? "effect" : null;
+}
+
+/* -------------------------------------------- */
+/*  Lot 3 : dégâts ajoutés au jet d'une arme      */
+/* -------------------------------------------- */
+
+/** Ce qu'il faut jouer pour un rider de DAS · Core (`sneak`…) : `{ animation[], scale, sound }`, ou null. */
+export function chooseRider(key) {
+  const rider = RIDERS[key];
+  if ( !rider ) return null;
+  return { animation: expand(rider.animation, { color: rider.color }), scale: rider.scale ?? 1.2, sound: rider.sound };
+}
+
+/**
+ * Le rendu propre d'un châtiment (quand ni BLFX ni AA ne le jouent) : `{ animation[], scale, sound }`, ou null. Par identifiant
+ * (`SMITES`), sinon l'impact de son type de dégâts (`damageTypes` de l'objet du châtiment).
+ */
+export function chooseSmite(keys=[], damageTypes=[]) {
+  const key = keys.find(k => Object.keys(SMITES).some(id => norm(id) === k));
+  const own = key ? Object.entries(SMITES).find(([id]) => norm(id) === key)[1] : null;
+  if ( own?.animation ) return { animation: expand(own.animation, { color: own.color }), scale: 1.4, sound: own.sound };
+  const type = own?.damage ?? extraDamage(damageTypes) ?? damageTypes[0] ?? null;
+  const impact = IMPACTS[type];
+  if ( !impact ) return null;
+  return { animation: [impact.animation], scale: (impact.scale ?? 1.2) * 1.2, tint: impact.tint ?? null, sound: impact.sound };
 }

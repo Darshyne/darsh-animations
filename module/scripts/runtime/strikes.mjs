@@ -16,13 +16,19 @@ import { MODULE_ID, jb2aActive, log } from "./shared.mjs";
 import { addSound, known } from "./sequencer.mjs";
 import { blfxPlays } from "./blfxmap.mjs";
 import { aaPlays, englishKeysOf } from "./aa.mjs";
-import { CRITICAL_SCALE, SAVED_IMPACT, chooseAction, hitDelay, judgeAgainstAc, resolutionMoment, spellTimeline, strikeTimeline }
-  from "../core/strikes.mjs";
+import { CRITICAL_SCALE, SAVED_IMPACT, chooseAction, chooseRider, hitDelay, judgeAgainstAc, resolutionMoment, spellTimeline,
+  strikeTimeline } from "../core/strikes.mjs";
 
 const ENGINE = "dnd5e-combat";
 const played = new Set();
 /** Les utilisations (id du message d'utilisation) dont l'incantation a déjà été jouée, avant les dés. */
 const casts = new Set();
+/** Les utilisations dont l'effet a été joué (par la voie du Core ou par la carte) : jamais deux fois. */
+const done = new Set();
+/** Téléportations en cours (Foulée brumeuse) : id du token → ce qui se joue à l'arrivée, jusqu'à `until`. */
+const teleports = new Map();
+/** Le délai avant de jouer un utilitaire depuis sa carte quand DAS · Core ne l'a pas résolu (il n'ouvre de résolution qu'avec des cibles). */
+const UTILITY_FALLBACK_MS = 1200;
 
 const setting = key => { try { return game.settings.get(MODULE_ID, key); } catch { return true; } };
 
@@ -45,7 +51,8 @@ export function strikeSummary(item, activity=null, { attackMode=null }={}) {
   return {
     itemType: item?.type, weaponType: sys.type?.value, baseItem: sys.type?.baseItem || null,
     keys: englishKeysOf(item, activity), properties: [...(sys.properties ?? [])], attackMode, activityType: activity?.type ?? null,
-    attackType: activity?.attack?.type?.value ?? null, classification: activity?.attack?.type?.classification ?? null, damageTypes
+    attackType: activity?.attack?.type?.value ?? null, classification: activity?.attack?.type?.classification ?? null, damageTypes,
+    affects: activity?.target?.affects?.type ?? null
   };
 }
 
@@ -107,6 +114,13 @@ function playSpell(sequence, choice, source, live, { skipCast=false }={}) {
   const impactFile = firstKnown(choice.impact?.animation);
   if ( !file && !castFile && !impactFile ) return { skipped: `no known animation for ${choice.family}`, tried: choice.animation };
   const sounds = [];
+  // Téléportation : on disparaît sur place ; la réapparition se joue quand le token arrive (updateToken).
+  if ( choice.kind === "teleport" ) {
+    if ( file ) sequence.effect().file(file).atLocation(source).scaleToObject(1.6);
+    if ( choice.sound && addSound(sequence, choice.sound) ) sounds.push(choice.sound);
+    teleports.set(source.document.id, { arrive: firstKnown(choice.arrive), sound: choice.arriveSound, until: Date.now() + 20000 });
+    return { played: file, sounds, teleport: true };
+  }
   let lead = 0;
   if ( castFile ) {
     sequence.effect().file(castFile).atLocation(source).scaleToObject(1.8).belowTokens();
@@ -183,10 +197,13 @@ export function playCast({ item, activity=null, source }, { force=false }={}) {
 export function playStrike({ item, activity=null, source, targets=[], attackMode=null }, { force=false, skipCast=false }={}) {
   const stop = gate({ item, activity, source }, force);
   if ( stop ) return stop;
-  const live = targets.filter(t => t.token);
-  if ( !live.length ) return { skipped: "no target on the viewed scene" };
   const choice = chooseAction(strikeSummary(item, activity, { attackMode }));
   if ( !choice ) return { skipped: "nothing to animate for this activity" };
+  const live = targets.filter(t => t.token);
+  // Bienfait, soin ou téléportation sans cible désignée : sur le lanceur.
+  if ( !live.length && ["onTarget", "heal", "teleport"].includes(choice.kind)
+    && ["utility", "heal", "teleport"].includes(activity?.type) ) live.push({ token: source });
+  if ( !live.length ) return { skipped: "no target on the viewed scene" };
   const sequence = new Sequence({ moduleName: MODULE_ID });
   const result = (choice.action === "weapon") ? playWeapon(sequence, choice, source, live)
     : playSpell(sequence, choice, source, live, { skipCast });
@@ -221,6 +238,7 @@ async function onResolution(resolution, event) {
   const key = `${resolution.id}:${resolution.attack?.messageId ?? moment}`;
   if ( played.has(key) ) return;
   played.add(key);
+  if ( usage ) done.add(usage);
   const targets = (resolution.targets ?? []).filter(t => !t.unaffected && ((resolution.plan.darts > 0) ? (t.times ?? 0) > 0 : true))
     .map(t => ({ token: fromUuidSync(t.token, { strict: false })?.object ?? null, hit: t.hit, critical: t.critical, reason: t.reason,
       save: t.save, times: (resolution.plan.darts > 0) ? t.times : 1 }))
@@ -243,7 +261,16 @@ function notedTargets(message) {
 }
 
 function onMessage(message) {
-  if ( !message.isAuthor || engineResolves() || played.has(message.id) ) return;
+  if ( !message.isAuthor || played.has(message.id) ) return;
+  if ( message.type === "damage" ) return onRiders(message);
+  // DAS · Core ne résout pas un utilitaire sans cible : la carte le joue, sauf si le Core l'a fait entre-temps.
+  if ( engineResolves() ) {
+    const activity = message.getAssociatedActivity?.() ?? null;
+    if ( (message.type !== "usage") || !["utility", "teleport"].includes(activity?.type) ) return;
+    played.add(message.id);
+    setTimeout(() => { if ( !done.has(message.id) ) playUsage(message, activity); }, UTILITY_FALLBACK_MS);
+    return;
+  }
   const activity = message.getAssociatedActivity?.() ?? null;
   if ( message.type === "attack" ) {
     played.add(message.id);
@@ -264,17 +291,57 @@ function onMessage(message) {
     if ( !playCast({ item, activity, source: sourceTokenOf(item?.actor, message.speaker) }).skipped ) casts.add(message.id);
     return;
   }
-  // Carte d'utilisation d'une activité sans jet d'attaque : sauvegarde (résultats inconnus ici), soin, dégâts.
-  if ( (message.type !== "usage") || !["save", "heal", "damage"].includes(activity?.type) ) return;
+  // Carte d'utilisation d'une activité sans jet d'attaque : sauvegarde (résultats inconnus ici), soin, dégâts, utilitaire.
+  if ( (message.type !== "usage") || !["save", "heal", "damage", "utility", "teleport"].includes(activity?.type) ) return;
   played.add(message.id);
+  playUsage(message, activity);
+}
+
+/** Joue l'effet d'une carte d'utilisation (sauvegarde, soin, dégâts, utilitaire), une fois. */
+function playUsage(message, activity) {
+  done.add(message.id);
   const item = activity.item;
   if ( item?.type === "consumable" ) return;   // potions et consommables : runtime/consumables.mjs
   const targets = notedTargets(message).filter(t => t.token && (t.token.scene === canvas.scene));
-  const source = sourceTokenOf(item.actor, message.speaker);
-  // Un soin sans cible désignée soigne le lanceur.
-  if ( !targets.length && (activity.type === "heal") && source ) targets.push({ token: source });
-  const result = playStrike({ item, activity, source, targets });
+  const result = playStrike({ item, activity, source: sourceTokenOf(item.actor, message.speaker), targets });
   if ( result.skipped ) log(`animation skipped (${item.name}): ${result.skipped}`);
+}
+
+/** Dégâts ajoutés au jet d'une arme par DAS · Core (Attaque sournoise : `flags.dnd5e-combat.sneak`), sur la cible. */
+function onRiders(message) {
+  const flags = message.flags?.[ENGINE] ?? {};
+  for ( const key of ["sneak"] ) {
+    const rider = flags[key];
+    if ( !rider?.target ) continue;
+    played.add(message.id);
+    const item = rider.item ? fromUuidSync(rider.item, { strict: false }) : null;
+    if ( !setting("strikes") || !jb2aActive() || (item && blfxPlays(item)) ) continue;
+    const doc = fromUuidSync(rider.target, { strict: false });
+    const target = doc?.object ?? doc?.getActiveTokens?.(false, false)?.[0] ?? null;
+    const choice = chooseRider(key);
+    const file = firstKnown(choice?.animation);
+    if ( !target || !file || (target.scene !== canvas.scene) ) continue;
+    const sequence = new Sequence({ moduleName: MODULE_ID });
+    sequence.effect().file(file).atLocation(target).scaleToObject(choice.scale);
+    addSound(sequence, choice.sound);
+    sequence.play();
+    log(`rider ${key}: ${target.name}`);
+  }
+}
+
+/** Arrivée d'une téléportation : la réapparition sur la nouvelle case. */
+function onTokenMoved(doc, changes) {
+  const pending = teleports.get(doc.id);
+  if ( !pending || !(("x" in changes) || ("y" in changes)) ) return;
+  teleports.delete(doc.id);
+  if ( (Date.now() > pending.until) || !pending.arrive || (doc.parent !== canvas.scene) ) return;
+  const size = canvas.grid.size;
+  const at = { x: doc._source.x + (doc._source.width * size / 2), y: doc._source.y + (doc._source.height * size / 2) };
+  const sequence = new Sequence({ moduleName: MODULE_ID });
+  sequence.effect().file(pending.arrive).atLocation(at).size(doc._source.width * 1.6 * size).delay(150);
+  addSound(sequence, pending.sound, { delay: 150 });
+  sequence.play();
+  log(`teleport: ${doc.name} arrives`);
 }
 
 /* -------------------------------------------- */
@@ -297,7 +364,7 @@ export async function previewStrike({ item, activity=null, source, targets=[], m
   }
   const acts = doc.system?.activities;
   const act = (activity ? (acts?.get(activity) ?? acts?.find?.(a => a.type === activity)) : null)
-    ?? acts?.find?.(a => ["attack", "save", "heal", "damage"].includes(a.type)) ?? null;
+    ?? acts?.find?.(a => ["attack", "save", "heal", "damage"].includes(a.type)) ?? acts?.find?.(a => ["utility", "teleport"].includes(a.type)) ?? null;
   return playStrike({ item: doc, activity: act, source: find(source), attackMode,
     targets: targets.map(find).filter(Boolean).map(token => ({ token, hit: (act?.type === "attack") ? !miss : null,
       critical: critical && !miss, reason: miss ? "miss" : "hit", save: (act?.type === "save") ? { success: saved } : null, times })) },
@@ -314,5 +381,8 @@ export function registerStrikes() {
   });
   Hooks.on("createChatMessage", message => {
     try { onMessage(message); } catch(err) { console.error(`${MODULE_ID} | strike animation`, err); }
+  });
+  Hooks.on("updateToken", (doc, changes) => {
+    try { onTokenMoved(doc, changes); } catch(err) { console.error(`${MODULE_ID} | teleport animation`, err); }
   });
 }

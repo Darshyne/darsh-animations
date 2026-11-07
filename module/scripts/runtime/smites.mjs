@@ -7,11 +7,14 @@
  * Les effets que le sort pose ensuite (Ardent, Aveuglé…) restent à BLFX, qui les voit (`afterActiveEffects`).
  * Sans animation BLFX pour ce sort (BLFX absent, Auto-Rec coupée, rien « après les dégâts ») : Automated Animations, par son API
  * publique, s'il a une entrée pour le sort (issue GitHub #5, SPEC §18 bis). Jamais les deux.
+ * Sans l'un ni l'autre : notre rendu JB2A + PSFX (SPEC §21, lot 3 : `SMITES` de data/strikes.mjs, sinon l'impact du type de dégâts).
  */
-import { BLFX, MODULE_ID, aaActive, blfxActive, log } from "./shared.mjs";
+import { BLFX, MODULE_ID, aaActive, blfxActive, jb2aActive, log } from "./shared.mjs";
+import { addSound, known } from "./sequencer.mjs";
+import { chooseSmite } from "../core/strikes.mjs";
 import { ANIMATION_MAP_PATH } from "../core/blfx.mjs";
 import { smiteAnimation, smiteBackend } from "../core/smites.mjs";
-import { SMITE_MARK, aaOverrideNames, aaPlays } from "./aa.mjs";
+import { SMITE_MARK, aaOverrideNames, aaPlays, englishKeysOf } from "./aa.mjs";
 
 const ENGINE = "dnd5e-combat";
 let map = null;
@@ -28,10 +31,28 @@ function blfxAutoRec() {
   try { return game.settings.get(BLFX, "blfxAutoRecognition") !== false; } catch { return true; }
 }
 
-/** Joue l'animation de ce châtiment : BLFX, sinon Automated Animations. Rend ce qui a été joué, ou la raison de ne rien jouer. */
+/** Notre rendu d'un châtiment, sur la cible (JB2A + PSFX). */
+function playOwnSmite(item, targetTokens) {
+  let on = true;
+  try { on = game.settings.get(MODULE_ID, "strikes") !== false; } catch {}
+  if ( !on || !jb2aActive() ) return null;
+  const damageTypes = [...(item.system?.activities ?? [])].flatMap(a => (a.damage?.parts ?? []).flatMap(p => [...(p.types ?? [])]));
+  const choice = chooseSmite(englishKeysOf(item), damageTypes);
+  const file = choice?.animation.find(known);
+  if ( !file || !targetTokens.length ) return null;
+  const sequence = new Sequence({ moduleName: MODULE_ID });
+  for ( const target of targetTokens ) {
+    const fx = sequence.effect().file(file).atLocation(target).scaleToObject(choice.scale);
+    if ( choice.tint ) fx.tint(choice.tint);
+  }
+  addSound(sequence, choice.sound);
+  sequence.play();
+  return file;
+}
+
+/** Joue l'animation de ce châtiment : BLFX, sinon Automated Animations, sinon le nôtre. Rend ce qui a été joué, ou la raison. */
 export async function playSmite(smite, { roll=null }={}) {
   const blfxOn = blfxActive() && blfxAutoRec();
-  if ( !blfxOn && !aaActive() ) return { skipped: "neither BLFX nor Automated Animations active" };
   const item = smite?.item ? await fromUuid(smite.item).catch(() => null) : null;
   if ( !item ) return { skipped: "smite item not found" };
   const label = item.system?.identifier || item.name;
@@ -39,11 +60,16 @@ export async function playSmite(smite, { roll=null }={}) {
   const anim = blfxOn
     ? smiteAnimation(await animationMap(), { type: item.type, name: item.name, identifier: item.system?.identifier })
     : null;
-  const backend = smiteBackend({ blfx: !!anim, aa: !anim && aaPlays(item, { activity, ignoreBlfx: true }) });
-  if ( !backend ) return { skipped: `no BLFX or Automated Animations animation for ${label}` };
+  const backend = smiteBackend({ blfx: !!anim, aa: !anim && aaActive() && aaPlays(item, { activity, ignoreBlfx: true }) });
   const sourceToken = item.actor?.getActiveTokens(true)[0] ?? null;
   const target = smite.target ? await fromUuid(smite.target).catch(() => null) : null;
   const targetTokens = target?.object ? [target.object] : [];
+  if ( !backend ) {
+    const own = playOwnSmite(item, targetTokens);
+    if ( !own ) return { skipped: `no BLFX, Automated Animations or JB2A animation for ${label}` };
+    log(`smite animation (jb2a): ${item.name} → ${targetTokens.map(t => t.name).join(", ")}`);
+    return { played: label, by: "jb2a", file: own, targets: targetTokens.map(t => t.name) };
+  }
   if ( !sourceToken ) return { skipped: "caster token not on this scene" };
   if ( backend === "blfx" ) {
     await anim.macro({ sourceToken, targetTokens, templateDocument: null, item, roll, activity, effect: null, data: null,
