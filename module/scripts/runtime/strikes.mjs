@@ -54,7 +54,7 @@ export function strikeSummary(item, activity=null, { attackMode=null }={}) {
     itemType: item?.type, weaponType: sys.type?.value, baseItem: sys.type?.baseItem || null, own, ownKey,
     keys, properties: [...(sys.properties ?? [])], attackMode, activityType: activity?.type ?? null,
     attackType: activity?.attack?.type?.value ?? null, classification: activity?.attack?.type?.classification ?? null, damageTypes,
-    affects: activity?.target?.affects?.type ?? null
+    affects: activity?.target?.affects?.type ?? null, school: sys.school ?? null
   };
 }
 
@@ -204,7 +204,7 @@ export function playStrike({ item, activity=null, source, targets=[], attackMode
   const live = targets.filter(t => t.token);
   // Bienfait, soin ou téléportation sans cible désignée : sur le lanceur.
   if ( !live.length && ["onTarget", "heal", "teleport"].includes(choice.kind)
-    && ["utility", "heal", "teleport"].includes(activity?.type) ) live.push({ token: source });
+    && ["utility", "heal", "teleport", "enchant", "transform", "check"].includes(activity?.type) ) live.push({ token: source });
   if ( !live.length ) return { skipped: "no target on the viewed scene" };
   const sequence = new Sequence({ moduleName: MODULE_ID });
   const result = (choice.action === "weapon") ? playWeapon(sequence, choice, source, live)
@@ -280,7 +280,7 @@ function onMessage(message) {
   // DAS · Core ne résout pas un utilitaire sans cible : la carte le joue, sauf si le Core l'a fait entre-temps.
   if ( engineResolves() ) {
     const activity = message.getAssociatedActivity?.() ?? null;
-    if ( (message.type !== "usage") || !["utility", "teleport"].includes(activity?.type) ) return;
+    if ( (message.type !== "usage") || !["utility", "teleport", "enchant", "transform", "check"].includes(activity?.type) ) return;
     played.add(message.id);
     setTimeout(() => { if ( !done.has(message.id) ) playUsage(message, activity); }, UTILITY_FALLBACK_MS);
     return;
@@ -306,7 +306,7 @@ function onMessage(message) {
     return;
   }
   // Carte d'utilisation d'une activité sans jet d'attaque : sauvegarde (résultats inconnus ici), soin, dégâts, utilitaire.
-  if ( (message.type !== "usage") || !["save", "heal", "damage", "utility", "teleport"].includes(activity?.type) ) return;
+  if ( (message.type !== "usage") || !["save", "heal", "damage", "utility", "teleport", "enchant", "transform", "check"].includes(activity?.type) ) return;
   played.add(message.id);
   playUsage(message, activity);
 }
@@ -378,7 +378,7 @@ export async function previewStrike({ item, activity=null, source, targets=[], m
   }
   const acts = doc.system?.activities;
   const act = (activity ? (acts?.get(activity) ?? acts?.find?.(a => a.type === activity)) : null)
-    ?? acts?.find?.(a => ["attack", "save", "heal", "damage"].includes(a.type)) ?? acts?.find?.(a => ["utility", "teleport"].includes(a.type)) ?? null;
+    ?? acts?.find?.(a => ["attack", "save", "heal", "damage"].includes(a.type)) ?? acts?.find?.(a => ["utility", "teleport", "enchant", "transform", "check"].includes(a.type)) ?? null;
   return playStrike({ item: doc, activity: act, source: find(source), attackMode,
     targets: targets.map(find).filter(Boolean).map(token => ({ token, hit: (act?.type === "attack") ? !miss : null,
       critical: critical && !miss, reason: miss ? "miss" : "hit", save: (act?.type === "save") ? { success: saved } : null, times })) },

@@ -89,9 +89,22 @@ describe("sorts : choix", () => {
     expect(sacred.family).toBe("spell:sacredflame");
     expect(sacred.cast[0]).toBe("jb2a.sacred_flame.source.yellow");
     expect(sacred.impact).toBeNull();
-    const hold = chooseAction(spell({ keys: ["holdperson"], activityType: "save" }));
-    expect(hold.cast).toEqual(["jb2a.cast_generic.02.blue"]);
-    expect(hold.impact.animation).toEqual(["jb2a.impact.011.blue"]);
+    const neutral = chooseAction(spell({ keys: ["sortinconnu"], activityType: "save" }));
+    expect(neutral.cast).toEqual(["jb2a.cast_generic.02.blue"]);
+    expect(neutral.impact.animation).toEqual(["jb2a.impact.011.blue"]);
+    // Avec une école : son cercle sur le lanceur, sa rune sur la cible (Injonction, enchantement).
+    const command = chooseAction(spell({ keys: ["command"], activityType: "save", school: "enc" }));
+    expect(command.cast).toEqual(["jb2a.magic_signs.circle.02.enchantment.complete.pink"]);
+    expect(command.impact.animation).toEqual(["jb2a.magic_signs.rune.enchantment.complete.pink"]);
+    // Immobilisation de personne a sa propre animation (chaînes).
+    expect(chooseAction(spell({ keys: ["holdperson"], activityType: "save", school: "enc" })).animation[0])
+      .toBe("jb2a.markers.chain.spectral_standard.complete.02.blue");
+  });
+  it("enchantement d'arme et transformation : comme un utilitaire (rune de l'école, ou exception)", () => {
+    expect(chooseAction(spell({ keys: ["magicweapon"], activityType: "enchant", school: "trs" })).animation)
+      .toEqual(["jb2a.magic_signs.rune.transmutation.complete.yellow"]);
+    expect(chooseAction(spell({ keys: ["shapechange"], activityType: "transform", school: "trs" })).animation)
+      .toEqual(["jb2a.smoke.puff.centered.grey"]);
   });
   it("soins : Soins des blessures par identifiant, un soin quelconque en lueur jaune", () => {
     expect(chooseAction(spell({ keys: ["curewounds"], activityType: "heal" })).animation.at(-1)).toBe("jb2a.cure_wounds.400px.white");

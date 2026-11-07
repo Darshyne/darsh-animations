@@ -352,6 +352,32 @@ export const FEATURES = Object.freeze({
   "channel-divinity-cleric": { kind: "onTarget", animation: ["jb2a.sacred_flame.target.{color}", "jb2a.sacred_flame.target.yellow"],
     color: "yellow", cast: ["jb2a.sacred_flame.source.{color}", "jb2a.sacred_flame.source.yellow"],
     castSound: "psfx.cantrips.sacred-flame.v1.001.caster", sound: "psfx.cantrips.sacred-flame.v1.001.target", impact: false },
+  "charm-person": { kind: "onTarget", animation: ["jb2a.markers.heart.pink.03"], color: "pink", sound: FEATURE_SOUNDS.bane },
+  "charm-monster": { kind: "onTarget", animation: ["jb2a.markers.heart.pink.03"], color: "pink", sound: FEATURE_SOUNDS.bane },
+  "friends": { kind: "onTarget", animation: ["jb2a.markers.heart.pink.01"], color: "pink", sound: FEATURE_SOUNDS.bane },
+  "animal-friendship": { kind: "onTarget", animation: ["jb2a.markers.heart.pink.01"], color: "pink", sound: FEATURE_SOUNDS.boon },
+  "hold-person": { kind: "onTarget", animation: ["jb2a.markers.chain.spectral_standard.complete.02.blue"], color: "blue",
+    sound: FEATURE_SOUNDS.bane },
+  "hold-monster": { kind: "onTarget", animation: ["jb2a.markers.chain.spectral_standard.complete.02.blue"], color: "blue",
+    sound: FEATURE_SOUNDS.bane },
+  "tashas-hideous-laughter": { kind: "onTarget", animation: ["jb2a.markers.music.greenorange"], color: "green", sound: FEATURE_SOUNDS.bane },
+  "ottos-irresistible-dance": { kind: "onTarget", animation: ["jb2a.markers.music.greenorange"], color: "green", sound: FEATURE_SOUNDS.bane },
+  "crown-of-madness": { kind: "onTarget", animation: ["jb2a.markers.horror.purple.03"], color: "purple", sound: FEATURE_SOUNDS.bane },
+  "blindness-deafness": { kind: "onTarget", animation: ["jb2a.smoke.puff.centered.grey"], color: "white", sound: FEATURE_SOUNDS.bane },
+  "banishment": { kind: "onTarget", animation: ["jb2a.portals.vertical.ring.bright_yellow"], color: "yellow", sound: FEATURE_SOUNDS.bane },
+  "imprisonment": { kind: "onTarget", animation: ["jb2a.portals.vertical.ring.bright_yellow"], color: "yellow", sound: FEATURE_SOUNDS.bane },
+  "maze": { kind: "onTarget", animation: ["jb2a.portals.vertical.ring.bright_yellow"], color: "yellow", sound: FEATURE_SOUNDS.bane },
+  "polymorph": { kind: "onTarget", animation: ["jb2a.smoke.puff.centered.grey"], color: "white", sound: FEATURE_SOUNDS.bane },
+  "true-polymorph": { kind: "onTarget", animation: ["jb2a.smoke.puff.centered.grey"], color: "white", sound: FEATURE_SOUNDS.bane },
+  "flesh-to-stone": { kind: "onTarget", animation: ["jb2a.markers.shield_cracked.purple.03"], color: "purple", sound: FEATURE_SOUNDS.bane },
+  "animal-shapes": { kind: "onTarget", animation: ["jb2a.smoke.puff.centered.grey"], color: "white", sound: FEATURE_SOUNDS.boon },
+  "shapechange": { kind: "onTarget", animation: ["jb2a.smoke.puff.centered.grey"], color: "white", sound: FEATURE_SOUNDS.boon },
+  "enlarge-reduce": { kind: "onTarget", animation: ["jb2a.energy_strands.complete.blue.01"], color: "blue", sound: FEATURE_SOUNDS.boon },
+  "levitate": { kind: "onTarget", animation: ["jb2a.energy_strands.complete.blue.01"], color: "blue", sound: FEATURE_SOUNDS.boon },
+  "telekinesis": { kind: "onTarget", animation: ["jb2a.energy_strands.complete.blue.01"], color: "blue", sound: FEATURE_SOUNDS.boon },
+  "heat-metal": { kind: "onTarget", animation: ["jb2a.flames.01.orange"], color: "orange", sound: "psfx.impacts.magicaleffects.fire" },
+  "ray-of-enfeeblement": { kind: "shot", animation: ["jb2a.ranged.04.projectile.01.{color}", "jb2a.ranged.04.projectile.01.green"],
+    color: "green", sound: SPELL_SOUNDS.projectile },
   "divine-smite": { kind: "onTarget", animation: ["jb2a.divine_smite.target.{color}", "jb2a.divine_smite.target.blueyellow"],
     color: "yellow", cast: ["jb2a.divine_smite.caster.blueyellow"], castSound: FEATURE_SOUNDS.smiteCaster, sound: FEATURE_SOUNDS.smiteTarget,
     impact: false }
@@ -404,3 +430,26 @@ export const ALIASES = Object.freeze({
 
 /** Les formes de recette qu'une table enregistrée peut donner (rendues par le rendu des sorts). */
 export const RECIPE_KINDS = Object.freeze(["shot", "onTarget", "heal", "teleport"]);
+
+/* -------------------------------------------- */
+/*  Écoles de magie (sorts sans dégâts)           */
+/* -------------------------------------------- */
+
+/**
+ * Par école dnd5e (`system.school`) : le cercle de l'école sur le lanceur, la rune de l'école sur la cible. Pour les sorts sans dégâts ni
+ * exception (Injonction, Suggestion, Détection de la magie, Arme magique…), au lieu d'une incantation et d'un impact neutres.
+ */
+export const SCHOOLS = Object.freeze({
+  abj: { name: "abjuration", color: "blue" },
+  con: { name: "conjuration", color: "yellow" },
+  div: { name: "divination", color: "blue" },
+  enc: { name: "enchantment", color: "pink" },
+  evo: { name: "evocation", color: "red" },
+  ill: { name: "illusion", color: "purple" },
+  nec: { name: "necromancy", color: "green" },
+  trs: { name: "transmutation", color: "yellow" }
+});
+
+/** Le cercle et la rune d'une école (noms Sequencer du JB2A gratuit). */
+export const schoolSign = s => `jb2a.magic_signs.circle.02.${s.name}.complete.${s.color}`;
+export const schoolRune = s => `jb2a.magic_signs.rune.${s.name}.complete.${s.color}`;

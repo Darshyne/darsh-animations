@@ -3,8 +3,8 @@
  * module décide ici : quelle forme (coup, tir, lancer, sur la cible), quels noms candidats (dans l'ordre), quel son, quel impact.
  */
 import { COLOR_FALLBACKS, DAMAGE_COLORS, DART_GAP, ELEMENTS, FEATURES, GENERIC, HEAL, NATURAL, RIDERS, SAVED, SMITES, SOUNDS, SPELLS,
-  SPELL_CASTS, SPELL_PROJECTILES, SPELL_SOUNDS, STRIKE_IMPACTS, SWOOSH_BY_DAMAGE, TIMING, UNARMED, UTILITY, WEAPONS, ALIASES, RECIPE_KINDS }
-  from "../data/strikes.mjs";
+  SPELL_CASTS, SPELL_PROJECTILES, SPELL_SOUNDS, STRIKE_IMPACTS, SWOOSH_BY_DAMAGE, TIMING, UNARMED, UTILITY, WEAPONS, ALIASES, RECIPE_KINDS,
+  SCHOOLS, schoolRune, schoolSign } from "../data/strikes.mjs";
 import { IMPACTS } from "../data/jb2a.mjs";
 
 const PHYSICAL = new Set(["bludgeoning", "piercing", "slashing"]);
@@ -171,6 +171,8 @@ export function spellForm(s) {
   // Activité de téléportation de dnd5e 6 (Foulée brumeuse, Porte dimensionnelle…).
   if ( s.activityType === "teleport" ) return "teleport";
   // Lot 3 : utilitaire — une exception par identifiant (aptitude, sort), sinon un sort seulement (jamais une action de base ni un objet).
+  // Enchantement d'arme, transformation, test (Dédale) : comme un utilitaire.
+  if ( ["enchant", "transform", "check"].includes(s.activityType) ) return spellForm({ ...s, activityType: "utility" });
   if ( s.activityType === "utility" ) {
     const own = s.own ?? (s.keys ?? []).map(k => SPELLS_BY_KEY[k]).find(Boolean);
     if ( own ) return own.kind;
@@ -199,7 +201,10 @@ export function chooseSpell(s) {
   // Une recette donnée par un autre module (lot 4), sinon une exception ; une téléportation sans exception prend Foulée brumeuse.
   const own = s.own ?? (key ? SPELLS_BY_KEY[key] : ((form === "teleport") ? FEATURES["misty-step"] : null));
   const type = extraDamage(s.damageTypes) ?? (s.damageTypes ?? [])[0] ?? null;
-  const util = (!own && (form === "utility")) ? ((s.affects === "enemy") ? UTILITY.bane : UTILITY.boon) : null;
+  const school = SCHOOLS[s.school] ?? null;
+  // Utilitaire sans exception : la rune de son école sur un allié ou soi (sinon le bienfait), la malédiction sur un ennemi.
+  let util = (!own && (form === "utility")) ? ((s.affects === "enemy") ? UTILITY.bane : UTILITY.boon) : null;
+  if ( (util === UTILITY.boon) && school ) util = { ...UTILITY.boon, animation: [schoolRune(school)], color: school.color };
   const kind = own?.kind ?? util?.kind ?? form;
   const color = own?.color ?? util?.color ?? ((kind === "heal") ? HEAL.color : (DAMAGE_COLORS[type] ?? "white"));
   const vars = { color, element: ELEMENTS[type] ?? "physical" };
@@ -211,9 +216,12 @@ export function chooseSpell(s) {
   else animation = [];   // sur la cible, sans exception : l'impact du type de dégâts suffit
   const castKey = (kind === "heal") ? "heal" : (SPELL_CASTS[type] ? type : "none");
   // Incantation sur le lanceur pour tous les sorts : jouée dès le lancement, pendant les dés (décision utilisateur, 2026-11-07).
-  const cast = own?.noCast ? [] : (own?.cast ?? SPELL_CASTS[castKey].animation);
+  // Sans type de dégâts, l'incantation est le cercle de l'école du sort (s'il en a une).
+  const schoolCast = (!type && school && (kind !== "heal")) ? [schoolSign(school)] : null;
+  const cast = own?.noCast ? [] : (own?.cast ?? schoolCast ?? SPELL_CASTS[castKey].animation);
   // Sans type de dégâts (Immobilisation de personne…) : un impact magique neutre sur la cible.
-  const impactOf = IMPACTS[type] ?? { animation: "jb2a.impact.011.blue", scale: 0.9, sound: SPELL_SOUNDS.magical };
+  const impactOf = IMPACTS[type] ?? (school ? { animation: schoolRune(school), scale: 1.3, sound: SPELL_SOUNDS.magical }
+    : { animation: "jb2a.impact.011.blue", scale: 0.9, sound: SPELL_SOUNDS.magical });
   // Pas d'impact pour un soin, un utilitaire, une téléportation, ni une exception sans dégâts (son animation suffit).
   const noImpact = (own?.impact === false) || ["heal", "teleport"].includes(kind) || util || (form === "utility") || (own && !type);
   const impact = (noImpact || !impactOf) ? null
