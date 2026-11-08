@@ -84,8 +84,13 @@ In Foundry (or on The Forge), *Install Module* → paste the manifest URL:
 https://github.com/Darshyne/darsh-animations/releases/latest/download/module.json
 ```
 
+> **Install an animation source yourself.** Foundry only installs required modules, and none of these is required:
+> add **Boss Loot** (premium, through [its Patreon](https://www.patreon.com/BossLoot): once your Patreon is linked to
+> your Foundry account, *BLFX Animation Editor Premium* and *BLFX Assets Pack-01* show up in *Install Module*), or the
+> free **JB2A** and **PSFX** modules. The module uses whichever it finds.
+
 - Recommended: **BLFX Animation Editor Premium** (`boss-loot-assets-premium`), and therefore Sequencer and the BLFX
-  asset pack. Without it, potions, consumables, traps, walls and areas use **JB2A** (free, `JB2A_DnD5e`) and
+  asset pack (`blfx-assets-pack01`). Without it, potions, consumables, traps, walls and areas use **JB2A** (free, `JB2A_DnD5e`) and
   **PSFX** (`psfx`) if present, otherwise **Token Magic FX** (`tokenmagic`), otherwise the built-in ring; nothing else
   is needed.
 - With BLFX: in the Boss Loot module settings, tick **"BLFX Custom Auto-Rec Updates"**, then reload.
