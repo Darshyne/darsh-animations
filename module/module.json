@@ -25,42 +25,6 @@
           "minimum": "6.0.0"
         }
       }
-    ],
-    "recommends": [
-      {
-        "id": "boss-loot-assets-premium",
-        "type": "module",
-        "compatibility": {
-          "minimum": "3.5.0"
-        },
-        "reason": "Animations, traps, spell walls, and the richer potion and consumable effects."
-      },
-      {
-        "id": "tokenmagic",
-        "type": "module",
-        "reason": "Potion, consumable and trap effects without Boss Loot (BLFX); without either, a built-in ring is shown.",
-        "compatibility": {
-          "minimum": "0.8.0"
-        }
-      },
-      {
-        "id": "JB2A_DnD5e",
-        "type": "module",
-        "reason": "Animations for potions, traps, spell walls and areas without Boss Loot (BLFX). The Patreon version works too."
-      },
-      {
-        "id": "psfx",
-        "type": "module",
-        "reason": "Sounds for the JB2A effects."
-      },
-      {
-        "id": "autoanimations",
-        "type": "module",
-        "compatibility": {
-          "minimum": "7.0.0"
-        },
-        "reason": "Recognises translated items in every language through this module, and gives way to BLFX."
-      }
     ]
   },
   "esmodules": [

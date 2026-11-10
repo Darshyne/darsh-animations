@@ -84,7 +84,8 @@ In Foundry (or on The Forge), *Install Module* → paste the manifest URL:
 https://github.com/Darshyne/darsh-animations/releases/latest/download/module.json
 ```
 
-> **Install an animation source yourself.** Foundry only installs required modules, and none of these is required:
+> **Install an animation source yourself.** The module declares no dependency (not even a recommended one), so
+> installing it offers nothing else to install. None of these is required:
 > add **Boss Loot** (premium, through [its Patreon](https://www.patreon.com/BossLoot): once your Patreon is linked to
 > your Foundry account, *BLFX Animation Editor Premium* and *BLFX Assets Pack-01* show up in *Install Module*), or the
 > free **JB2A** and **PSFX** modules. The module uses whichever it finds.
