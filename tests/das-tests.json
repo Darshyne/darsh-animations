@@ -1,0 +1,15 @@
+{
+  "i18n": {
+    "namespaces": ["DARSHANIM"],
+    "groups": "DARSHANIM",
+    "calls": [{ "fn": "loc", "prefix": "DARSHANIM." }],
+    "minKeys": 22
+  },
+  "layers": {
+    "imports": {
+      "core": [".", "runtime", "ui"],
+      "data": [".", "core", "runtime", "ui"]
+    },
+    "pure": { "folders": ["core", "data"], "ignoreTemplates": true }
+  }
+}
