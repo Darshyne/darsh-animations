@@ -13,6 +13,10 @@
   "DARSHANIM.Settings.Renderer.Jb2a": "JB2A animations + PSFX sounds",
   "DARSHANIM.Settings.AaNames.Name": "Automated Animations in every language",
   "DARSHANIM.Settings.AaNames.Hint": "Automated Animations recognises items by their English name. When it finds nothing with the translated name, give it the matching entry from the item's English name (Babele), its dnd5e identifier, its base weapon, or the translation table of the world's language (French included). Replaces the \"Automated Animation for Babele\" module. Your own entries in another language still win.",
+  "DARSHANIM.Settings.SummonArt.Name": "Animated token for summons (JB2A)",
+  "DARSHANIM.Settings.SummonArt.Hint": "When a spell summons its creature (Spiritual Weapon, Flaming Sphere, Bigby's Hand, Mage Hand, Mordenkainen's Sword, Dancing Lights), give the new token JB2A's animated art instead of the compendium image. Only that token changes, never an actor. Left alone when the GM chose the image: a summon profile pointing to a world actor, or a token image that is not the compendium's. Needs JB2A (free or Premium) and the \"Summons\" domain on in the Animation sources window.",
+  "DARSHANIM.Settings.SummonArtAsk.Name": "Choose the summon's look each time",
+  "DARSHANIM.Settings.SummonArtAsk.Hint": "After a summon, a small window offers the other looks your animation packs provide (weapon, colour), \"Same as last summon\" first. Off: the last look this character chose for the spell is used without asking.",
   "DARSHANIM.Settings.AaYield.Name": "Automated Animations: customised only, gives way to BLFX",
   "DARSHANIM.Settings.AaYield.Hint": "Automated Animations is optional: only the animations you customised in it (on an item, or an entry you added or edited in its Auto-Rec) still play, before this module; its built-in entries stay silent whenever this module or Boss Loot (BLFX) animates the item. When BLFX is also active, your customised animations give way to BLFX for the items BLFX animates (BLFX cannot be silenced item by item), so nothing plays twice. Its critical-hit animation is not covered (turn it off in its own settings if needed).",
   "DARSHANIM.Settings.Strikes.Name": "Attack, spell and healing animations",
@@ -80,5 +84,12 @@
   "DARSHANIM.Sources.Domain.doors": "Door locks",
   "DARSHANIM.Sources.Domain.summons": "Summons",
   "DARSHANIM.Sources.Pinned": "BLFX always stays first.",
-  "DARSHANIM.Sources.Table.blfxFirst": "BLFX plays first whatever its Auto-Rec recognises."
+  "DARSHANIM.Sources.Table.blfxFirst": "BLFX plays first whatever its Auto-Rec recognises.",
+  "DARSHANIM.SummonArt.Title": "Look of the summon: {name}",
+  "DARSHANIM.SummonArt.Group": "Weapon",
+  "DARSHANIM.SummonArt.Variant": "Look",
+  "DARSHANIM.SummonArt.Hint": "{count} looks offered by the installed animation packs. The token already shows the one selected.",
+  "DARSHANIM.SummonArt.KeepLast": "Same as last summon",
+  "DARSHANIM.SummonArt.Keep": "Keep this one",
+  "DARSHANIM.SummonArt.Choose": "Use this look"
 }

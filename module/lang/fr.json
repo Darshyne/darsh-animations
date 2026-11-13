@@ -13,6 +13,10 @@
   "DARSHANIM.Settings.Renderer.Jb2a": "Animations JB2A + sons PSFX",
   "DARSHANIM.Settings.AaNames.Name": "Automated Animations dans toutes les langues",
   "DARSHANIM.Settings.AaNames.Hint": "Automated Animations reconnaît les objets par leur nom anglais. Quand il ne trouve rien avec le nom traduit, lui donner l'entrée qui correspond au nom anglais de l'objet (Babele), à son identifiant dnd5e, à son arme de base, ou à la table de traduction de la langue du monde (français compris). Remplace le module « Automated Animation for Babele ». Vos propres entrées dans une autre langue restent prioritaires.",
+  "DARSHANIM.Settings.SummonArt.Name": "Token animé pour les invocations (JB2A)",
+  "DARSHANIM.Settings.SummonArt.Hint": "Quand un sort invoque sa créature (Arme spirituelle, Sphère de feu, Main de Bigby, Main de mage, Épée de Mordenkainen, Lumières dansantes), le nouveau token prend l'image animée de JB2A au lieu de l'image du compendium. Seul ce token change, jamais un acteur. Rien n'est changé quand le MJ a choisi l'image : profil d'invocation qui pointe vers un acteur du monde, ou image de token qui n'est pas celle du compendium. Il faut JB2A (gratuit ou Premium) et le domaine « Invocations » allumé dans la fenêtre « Sources d'animation ».",
+  "DARSHANIM.Settings.SummonArtAsk.Name": "Choisir l'apparence de l'invocation à chaque fois",
+  "DARSHANIM.Settings.SummonArtAsk.Hint": "Après une invocation, une petite fenêtre propose les autres apparences offertes par vos packs d'animation (arme, couleur), « Comme la dernière invocation » en premier. Décoché : la dernière apparence choisie par ce personnage pour ce sort est reprise sans rien demander.",
   "DARSHANIM.Settings.AaYield.Name": "Automated Animations : personnalisé seulement, laisse la place à BLFX",
   "DARSHANIM.Settings.AaYield.Hint": "Automated Animations est facultatif : seules les animations que vous y avez personnalisées (sur un objet, ou une entrée ajoutée ou modifiée dans son Auto-Rec) jouent encore, avant ce module ; ses entrées livrées se taisent dès que ce module ou Boss Loot (BLFX) anime l'objet. Quand BLFX est aussi actif, vos animations personnalisées laissent la place à BLFX pour les objets qu'il anime (BLFX ne peut pas être coupé objet par objet) : rien ne joue deux fois. Son animation de coup critique n'est pas couverte (la couper dans ses propres réglages au besoin).",
   "DARSHANIM.Settings.Strikes.Name": "Animations des attaques, sorts et soins",
@@ -80,5 +84,12 @@
   "DARSHANIM.Sources.Domain.doors": "Serrures de porte",
   "DARSHANIM.Sources.Domain.summons": "Invocations",
   "DARSHANIM.Sources.Pinned": "BLFX reste toujours en tête.",
-  "DARSHANIM.Sources.Table.blfxFirst": "BLFX joue d'abord ce que son Auto-Rec reconnaît."
+  "DARSHANIM.Sources.Table.blfxFirst": "BLFX joue d'abord ce que son Auto-Rec reconnaît.",
+  "DARSHANIM.SummonArt.Title": "Apparence de l'invocation : {name}",
+  "DARSHANIM.SummonArt.Group": "Arme",
+  "DARSHANIM.SummonArt.Variant": "Apparence",
+  "DARSHANIM.SummonArt.Hint": "{count} apparences offertes par les packs d'animation installés. Le token montre déjà celle qui est choisie.",
+  "DARSHANIM.SummonArt.KeepLast": "Comme la dernière invocation",
+  "DARSHANIM.SummonArt.Keep": "Garder celle-ci",
+  "DARSHANIM.SummonArt.Choose": "Prendre celle-ci"
 }

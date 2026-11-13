@@ -28,6 +28,7 @@ import { playDoor, previewDoor, registerDoors } from "./runtime/doors.mjs";
 import { playStrike, previewStrike, registerStrikes } from "./runtime/strikes.mjs";
 import { previewCondition, reconcile as reconcileConditions, registerConditions } from "./runtime/conditions.mjs";
 import { previewSummon, registerSummons } from "./runtime/summons.mjs";
+import { previewSummonArt, registerSummonArt, summonArtVariants } from "./runtime/summon-art.mjs";
 import { registerSources, sourcesSetting, sourcesValue, detection } from "./runtime/sources.mjs";
 import { openSources, registerSourcesMenu } from "./ui/sources-window.mjs";
 import { reconcileScene as reconcileConditionScene } from "./runtime/conditions.mjs";
@@ -62,6 +63,9 @@ Hooks.once("init", () => {
     previewCondition, reconcileConditions,
     // Apparition d'une créature invoquée sans BLFX (JB2A + PSFX) : `previewSummon({ tokenId })` pour vérifier.
     previewSummon,
+    // Image animée JB2A sur le token d'une invocation (SPEC §26) : `previewSummonArt({ tokenId, identifier, variant, restore })`,
+    // `summonArtVariants({ identifier })` (ce que la base de Sequencer offre sur ce client).
+    previewSummonArt, summonArtVariants,
     // Automated Animations : `aaResolve({ item, activity, isTemplate })` (ce qu'il trouvera), `aaNames(map)` (noms d'une langue
     // sans table, ou d'objets maison : nom local → nom anglais).
     aaResolve, aaNames: addNames, aaPlays: async ({ item, activity=null, isTemplate=false }={}) => {
@@ -86,6 +90,7 @@ Hooks.once("init", () => {
   registerStrikes();
   registerConditions();
   registerSummons();
+  registerSummonArt();
 });
 
 // Après tous les `init` : les autres modules donnent leurs tables par le hook `darsh-animations.register`.
