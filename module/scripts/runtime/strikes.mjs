@@ -18,7 +18,7 @@ import { blfxPlays } from "./blfxmap.mjs";
 import { aaPlays, englishKeysOf } from "./aa.mjs";
 import { strikes as registeredStrikes } from "./registry.mjs";
 import { chain, domainOn, yieldBlfx } from "./sources.mjs";
-import { CRITICAL_SCALE, SAVED_IMPACT, applyAliases, chooseAction, chooseRider, hitDelay, judgeAgainstAc, resolutionMoment, spellTimeline,
+import { CRITICAL_SCALE, SAVED_IMPACT, applyAliases, carriesActivity, chooseAction, chooseRider, hitDelay, judgeAgainstAc, resolutionMoment, spellTimeline,
   strikeTimeline } from "../core/strikes.mjs";
 
 const ENGINE = "dnd5e-combat";
@@ -283,6 +283,7 @@ function notedTargets(message) {
 function onMessage(message) {
   if ( !message.isAuthor || played.has(message.id) ) return;
   if ( message.type === "damage" ) return onRiders(message);
+  if ( !carriesActivity(message) ) return;   // carte de tour, de repos… : pas d'activité à lire (et dnd5e 6.1 lève sur une carte de tour)
   // DAS · Core ne résout pas un utilitaire sans cible : la carte le joue, sauf si le Core l'a fait entre-temps.
   if ( engineResolves() ) {
     const activity = message.getAssociatedActivity?.() ?? null;
