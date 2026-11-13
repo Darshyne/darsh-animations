@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import * as S from "../module/scripts/data/strikes.mjs";
-import { chooseStrike, expand, judgeAgainstAc, strikeForm, strikeTimeline } from "../module/scripts/core/strikes.mjs";
+import { carriesActivity, chooseStrike, expand, judgeAgainstAc, strikeForm, strikeTimeline } from "../module/scripts/core/strikes.mjs";
 
 const root = path.resolve(import.meta.dirname, "..");
 const read = file => JSON.parse(fs.readFileSync(file, "utf8")).entries;
@@ -141,5 +141,14 @@ describe("attaques d'arme : déroulé", () => {
     expect(judgeAgainstAc({ total: 13 }, targets).map(t => t.hit)).toEqual([false, true, null]);
     expect(judgeAgainstAc({ total: 30, isFumble: true }, targets).every(t => t.hit === false)).toBe(true);
     expect(judgeAgainstAc({ total: 5, isCritical: true }, targets).every(t => t.hit && t.critical)).toBe(true);
+  });
+});
+
+describe("messages dont l'activité se lit", () => {
+  it("carte d'utilisation et jet d'attaque seulement : jamais une carte de tour de combat (dnd5e 6.1 y lève)", () => {
+    expect(carriesActivity({ type: "usage" })).toBe(true);
+    expect(carriesActivity({ type: "attack" })).toBe(true);
+    for ( const type of ["turn", "rest", "damage", "base", "save", undefined] ) expect(carriesActivity({ type })).toBe(false);
+    expect(carriesActivity(null)).toBe(false);
   });
 });

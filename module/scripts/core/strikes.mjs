@@ -142,6 +142,16 @@ export function hitDelay(kind) {
 /** Échelle d'un critique (D6, défaut retenu : plus grand, impact doublé). */
 export const CRITICAL_SCALE = TIMING.criticalScale;
 
+/**
+ * Les messages dnd5e dont on lit l'activité : carte d'utilisation et jet d'attaque. Les autres ne sont jamais interrogés —
+ * `getAssociatedActivity()` sur une carte de tour de combat (type `turn`) de dnd5e 6.1 lève « Receiver must be an instance of class
+ * ChatMessage5e » : sans item, `getAssociatedItem` lit `getOriginatingMessage()`, qui rend `system.origin`, ici `{ combat, combatant }`
+ * et pas un message (dnd5e.mjs, ChatMessage5e#getAssociatedItem et TurnMessageData).
+ */
+export function carriesActivity(message) {
+  return ["usage", "attack"].includes(message?.type);
+}
+
 /** Touché, raté, critique contre la CA notée sur le message (dnd5e 6 : `system.targets[].ac`). */
 export function judgeAgainstAc(roll, targets=[]) {
   return targets.map(t => {
