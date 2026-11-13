@@ -123,6 +123,25 @@ describe("buildEntries : une activité désignée par son id", () => {
     expect(problems).toEqual([]);
     expect(Object.keys(entries["channel-divinity"])).toEqual([slugify("Turn Undead")]);
   });
+
+  it("Calcination des morts-vivants : l'activité de l'item (SRD 6.0, Manuel) comme celle du Conduit divin (SRD de dnd5e 6.1)", async () => {
+    const { ANIMATIONS } = await import("../module/scripts/data/animations.mjs");
+    const keys = new Set(ANIMATIONS["channel-divinity-cleric"].flatMap(a => Object.keys(a.params)));
+    const templates = { target: [...keys].map(k => `const ${k} = "";`).join("\n") };
+    const channel61 = [{ name: "Channel Divinity", identifier: "channel-divinity-cleric", activities: [
+      { id: "OY9UrTXvlRL0JUoI", name: "Divine Spark: Save", type: "save" },
+      { id: "aOptL5pMaj3WtR8S", name: "Turn Undead", type: "save" },
+      { id: "rprxorXdFoHbRERZ", name: "Sear Undead", type: "save" }] }];
+    const now = buildEntries({ items: channel61, table: ANIMATIONS, templates, version: "0.1.0" });
+    expect(now.problems).toEqual([]);
+    expect(Object.keys(now.entries[slugify("Channel Divinity")])).toEqual([slugify("Turn Undead"), slugify("Sear Undead")]);
+    const before = buildEntries({ items: [{ ...channel61[0], activities: channel61[0].activities.slice(0, 2) },
+      { name: "Sear Undead", identifier: "sear-undead", activities: [{ id: "fW3U8L8Ca9a6O9Wx", name: "Channel Divinity: Turn Undead", type: "save" }] }],
+      table: ANIMATIONS, templates, version: "0.1.0" });
+    expect(before.problems).toEqual([]);
+    expect(Object.keys(before.entries[slugify("Channel Divinity")])).toEqual([slugify("Turn Undead")]);
+    expect(Object.keys(before.entries[slugify("Sear Undead")])).toEqual([slugify("Channel Divinity: Turn Undead")]);
+  });
 });
 
 describe("activityNames : une activité sans nom, dans chaque langue installée (issue dnd5e-combat#38)", () => {

@@ -144,9 +144,10 @@ export const ANIMATIONS = Object.freeze({
 
   /* ---- Clerc (Manuel des joueurs) ---- */
   // BLFX n'anime ni le Renvoi ni la Calcination. Le Conduit divin a deux activités de sauvegarde (Étincelle divine, Renvoi) : celle du
-  // Renvoi seule.
-  "channel-divinity": [turnUndead("aOptL5pMaj3WtR8S", false)],
-  "channel-divinity-cleric": [turnUndead("aOptL5pMaj3WtR8S", false)],
+  // Renvoi seule. Le SRD de dnd5e 6.1 retire l'activité de l'item Calcination et en fait une troisième activité du Conduit divin,
+  // « Sear Undead » (rprxorXdFoHbRERZ) ; les fiches du Manuel et du SRD 6.0 gardent l'ancienne (fW3U8L8Ca9a6O9Wx) : les deux sont animées.
+  "channel-divinity": [turnUndead("aOptL5pMaj3WtR8S", false), turnUndead("rprxorXdFoHbRERZ", true)],
+  "channel-divinity-cleric": [turnUndead("aOptL5pMaj3WtR8S", false), turnUndead("rprxorXdFoHbRERZ", true)],
   "sear-undead": [turnUndead("fW3U8L8Ca9a6O9Wx", true)],
 
   /* ---- Invocations sans animation BLFX (issue dnd5e-combat#38) ---- */
