@@ -76,6 +76,23 @@ BLFX always stays first when it is active: it plays whatever its Auto-Rec recogn
 give way to it for those items. Unticking it only stops what DAS · Animations asks of it (consumables, traps, walls,
 doors, smites).
 
+## Animated tokens for summons
+
+When a spell summons its creature, the new token gets **JB2A's animated art** instead of the compendium image: Spiritual
+Weapon, Mordenkainen's Sword, Flaming Sphere, Bigby's Hand (SRD: Arcane Hand), Mage Hand and Dancing Lights. Free JB2A is
+enough; JB2A Premium offers many more looks (weapons, styles, colours).
+
+- **Only that token changes**, never an actor (neither the compendium's nor a world one). Its previous image is kept in the
+  token's flags.
+- **Your own choice wins**: nothing changes when the spell's summon profile points to a world actor, or when the token image
+  is not the compendium's (for instance you changed the image of the summoned actor's world copy).
+- **Choosing the look**: right after the summon, a small window on the summoner's screen offers the looks your animation packs
+  provide (weapon, then style and colour, with a preview). **"Same as last summon"** comes first: each character remembers its
+  last look per spell.
+- Settings: **"Animated token for summons (JB2A)"** (world, on by default) and **"Choose the summon's look each time"** (per
+  user; off = the last look is reused without asking). The **Summons** domain of the "Animation sources" window must be on, with
+  JB2A available.
+
 ## Installation
 
 In Foundry (or on The Forge), *Install Module* → paste the manifest URL:
