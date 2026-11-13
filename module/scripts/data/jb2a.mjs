@@ -252,6 +252,8 @@ export const AREAS_BY_IDENTIFIER = Object.freeze({
   "incendiary-cloud": { circle: "jb2a.template_circle.smoke.001.loop.800px.001.greenpurple", tint: "#ff7030", persist: true },
   "insect-plague": { circle: "jb2a.template_circle.smoke.001.loop.800px.001.greenpurple", tint: "#4a3a20", persist: true },
   "evards-black-tentacles": { circle: "jb2a.black_tentacles.dark_purple", persist: true, below: true },
+  // Manuel des joueurs 3.0.0 : `black-tentacles` (les fiches déjà remplies gardent l'ancien identifiant).
+  "black-tentacles": { circle: "jb2a.black_tentacles.dark_purple", persist: true, below: true },
   "cloud-of-daggers": { circle: "jb2a.cloud_of_daggers.daggers.blue", persist: true },
   "call-lightning": { circle: "jb2a.call_lightning.low_res.blue", persist: true, sound: "psfx.3rd-level-spells.call-lightning.v1.cast" },
   "silence": { circle: "jb2a.template_circle.out_pulse.01.loop.bluewhite", tint: "#a0a0c0", persist: true },

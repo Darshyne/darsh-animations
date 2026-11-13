@@ -47,7 +47,9 @@ export const BY_IDENTIFIER = Object.freeze({
   "moonbeam": { preset: "Annihilating Rays", tint: "#d0e8ff", opacity: 0.6 },
   "spirit-guardians": { preset: "Classic Rays", tint: "#fff2a0", opacity: 0.4 },
   "insect-plague": { preset: "Smoky Area", tint: "#4a3a20", opacity: 0.7 },
-  "evards-black-tentacles": { preset: "Smoke Filaments", tint: "#101010", opacity: 0.7 }
+  "evards-black-tentacles": { preset: "Smoke Filaments", tint: "#101010", opacity: 0.7 },
+  // Manuel des joueurs 3.0.0 : le sort perd le nom d'Evard (`black-tentacles`) ; les fiches déjà remplies gardent l'ancien identifiant.
+  "black-tentacles": { preset: "Smoke Filaments", tint: "#101010", opacity: 0.7 }
 });
 
 /** Combien de temps, au moins, l'effet reste visible : une zone instantanée (Mains brûlantes) est retirée vite par le moteur. */

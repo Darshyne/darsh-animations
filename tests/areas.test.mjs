@@ -28,6 +28,15 @@ describe("effets de zone (Token Magic FX)", () => {
     expect(areaPreset({ identifier: "mass-cure-wounds", healing: true }, tables).key).toBe("healing");
     expect(areaPreset({ identifier: "darkness" }, tables)).toBeNull();
   });
+  it("Tentacules noirs : l'identifiant du Manuel 3.0.0 et l'ancien (fiches déjà remplies) ont le même effet", async () => {
+    const JB2A = await import("../module/scripts/data/jb2a.mjs");
+    for ( const t of [tables, { byIdentifier: JB2A.AREAS_BY_IDENTIFIER, byDamage: JB2A.AREAS_BY_DAMAGE }] ) {
+      const before = areaPreset({ identifier: "evards-black-tentacles", damageTypes: ["bludgeoning"] }, t);
+      const after = areaPreset({ identifier: "black-tentacles", damageTypes: ["bludgeoning"] }, t);
+      expect(after.key).toBe("black-tentacles");
+      expect({ ...after, key: null }).toEqual({ ...before, key: null });
+    }
+  });
 });
 
 describe("BLFX reconnaît-il l'item ?", () => {
