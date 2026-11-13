@@ -5,7 +5,7 @@
  *     anneau coupé, teinte blanche, drapeau de retour ; le fichier se charge (HTTP 200, vidéo qui joue) ; la fenêtre « Apparence » s'ouvre.
  *  2. Dans la fenêtre : une autre arme choisie → le token la prend, le Lanceur la retient (« dernière invocation »).
  *  3. Seconde invocation → la dernière apparence est posée d'office.
- *  4. Le moteur pilote toujours l'arme : déplacement, puis attaque de l'arme sur la Cible.
+ *  4. Le moteur pilote toujours l'arme : déplacement, puis attaque de l'arme sur la Cible (la seconde arme : sort à concentration).
  *  5. Réglage de monde coupé → l'image du compendium reste. 6. JB2A retiré des sources « Invocations » → idem.
  *  7. Sphère de feu, Main de Bigby, Lumières dansantes, Main de mage, Épée de Mordenkainen → chacune prend sa vidéo.
  * Sans JB2A : non applicable.
@@ -43,7 +43,8 @@ export default {
       const video = t.object?.mesh?.texture?.baseTexture?.resource?.source;
       return { src, tint: t.texture.tint?.css ?? String(t.texture.tint), scale: t.texture.scaleX, ring: t.ring.enabled,
         flag: t.getFlag("${MODULE}", "summonArt") ?? null, actorImg: t.actor?.img ?? null, protoSrc: t.actor?.prototypeToken?.texture?.src ?? null,
-        http: res?.status ?? null, video: video instanceof HTMLVideoElement ? { paused: video.paused, ready: video.readyState, loop: video.loop } : null,
+        http: res?.status ?? null, video: video instanceof HTMLVideoElement ? { paused: video.paused, ready: video.readyState, loop: video.loop, locked: game.video.locked,
+          pending: [...game.video.pending].some(([v]) => v === video) } : null,
         x: t.x, y: t.y };`);
     const dialogs = () => script(`return [...foundry.applications.instances.values()].filter(a => a.element?.querySelector?.(".das-summon-art"))
       .map(a => ({ id: a.id, title: a.title, options: [...a.element.querySelectorAll("select[name=group] option")].map(o => o.value) }));`);
@@ -66,7 +67,10 @@ export default {
     ctx.expect(s1.ring === false && /ffffff/i.test(s1.tint), "anneau dynamique coupé, teinte blanche");
     ctx.expect(!/\.webm$/.test(s1.protoSrc ?? "") && !/\.webm$/.test(s1.actorImg ?? ""), `l'acteur garde ses images (${s1.protoSrc})`);
     ctx.expect(s1.http === 200, `le fichier se charge (HTTP ${s1.http})`);
-    ctx.expect(!!s1.video && !s1.video.paused && s1.video.ready >= 2, `la vidéo joue sur la toile (${JSON.stringify(s1.video)})`);
+    // Foundry garde les vidéos en attente jusqu'au premier geste de l'utilisateur sur la page (`game.video.locked`, VideoHelper#play) :
+    // un client sans clic (le Chrome du banc) a la vidéo en file, un joueur réel la voit jouer.
+    ctx.expect(!!s1.video && s1.video.ready >= 2 && (!s1.video.paused || (s1.video.locked && s1.video.pending)),
+      `la vidéo joue sur la toile, ou attend le premier geste (${JSON.stringify(s1.video)})`);
     const open = await dialogs();
     ctx.expect(open.length === 1 && open[0].options.length > 1, `la fenêtre « Apparence » s'ouvre, ${open[0]?.options.length ?? 0} armes`);
 
@@ -91,18 +95,19 @@ export default {
     ctx.expect(again.length === 1, "la fenêtre propose encore d'en changer");
     await closeDialogs();
 
-    // 4. Le moteur pilote toujours l'arme.
-    const before = await tokenState(w1.id);
-    await ctx.engine("move", { tokenId: w1.id, point: { x: before.x + grid * 1.5, y: before.y + grid * 0.5 } })
+    // 4. Le moteur pilote toujours l'arme (la seconde : l'Arme spirituelle est à concentration, relancer le sort a fait partir la première).
+    const w1b = w2;
+    const before = await tokenState(w1b.id);
+    await ctx.engine("move", { tokenId: w1b.id, point: { x: before.x + grid * 1.5, y: before.y + grid * 0.5 } })
       .catch(err => ctx.log(`move : ${err.message}`));
     await pause(1500);
-    const after = await tokenState(w1.id);
+    const after = await tokenState(w1b.id);
     ctx.expect((after.x !== before.x) || (after.y !== before.y), `l'arme se déplace (${before.x},${before.y} → ${after.x},${after.y})`);
-    ctx.expect(after.src === s2.src, "l'image reste après le déplacement");
-    const attack = await script(`const t = canvas.scene.tokens.get("${w1.id}");
+    ctx.expect(after.src === s3.src, "l'image reste après le déplacement");
+    const attack = await script(`const t = canvas.scene.tokens.get("${w1b.id}");
       const item = t.actor.items.find(i => i.system.activities?.some(a => a.type === "attack")); return item ? { id: item.id, name: item.name } : null;`);
     if ( ctx.expect(!!attack, `l'arme a une attaque (${attack?.name})`) ) {
-      const used = await ctx.use({ tokenId: w1.id, itemId: attack.id, activityType: "attack", targetTokenIds: [target.id], consume: false });
+      const used = await ctx.use({ tokenId: w1b.id, itemId: attack.id, activityType: "attack", targetTokenIds: [target.id], consume: false });
       ctx.expect(!!used?.usageMessageId || !!used?.messageId, `l'arme attaque la Cible (${JSON.stringify(used).slice(0, 160)})`);
       if ( used?.usageMessageId ) await ctx.settle(used.usageMessageId, { timeoutMs: 30000 }).catch(() => null);
     }
