@@ -20,9 +20,118 @@
         "Hint": "O Automated Animations reconhece itens pelo nome em inglês. Quando não encontra o nome traduzido, este módulo procura a entrada correspondente pelo nome original do item (Babele), seu identificador do dnd5e, sua arma base ou a tabela de tradução do idioma do mundo (inclusive francês). Substitui o módulo \"Automated Animation for Babele\". Suas entradas personalizadas em outros idiomas continuam tendo prioridade."
       },
       "AaYield": {
-        "Name": "Automated Animations dá prioridade ao BLFX",
-        "Hint": "Quando Boss Loot (BLFX) e Automated Animations estão ativos, o Automated Animations não executa efeitos para itens que o BLFX já anima, evitando animações duplicadas. A animação de acerto crítico não está incluída nessa regra (desative-a nas configurações do próprio módulo, se necessário)."
+        "Name": "Automated Animations: apenas personalizadas, dando prioridade ao BLFX",
+        "Hint": "O Automated Animations é opcional: somente as animações que você personalizou nele (em um item ou em uma entrada adicionada ou editada no Auto-Rec) continuam sendo executadas, antes deste módulo; as entradas integradas dele não são executadas quando este módulo ou o Boss Loot (BLFX) anima o item. Quando o BLFX também está ativo, suas animações personalizadas dão prioridade ao BLFX para os itens que ele anima (não é possível silenciar o BLFX item a item), evitando animações duplicadas. A animação de acerto crítico não está incluída nessa regra (desative-a nas configurações do próprio módulo, se necessário)."
+      },
+      "Strikes": {
+        "Name": "Animações de ataques, magias e cura",
+        "Hint": "Este módulo anima ataques com armas (corpo a corpo, à distância, arremessadas e ataques naturais), magias direcionadas (com jogada de ataque ou salvaguarda) e cura com JB2A (gratuito ou Premium) e sons PSFX: um golpe, um projétil ou um efeito de magia em direção a cada alvo, um ataque que erra passando pelo alvo, um impacto maior em um acerto crítico e menor em uma salvaguarda bem-sucedida. Com o DAS · Core, a animação segue o resultado determinado por ele (após Escudo Arcano e após as salvaguardas). As magias de área ficam a cargo dos efeitos da própria área. O que Boss Loot (BLFX) ou Automated Animations já anima permanece a cargo deles. O Automated Animations não é necessário."
+      },
+      "Conditions": {
+        "Name": "Animações de condições",
+        "Hint": "Enquanto uma criatura estiver Amedrontada, Enfeitiçada, Envenenada, Atordoada, Incapacitada, Paralisada, Contida, Agarrada, Cega, Surda, Silenciada, Petrificada ou Amaldiçoada, uma animação JB2A em repetição é exibida em seu token e para quando a condição termina. Aplicada pelo mestre ativo e vista por todos (respeitando a visão)."
+      },
+      "ConditionsWithBlfx": {
+        "Name": "Animações de condições mesmo com BLFX",
+        "Hint": "Boss Loot (BLFX) reproduz sua própria animação em repetição para a maioria dessas condições quando uma de suas magias as aplica. Desativado: essas condições ficam a cargo do BLFX. Ativado: este módulo também as reproduz (elas podem aparecer duplicadas)."
+      },
+      "SummonArt": {
+        "Name": "Token animado para invocações (JB2A)",
+        "Hint": "Quando uma magia invoca sua criatura (Arma Espiritual, Esfera Flamejante, Mão de Bigby, Mãos Mágicas, Espada de Mordenkainen e Luzes Dançantes), o novo token recebe a imagem animada do JB2A em vez da imagem do compêndio. Somente a imagem desse token é alterada, nunca a de um ator. A imagem é mantida quando foi escolhida pelo mestre: se o perfil de invocação aponta para um ator do mundo ou se a imagem do token é diferente da imagem do compêndio. Requer JB2A (gratuito ou Premium) e o domínio \"Invocações\" ativado na janela Fontes de animação."
+      },
+      "SummonArtAsk": {
+        "Name": "Escolher a aparência a cada invocação",
+        "Hint": "Após uma invocação, uma pequena janela oferece as outras aparências disponíveis nos pacotes de animação (arma, cor), com \"Igual à última invocação\" em primeiro. Desativado: a última aparência escolhida por este personagem para a magia é usada sem perguntar."
       }
+    },
+    "Sources": {
+      "Title": "Fontes de animação",
+      "Menu": {
+        "Name": "Fontes de animação",
+        "Label": "Escolher fontes",
+        "Hint": "O que está instalado (BLFX, JB2A, PSFX, Token Magic FX e Automated Animations), a ordem em que o DAS · Animations os utiliza e a fonte de cada domínio: ataques, condições, consumíveis, armadilhas, muralhas, áreas, portas e invocações."
+      },
+      "Saved": "DAS · Animations: fontes salvas.",
+      "Intro": "Para cada domínio, é usada a primeira fonte da lista que estiver instalada, marcada e for capaz de executá-lo. Nada é salvo até clicar em “Salvar”.",
+      "Detection": "Detecção",
+      "AllGood": "Nada a relatar.",
+      "Order": "Ordem das fontes",
+      "OrderHint": "Arraste uma linha ou use as setas; o BLFX permanece em primeiro. Uma fonte desmarcada deixa de ser usada pelo DAS · Animations.",
+      "Domains": "Por domínio",
+      "DomainsHint": "A fonte que será usada com os módulos instalados. Desmarque um domínio para que o DAS · Animations não reproduza efeitos nele.",
+      "Use": "Usar",
+      "Up": "Mover para cima",
+      "Down": "Mover para baixo",
+      "Reset": "Ordem padrão",
+      "Save": "Salvar",
+      "State": {
+        "Missing": "ausente",
+        "Inactive": "instalado, não ativado",
+        "Active": "ativo"
+      },
+      "Detail": {
+        "native": "Sempre disponível, sem necessidade de módulos."
+      },
+      "Source": {
+        "blfx": "BLFX (Boss Loot)",
+        "aa": "Automated Animations + JB2A + PSFX",
+        "jb2a": "DAS · Animations + JB2A + PSFX",
+        "tokenmagic": "Token Magic FX",
+        "native": "Renderização integrada"
+      },
+      "Role": {
+        "blfx": "Sempre primeiro quando ativo: reproduz por conta própria tudo o que seu Auto-Rec reconhece, e as outras fontes dão prioridade a ele nesses itens. A caixa de seleção controla apenas o que o DAS · Animations solicita a ele (consumíveis, armadilhas, muralhas, portas e magias de Destruição).",
+        "aa": "Somente as animações que você personalizou no Automated Animations; as animações fornecidas com ele sempre dão prioridade ao DAS · Animations. Se estiver depois de uma fonte na lista, dá prioridade a ela; desmarcado, cede prioridade em todos os casos.",
+        "jb2a": "Renderização do próprio DAS · Animations: ataques, magias, curas, condições e demais efeitos. O JB2A Premium tem preferência sobre o gratuito; sem PSFX, não há som.",
+        "tokenmagic": "Filtros em tokens e áreas: consumíveis, armadilhas e áreas de magia.",
+        "native": "Um anel colorido no token: consumíveis e armadilhas, como último recurso."
+      },
+      "Short": {
+        "blfx": "BLFX",
+        "aa": "AA + JB2A (personalizadas)",
+        "jb2a": "DAS · Animations + JB2A",
+        "tokenmagic": "Token Magic FX",
+        "native": "Renderização integrada"
+      },
+      "Notes": {
+        "NoSequencer": "O Sequencer não está ativo: BLFX, JB2A e PSFX não conseguem reproduzir nada sem ele.",
+        "BothJb2a": "O JB2A gratuito e o JB2A Premium estão ativos: o Premium é suficiente; o gratuito pode ser desativado.",
+        "NoPsfx": "O PSFX não está ativo: as animações JB2A serão reproduzidas sem som.",
+        "BlfxUpdates": "A opção “BLFX Custom Auto-Rec Updates” do BLFX não está marcada: a tabela do DAS · Animations não é adicionada ao Auto-Rec do BLFX.",
+        "BlfxAutoRecOff": "O Auto-Rec do BLFX está desativado: o BLFX não reproduz nada por conta própria.",
+        "OnlyNative": "Sem BLFX, JB2A ou Token Magic FX: somente a renderização integrada funciona (consumíveis e armadilhas).",
+        "InstalledOff": "{id} está instalado, mas não está ativado neste mundo."
+      },
+      "Table": {
+        "domain": "Domínio",
+        "source": "Fonte usada",
+        "capable": "Fontes possíveis",
+        "none": "nenhuma",
+        "offShort": "desativado",
+        "nothing": "Nenhuma fonte instalada e marcada consegue animar este domínio.",
+        "aaFirst": "Uma animação personalizada do Automated Animations tem prioridade.",
+        "blfxFirst": "O BLFX reproduz primeiro tudo o que seu Auto-Rec reconhece."
+      },
+      "Domain": {
+        "strikes": "Ataques, magias, curas e características",
+        "conditions": "Condições (Amedrontado, Enfeitiçado…)",
+        "consumables": "Poções e consumíveis",
+        "traps": "Armadilhas",
+        "walls": "Muralhas de magia",
+        "areas": "Áreas de magia",
+        "doors": "Fechaduras de portas",
+        "summons": "Invocações"
+      },
+      "Pinned": "O BLFX permanece sempre em primeiro."
+    },
+    "SummonArt": {
+      "Title": "Aparência da invocação: {name}",
+      "Group": "Arma",
+      "Variant": "Aparência",
+      "Hint": "{count} aparências disponíveis nos pacotes de animação instalados. O token já exibe a selecionada.",
+      "KeepLast": "Igual à última invocação",
+      "Keep": "Manter esta",
+      "Choose": "Usar esta aparência"
     }
   }
 }
