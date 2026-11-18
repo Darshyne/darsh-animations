@@ -17,6 +17,7 @@ import { blfxPlays } from "./blfxmap.mjs";
 import { MENUS, englishKeys, normalize, resolveLabel, aaWhich } from "../core/aa.mjs";
 import { renderer } from "./renderer.mjs";
 import { before, chain, domainOf, pick } from "./sources.mjs";
+import { summonsWouldPlay } from "./summons.mjs";
 
 /**
  * « Le rendu des attaques jouera-t-il cet objet ? » (runtime/strikes.mjs, `strikesWouldPlay`), reçu à `registerAA` : ce rendu
@@ -105,12 +106,14 @@ function onRequiredData(data) {
 
 /**
  * DAS · Animations (ou BLFX) jouera-t-il cette utilisation ? Alors une entrée **livrée** d'AA se tait (SPEC §21.5 D1–D2) : zones et
- * consommables par le rendu en vigueur (runtime/renderer.mjs), attaques, sorts et aptitudes par runtime/strikes.mjs.
+ * consommables par le rendu en vigueur (runtime/renderer.mjs), attaques, sorts et aptitudes par runtime/strikes.mjs, apparition d'une
+ * créature invoquée par runtime/summons.mjs (au `dnd5e.postSummon` de l'activité d'invocation).
  */
 function dasPlays(item, activity, isTemplate) {
   if ( blfxPlays(item) ) return true;
   if ( isTemplate ) return pick("areas") !== null;
   if ( item.type === "consumable" ) return renderer() !== null;
+  if ( activity?.type === "summon" ) return summonsWouldPlay();
   return strikesWouldPlay(item, activity);
 }
 

@@ -10,6 +10,14 @@ import { chain, yieldBlfx } from "./sources.mjs";
 import { JB2A_SUMMON } from "../data/summons.mjs";
 import { addSound, known } from "./sequencer.mjs";
 
+/**
+ * Ce module jouera-t-il l'apparition d'une créature invoquée (pour qu'une entrée livrée d'Automated Animations se taise sur le sort,
+ * runtime/aa.mjs) ? JB2A utilisable pour le domaine, et pas de BLFX devant, qui joue alors son propre « After Summon ».
+ */
+export function summonsWouldPlay() {
+  return chain("summons").includes("jb2a") && !(blfxActive() && yieldBlfx("summons", "jb2a"));
+}
+
 /** Joue l'apparition sur des tokens (TokenDocument ou Token). Rend ce qui a été lancé, ou la raison de ne rien jouer. */
 export function playSummon(tokens, { force=false }={}) {
   if ( !chain("summons").includes("jb2a") ) return { skipped: "summons: JB2A not available or turned off" };
