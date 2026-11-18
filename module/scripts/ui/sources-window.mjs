@@ -7,17 +7,18 @@
 
 import { MODULE_ID } from "../runtime/shared.mjs";
 import { detection, saveSources, sourcesValue } from "../runtime/sources.mjs";
-import { DOMAINS, PINNED, defaultSources, detectionNotes, moveSource, normalizeSources, placeSource, sourceTable } from "../core/sources.mjs";
+import { DOMAINS, PINNED, defaultSources, detectionNotes, moveSource, normalizeSources, placeSource, shownModules, sourceTable }
+  from "../core/sources.mjs";
 
 const t = (key, data) => data ? game.i18n.format(`DARSHANIM.Sources.${key}`, data) : game.i18n.localize(`DARSHANIM.Sources.${key}`);
 const esc = s => foundry.utils.escapeHTML(String(s ?? ""));
 
-/** Les modules derrière chaque source, pour la ligne de détection. */
+/** Les modules derrière chaque source, pour la ligne de détection : des groupes de versions (Patreon, gratuite). */
 const SOURCE_MODULES = Object.freeze({
-  blfx: ["boss-loot-assets-premium"],
-  aa: ["autoanimations"],
-  jb2a: ["jb2a_patreon", "JB2A_DnD5e", "psfx"],
-  tokenmagic: ["tokenmagic"],
+  blfx: [["boss-loot-assets-premium"]],
+  aa: [["autoanimations"]],
+  jb2a: [["jb2a_patreon", "JB2A_DnD5e"], ["psfx-patreon", "psfx"]],
+  tokenmagic: [["tokenmagic"]],
   native: []
 });
 
@@ -151,9 +152,9 @@ function badge(mod) {
 
 /** La ligne de détail d'une source : ses modules et leur état. */
 function sourceDetail(source, det) {
-  const mods = SOURCE_MODULES[source];
-  if ( !mods.length ) return esc(t("Detail.native"));
-  return mods.map(id => {
+  const groups = SOURCE_MODULES[source];
+  if ( !groups.length ) return esc(t("Detail.native"));
+  return shownModules(groups, det.modules).map(id => {
     const mod = det.modules[id];
     return `${esc(mod?.title ?? id)}${badge(mod)}`;
   }).join(" · ");

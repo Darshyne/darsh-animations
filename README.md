@@ -26,7 +26,7 @@ swell or shrink…). Four renderers, in this order by default (change it in the 
 
 1. **Boss Loot (BLFX)** — drinking sounds, glows, splashes and signature animations from the BLFX asset pack;
 2. **JB2A + PSFX** — animations from the **free** JB2A module (`JB2A_DnD5e`; the Patreon version works too, it keeps
-   the same names) and sounds from **PSFX** (`psfx`, optional: without it the animations play silently);
+   the same names) and sounds from **PSFX** (`psfx` or `psfx-patreon`, optional: without it the animations play silently);
 3. **Token Magic FX** — a pulsing glow on the token (plus fade, blur, scale, bloom or shockwave), which removes
    itself;
 4. **Built-in** — with none of them: a coloured ring pulsing around the token, **green** for a beneficial effect,
@@ -109,7 +109,7 @@ https://github.com/Darshyne/darsh-animations/releases/latest/download/module.jso
 
 - Recommended: **BLFX Animation Editor Premium** (`boss-loot-assets-premium`), and therefore Sequencer and the BLFX
   asset pack (`blfx-assets-pack01`). Without it, potions, consumables, traps, walls and areas use **JB2A** (free, `JB2A_DnD5e`) and
-  **PSFX** (`psfx`) if present, otherwise **Token Magic FX** (`tokenmagic`), otherwise the built-in ring; nothing else
+  **PSFX** (`psfx` or `psfx-patreon`) if present, otherwise **Token Magic FX** (`tokenmagic`), otherwise the built-in ring; nothing else
   is needed.
 - With BLFX: in the Boss Loot module settings, tick **"BLFX Custom Auto-Rec Updates"**, then reload.
 - Enable "DAS · Animations". On the next load, the console reports what was added.

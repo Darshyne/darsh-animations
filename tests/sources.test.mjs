@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { DOMAINS, SOURCES, defaultSources, detectionNotes, migrateSources, moveSource, normalizeSources, pickSource, placeSource,
-  ranksBefore, sourceChain, sourceTable, yieldsToBlfx } from "../module/scripts/core/sources.mjs";
+  ranksBefore, shownModules, sourceChain, sourceTable, yieldsToBlfx } from "../module/scripts/core/sources.mjs";
 
 const ALL = { blfx: true, aa: true, jb2a: true, tokenmagic: true };
 const NONE = {};
@@ -145,5 +145,19 @@ describe("sources : détection", () => {
   it("installé mais pas activé", () => {
     const notes = detectionNotes({ modules: { tokenmagic: mod(false), "JB2A_DnD5e": mod(), psfx: mod() }, sequencer: true });
     expect(notes).toEqual([{ level: "info", key: "InstalledOff", data: { id: "tokenmagic" } }]);
+  });
+  it("PSFX Patreon (psfx-patreon) vaut PSFX : ni « sans son », ni Sequencer oublié", () => {
+    const modules = { "jb2a_patreon": mod(), "psfx-patreon": mod() };
+    expect(detectionNotes({ modules, sequencer: true })).toEqual([]);
+    expect(detectionNotes({ modules: { "psfx-patreon": mod() }, sequencer: false }).map(n => n.key)).toContain("NoSequencer");
+    expect(detectionNotes({ modules: { "JB2A_DnD5e": mod(), "psfx-patreon": mod(false) }, sequencer: true })).toEqual([
+      { level: "info", key: "NoPsfx" }, { level: "info", key: "InstalledOff", data: { id: "psfx-patreon" } }]);
+  });
+  it("ligne d'une source : d'un groupe de versions, celles qui sont installées, sinon la gratuite seule", () => {
+    const groups = [["jb2a_patreon", "JB2A_DnD5e"], ["psfx-patreon", "psfx"]];
+    expect(shownModules(groups, { "jb2a_patreon": mod(), "psfx-patreon": mod() })).toEqual(["jb2a_patreon", "psfx-patreon"]);
+    expect(shownModules(groups, { "jb2a_patreon": mod(), "JB2A_DnD5e": mod(false), psfx: mod() }))
+      .toEqual(["jb2a_patreon", "JB2A_DnD5e", "psfx"]);
+    expect(shownModules(groups, {})).toEqual(["JB2A_DnD5e", "psfx"]);
   });
 });

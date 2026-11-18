@@ -2,7 +2,8 @@ export const MODULE_ID = "darsh-animations";
 export const BLFX = "boss-loot-assets-premium";
 /** JB2A gratuit et Patreon : le même préfixe « jb2a » dans Sequencer (le gratuit ne l'enregistre pas quand le Patreon est actif). */
 export const JB2A = Object.freeze(["JB2A_DnD5e", "jb2a_patreon"]);
-export const PSFX = "psfx";
+/** PSFX gratuit et Patreon : deux modules pour les mêmes sons (issue #10 : le Patreon s'installe sous `psfx-patreon`). */
+export const PSFX = Object.freeze(["psfx", "psfx-patreon"]);
 export const AA = "autoanimations";
 
 export const loc = (key, data) => data ? game.i18n.format(`DARSHANIM.${key}`, data) : game.i18n.localize(`DARSHANIM.${key}`);
@@ -16,7 +17,7 @@ export const blfxActive = () => !!(game.modules.get(BLFX)?.active && globalThis.
 
 /** JB2A (gratuit ou Patreon) actif, et Sequencer chargé. Les sons PSFX sont un plus : sans eux, les animations jouent sans son. */
 export const jb2aActive = () => !!(JB2A.some(id => game.modules.get(id)?.active) && globalThis.Sequence);
-export const psfxActive = () => !!(game.modules.get(PSFX)?.active && globalThis.Sequence);
+export const psfxActive = () => !!(PSFX.some(id => game.modules.get(id)?.active) && globalThis.Sequence);
 
 /** Automated Animations actif. */
 export const aaActive = () => !!(game.modules.get(AA)?.active && globalThis.AutomatedAnimations);

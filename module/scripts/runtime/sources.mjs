@@ -52,7 +52,7 @@ function moduleState(id) {
 
 /** Ce que la fenêtre montre de la détection. */
 export function detection() {
-  const ids = ["sequencer", BLFX, ...JB2A, PSFX, TOKENMAGIC, AA];
+  const ids = ["sequencer", BLFX, ...JB2A, ...PSFX, TOKENMAGIC, AA];
   const modules = Object.fromEntries(ids.map(id => [id, moduleState(id)]));
   let blfxCustomUpdates = true, blfxAutoRec = true;
   try { blfxCustomUpdates = !!game.settings.get(BLFX, "blfxCustomAutoRecUpdates"); } catch {}

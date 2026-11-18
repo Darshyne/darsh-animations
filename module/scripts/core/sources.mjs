@@ -161,6 +161,21 @@ export function placeSource(value, source, before) {
 }
 
 /**
+ * Les modules à montrer sur la ligne d'une source : `groups` est une liste de groupes d'ids, chaque groupe réunissant les versions
+ * d'un même contenu (Patreon puis gratuite). D'un groupe, on montre les versions installées ; aucune : la gratuite seule (la
+ * dernière), pour ne pas afficher « absent » à côté de la version que le MJ utilise.
+ * @param {string[][]} groups
+ * @param {Record<string, { installed?: boolean }>} modules
+ * @returns {string[]}
+ */
+export function shownModules(groups=[], modules={}) {
+  return groups.flatMap(group => {
+    const installed = group.filter(id => modules[id]?.installed);
+    return installed.length ? installed : group.slice(-1);
+  });
+}
+
+/**
  * Les remarques de la détection (pures, à partir de l'état des modules) : `modules` par id → `{ installed, active }`, plus les
  * réglages lus de BLFX. Rend une liste de `{ level: "warn"|"info", key, data? }` (clés de langue `DARSHANIM.Sources.Notes.<key>`).
  */
@@ -168,14 +183,16 @@ export function detectionNotes({ modules={}, sequencer=false, blfxCustomUpdates=
   const on = id => !!modules[id]?.active;
   const installedOff = id => !!modules[id]?.installed && !modules[id]?.active;
   const notes = [];
-  const needSequencer = ["boss-loot-assets-premium", "JB2A_DnD5e", "jb2a_patreon", "psfx"].filter(on);
+  // PSFX existe en deux modules (gratuit `psfx`, Patreon `psfx-patreon`) : l'un ou l'autre suffit pour les sons.
+  const psfx = ["psfx", "psfx-patreon"];
+  const needSequencer = ["boss-loot-assets-premium", "JB2A_DnD5e", "jb2a_patreon", ...psfx].filter(on);
   if ( needSequencer.length && !sequencer ) notes.push({ level: "warn", key: "NoSequencer" });
   if ( on("JB2A_DnD5e") && on("jb2a_patreon") ) notes.push({ level: "info", key: "BothJb2a" });
-  if ( (on("JB2A_DnD5e") || on("jb2a_patreon")) && !on("psfx") ) notes.push({ level: "info", key: "NoPsfx" });
+  if ( (on("JB2A_DnD5e") || on("jb2a_patreon")) && !psfx.some(on) ) notes.push({ level: "info", key: "NoPsfx" });
   if ( on("boss-loot-assets-premium") && !blfxCustomUpdates ) notes.push({ level: "warn", key: "BlfxUpdates" });
   if ( on("boss-loot-assets-premium") && !blfxAutoRec ) notes.push({ level: "info", key: "BlfxAutoRecOff" });
   if ( !["boss-loot-assets-premium", "JB2A_DnD5e", "jb2a_patreon", "tokenmagic"].some(on) ) notes.push({ level: "info", key: "OnlyNative" });
-  for ( const id of ["boss-loot-assets-premium", "JB2A_DnD5e", "jb2a_patreon", "psfx", "tokenmagic", "sequencer"] ) {
+  for ( const id of ["boss-loot-assets-premium", "JB2A_DnD5e", "jb2a_patreon", ...psfx, "tokenmagic", "sequencer"] ) {
     if ( installedOff(id) ) notes.push({ level: "info", key: "InstalledOff", data: { id } });
   }
   return notes;
