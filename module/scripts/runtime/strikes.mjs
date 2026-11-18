@@ -247,6 +247,9 @@ async function onResolution(resolution, event) {
   const activity = await fromUuid(resolution.activity).catch(() => null);
   const item = activity?.item ?? null;
   if ( !item ) return;
+  // Potions et consommables sans jet d'attaque : runtime/consumables.mjs les joue à la carte d'utilisation (comme `playUsage`
+  // sans le Core). Les jouer aussi ici donnait une incantation à l'ouverture, puis un second soin une fois la potion résolue.
+  if ( (item.type === "consumable") && !resolution.plan?.attack ) return;
   const message = game.messages.get(resolution.attack?.messageId ?? resolution.carrier);
   const source = sourceTokenOf(item.actor, message?.speaker);
   // Incantation dès l'ouverture de la résolution (la carte d'utilisation), avant les dés.
