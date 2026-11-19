@@ -41,9 +41,17 @@ export function playSummon(tokens, { force=false }={}) {
   return { played };
 }
 
-export function registerSummons() {
+/**
+ * @param {(item: Item, activity: object) => boolean} [leftToAa]  Automated Animations jouera-t-il ce sort avec une animation
+ *   personnalisée (runtime/aa.mjs `aaPlays`, passé par l'appelant : l'importer ici ferait un cycle) ? Alors l'apparition lui est
+ *   laissée, comme le font déjà les attaques, les consommables et les zones — sinon les deux jouaient ensemble (issue #8).
+ */
+export function registerSummons(leftToAa=() => false) {
   Hooks.on("dnd5e.postSummon", (activity, profile, tokens) => {
-    try { playSummon(tokens); }
+    try {
+      if ( activity?.item && leftToAa(activity.item, activity) ) return;
+      playSummon(tokens);
+    }
     catch(err) { console.error(`${MODULE_ID} | summon animation`, err); }
   });
 }

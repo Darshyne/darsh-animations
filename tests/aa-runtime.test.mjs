@@ -65,3 +65,40 @@ describe("Automated Animations et les invocations", () => {
     expect(workflowStart(summonSpell("Mordenkainen's Sword", "mordenkainens-sword")).stopWorkflow).toBeUndefined();
   });
 });
+
+describe("l'apparition d'une créature invoquée devant une animation personnalisée d'AA (issue #8)", () => {
+  /** Le rendu des invocations seul, avec un Sequencer qui compte ce qui part. */
+  async function summons(leftToAa) {
+    const played = [];
+    const section = { file: () => section, atLocation: () => section, scaleToObject: () => section, delay: () => section,
+      belowTokens: () => section, volume: () => section, startTime: () => section };
+    globalThis.Sequence = class { effect() { return section; } sound() { return section; } play() { played.push("summon"); } };
+    globalThis.Sequencer = { Database: { entryExists: () => true } };
+    globalThis.canvas = { scene: { id: "s" } };
+    const { registerSummons } = await import("../module/scripts/runtime/summons.mjs");
+    registerSummons(leftToAa);
+    return { played, fire: activity => hooks["dnd5e.postSummon"](activity, {}, [{ document: { parent: canvas.scene } }]) };
+  }
+  const { item, activity } = summonSpell("Spiritual Weapon", "spiritual-weapon");
+  activity.item = item;
+
+  it("AA jouera le sort avec une animation personnalisée : l'apparition lui est laissée", async () => {
+    const asked = [];
+    const { played, fire } = await summons((i, a) => { asked.push([i.name, a.type]); return true; });
+    fire(activity);
+    expect(asked).toEqual([["Spiritual Weapon", "summon"]]);
+    expect(played).toEqual([]);
+  });
+
+  it("AA ne joue pas : l'apparition part", async () => {
+    const { played, fire } = await summons(() => false);
+    fire(activity);
+    expect(played).toEqual(["summon"]);
+  });
+
+  it("sans prédicat (AA absent) : l'apparition part, comme avant", async () => {
+    const { played, fire } = await summons(undefined);
+    fire(activity);
+    expect(played).toEqual(["summon"]);
+  });
+});

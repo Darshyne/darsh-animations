@@ -89,7 +89,7 @@ Hooks.once("init", () => {
   registerDoors();
   registerStrikes();
   registerConditions();
-  registerSummons();
+  registerSummons((item, activity) => aaPlays(item, { activity }));
   registerSummonArt();
 });
 
