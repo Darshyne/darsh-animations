@@ -15,6 +15,12 @@
  * l'utilisation (visée avant le lancement : cône, ligne, cube de portée personnelle, murs par points), cet arrêt arrive avant que
  * le son existe, et la boucle tourne sans fin. Chez le client qui a créé la région, l'incantation est donc arrêtée une seconde fois
  * un peu plus tard (`LATE_END_MS`) : sans effet si BLFX l'a déjà arrêtée, jamais le son de la zone elle-même (autre nom).
+ *
+ * Toujours en boucle chez les autres (signalé de nouveau le 2026-11-19, Animations 0.16.1) : Sequencer n'arrête un son que là où il
+ * l'a déjà chargé (`SoundManager.endSounds` part de la liste locale `RunningSounds`, et n'envoie rien si elle est vide). Un client
+ * qui charge encore le son quand l'arrêt passe le garde. Donc, **sur chaque client** : à la création de la région, le nom du son
+ * d'incantation est attendu pendant `EXPECT_MS` ; un son de ce nom qui commence (`createSequencerSound`, appelé avant le chargement)
+ * est arrêté chez soi dès qu'il est chargé, et chaque client arrête aussi le sien à `LOCAL_ENDS_MS`.
  */
 import { MODULE_ID, blfxActive, log } from "./shared.mjs";
 
@@ -26,6 +32,15 @@ const MAX_WATCH_MS = 5 * 60 * 1000;
 const POLL_MS = 500;
 /** Après la création d'une région, le temps laissé à l'incantation retardée de BLFX pour démarrer avant le second arrêt. */
 const LATE_END_MS = 2000;
+/** Sur chaque client, après la création d'une région : les arrêts locaux de rattrapage. */
+const LOCAL_ENDS_MS = Object.freeze([2000, 5000, 10000]);
+/** Pendant combien de temps un son d'incantation qui démarre est arrêté dès son chargement. */
+const EXPECT_MS = 15000;
+/** Combien de temps attendre qu'un son qui démarre soit chargé. */
+const LOAD_WAIT_MS = 10000;
+
+/** Les sons d'incantation à arrêter dès leur chargement (nom → instant limite). */
+const expected = new Map();
 
 /** Activités dont une région vient d'être posée (uuid → instant). */
 const placed = new Map();
@@ -50,18 +65,39 @@ function casterToken(activity, results) {
  * @param {string} itemName
  * @param {string} tokenId
  */
-export async function endCasting(itemName, tokenId) {
+export async function endCasting(itemName, tokenId, { push=true }={}) {
   const video = `Video-${itemName}-${tokenId}`;
-  const sound = `Sound-${itemName}-${tokenId}`;
+  const sound = soundName(itemName, tokenId);
   const effects = globalThis.Sequencer?.EffectManager?.getEffects?.({ name: video })?.length ?? 0;
-  await globalThis.Sequencer?.EffectManager?.endEffects?.({ name: video });
+  if ( push ) await globalThis.Sequencer?.EffectManager?.endEffects?.({ name: video });
   let sounds = 0;
   try {
     sounds = globalThis.Sequencer?.SoundManager?.getSounds?.({ name: sound })?.length ?? 0;
-    await globalThis.Sequencer?.SoundManager?.endSounds?.({ name: sound });
+    if ( sounds ) await globalThis.Sequencer.SoundManager.endSounds({ name: sound }, push);
   } catch { /* gestionnaire de sons absent */ }
   if ( effects || sounds ) log(`${itemName}: area placement cancelled, BLFX casting stopped (${effects} effect(s), ${sounds} sound(s))`);
   return { effects, sounds };
+}
+
+/** Le nom que BLFX donne au son d'incantation. */
+const soundName = (itemName, tokenId) => `Sound-${itemName}-${tokenId}`;
+
+/** Un son de Sequencer commence sur ce client (avant son chargement) : si c'est une incantation attendue, l'arrêter une fois chargé. */
+export async function onSoundStarting(data) {
+  const name = data?.name;
+  const until = name ? expected.get(name) : null;
+  if ( !until ) return { skipped: "not expected" };
+  if ( Date.now() > until ) { expected.delete(name); return { skipped: "expired" }; }
+  const start = Date.now();
+  while ( (Date.now() - start) < LOAD_WAIT_MS ) {
+    if ( globalThis.Sequencer?.SoundManager?.getSounds?.({ name })?.length ) {
+      await globalThis.Sequencer.SoundManager.endSounds({ name }, false);
+      log(`${name}: late BLFX casting sound stopped on this client`);
+      return { ended: name };
+    }
+    await new Promise(resolve => setTimeout(resolve, 200));
+  }
+  return { skipped: "never loaded" };
 }
 
 /** Surveiller une activité à zone dont la zone n'a pas (encore) été posée. */
@@ -102,26 +138,34 @@ function regionCaster(region, activity) {
 }
 
 /**
- * Une région vient d'être posée pour une activité par ce client : arrêter de nouveau l'incantation de BLFX un peu plus tard (la course
- * avec son son retardé, en tête du fichier). Rend ce qui a été décidé (scénarios).
+ * Une région vient d'être posée pour une activité (sur chaque client) : attendre le son d'incantation retardé de BLFX pour l'arrêter
+ * dès son chargement, l'arrêter chez soi aux rattrapages, et, chez le client qui a posé la région, l'arrêter partout un peu plus tard
+ * (la course décrite en tête du fichier). Rend ce qui a été décidé (scénarios).
  */
 export async function onRegionPlaced(region, userId) {
   const uuid = region?.flags?.dnd5e?.activity;
   if ( !uuid ) return { skipped: "no activity" };
   placed.set(uuid, Date.now());
-  if ( (userId !== game.user.id) || !blfxActive() ) return { skipped: "not ours or no BLFX" };
+  if ( !blfxActive() ) return { skipped: "no BLFX" };
   const activity = await fromUuid(uuid).catch(() => null);
   const itemName = activity?.item?.name;
   const token = activity ? regionCaster(region, activity) : null;
   if ( !itemName || !token ) return { skipped: "no item or caster" };
-  setTimeout(() => endCasting(itemName, token.id).catch(err => console.error(`${MODULE_ID} | casting cleanup`, err)), LATE_END_MS);
-  return { lateEnd: LATE_END_MS, token: token.id };
+  const fail = err => console.error(`${MODULE_ID} | casting cleanup`, err);
+  expected.set(soundName(itemName, token.id), Date.now() + EXPECT_MS);
+  for ( const ms of LOCAL_ENDS_MS ) setTimeout(() => endCasting(itemName, token.id, { push: false }).catch(fail), ms);
+  const ours = userId === game.user.id;
+  if ( ours ) setTimeout(() => endCasting(itemName, token.id).catch(fail), LATE_END_MS);
+  return { lateEnd: ours ? LATE_END_MS : null, localEnds: LOCAL_ENDS_MS, expected: soundName(itemName, token.id), token: token.id };
 }
 
 export function registerCasting() {
   Hooks.on("dnd5e.postUseActivity", (activity, usageConfig, results) => { onPostUse(activity, usageConfig, results); });
   Hooks.on("createRegion", (region, options, userId) => {
     onRegionPlaced(region, userId).catch(err => console.error(`${MODULE_ID} | casting cleanup`, err));
+  });
+  Hooks.on("createSequencerSound", data => {
+    onSoundStarting(data).catch(err => console.error(`${MODULE_ID} | casting cleanup`, err));
   });
 }
 
@@ -148,5 +192,25 @@ export async function previewCancelledCast({ tokenId, identifier, animation, wat
 export async function castingEffects({ name, end=false }={}) {
   const count = globalThis.Sequencer?.EffectManager?.getEffects?.({ name })?.length ?? 0;
   if ( end && count ) await globalThis.Sequencer.EffectManager.endEffects({ name });
+  return { count };
+}
+
+/**
+ * Pour les scénarios : jouer sur ce client seulement (comme un client qui charge le son après l'arrêt) un son en boucle nommé comme
+ * l'incantation de BLFX pour cet objet et ce token (ou `name`, pour un témoin). Rend son nom.
+ */
+export async function previewCastingSound({ tokenId, identifier, file="sounds/notify.wav", name=null }={}) {
+  const token = canvas.scene?.tokens.get(tokenId);
+  const item = token?.actor?.items.find(i => i.system?.identifier === identifier);
+  if ( !item || !token ) return { error: "item or token not found" };
+  name ??= soundName(item.name, token.id);
+  new Sequence({ moduleName: MODULE_ID }).sound().file(file).name(name).volume(0).duration(60000).locally().play();
+  return { name };
+}
+
+/** Pour les scénarios : combien de sons portent encore ce nom sur ce client ; `end` : les arrêter (ici seulement). */
+export async function castingSounds({ name, end=false }={}) {
+  const count = globalThis.Sequencer?.SoundManager?.getSounds?.({ name })?.length ?? 0;
+  if ( end && count ) await globalThis.Sequencer.SoundManager.endSounds({ name }, false);
   return { count };
 }

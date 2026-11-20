@@ -21,7 +21,7 @@ import { previewConsumable, registerConsumables } from "./runtime/consumables.mj
 import { registerRenderer, renderer, rendererSetting } from "./runtime/renderer.mjs";
 import { registerNative } from "./runtime/native.mjs";
 import { areaState, drawArea, registerAreas } from "./runtime/areas.mjs";
-import { castingEffects, previewCancelledCast, registerCasting } from "./runtime/casting.mjs";
+import { castingEffects, castingSounds, previewCancelledCast, previewCastingSound, registerCasting } from "./runtime/casting.mjs";
 import { aaPlays, aaResolve, addNames, registerAA } from "./runtime/aa.mjs";
 import { playSmite, registerSmites } from "./runtime/smites.mjs";
 import { playDoor, previewDoor, registerDoors } from "./runtime/doors.mjs";
@@ -52,7 +52,7 @@ Hooks.once("init", () => {
     // Zones de sort sans BLFX (ou qu'il ne reconnaît pas) : effet Token Magic par type de dégâts sur une région compagne.
     areaState, drawArea: args => drawArea(canvas.scene?.regions.get(args?.regionId ?? args)),
     // Incantation BLFX d'un sort à zone dont la pose est annulée : arrêtée (runtime/casting.mjs). Pour les scénarios.
-    previewCancelledCast, castingEffects,
+    previewCancelledCast, castingEffects, previewCastingSound, castingSounds,
     // Châtiments ajoutés par DAS · Core à une attaque : l'animation BLFX du sort, sinon AA (runtime/smites.mjs). `playSmite({ item, target })`.
     playSmite: smite => playSmite(smite),
     // Serrures de porte de DAS · Core (hooks `noise` et `doorUnlocked`) : `previewDoor({ wallId, moment })` pour vérifier.

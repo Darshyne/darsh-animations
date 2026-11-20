@@ -44,5 +44,29 @@ export default {
     left = 1;
     for ( let s = 0; (s < 6) && left; s++ ) { await pause(1000); left = (await api("castingEffects", { name: two.name })).count; }
     ctx.expect(left === 0, "zone posée avant l'incantation retardée : l'incantation s'arrête quand même");
+
+    // 3. Le son d'incantation chargé sur un client **après** l'arrêt envoyé par le poseur (Discord, 2026-11-19 : la boucle restait
+    //    chez les autres) : joué ici seulement, 2,5 s après une nouvelle région (après l'arrêt de 2 s, avant le rattrapage de 5 s),
+    //    il s'arrête dès son chargement. Témoin : un son au nom d'un autre objet continue de tourner.
+    await ctx.call("delete-scene-object", { type: "Region", objectId: regionId }).catch(() => {});
+    // Témoin d'abord : un client qui ne joue pas vraiment les sons (banc sans audio) les retire aussitôt — rien à conclure alors.
+    const witness = `Sound-Témoin-${sorc.id}`;
+    ctx.restore(() => api("castingSounds", { name: witness, end: true }));
+    await api("previewCastingSound", { tokenId: sorc.id, identifier: "burning-hands", name: witness });
+    await pause(1500);
+    if ( !(await api("castingSounds", { name: witness })).count ) { ctx.log("sons non joués sur ce client (pas d'audio) : partie 3 non applicable"); return; }
+    const again = await ctx.call("create-region", { sceneId, name: "Zone (essai 2)",
+      shapes: [{ type: "rectangle", x: box.x + box.width, y: box.y, width: box.width * 2, height: box.height }],
+      regionData: { flags: { dnd5e: { activity: one.activity, origin: `Scene.${sceneId}.Token.${sorc.id}` } } } });
+    const againId = again?.id ?? again?.regionId;
+    ctx.restore(() => ctx.call("delete-scene-object", { type: "Region", objectId: againId }).catch(() => {}));
+    await pause(2500);
+    const late = await api("previewCastingSound", { tokenId: sorc.id, identifier: "burning-hands" });
+    ctx.restore(() => api("castingSounds", { name: late.name, end: true }));
+    let sounds = 1;
+    for ( let s = 0; (s < 4) && sounds; s++ ) { await pause(500); sounds = (await api("castingSounds", { name: late.name })).count; }
+    ctx.expect(!late.error && (sounds === 0), `son d'incantation chargé après l'arrêt : arrêté dès son chargement, avant 5 s (${late.error ?? `${sounds} restant`})`);
+    const kept = (await api("castingSounds", { name: witness })).count;
+    ctx.expect(kept === 1, `témoin : un son d'un autre nom continue (${kept})`);
   }
 };
