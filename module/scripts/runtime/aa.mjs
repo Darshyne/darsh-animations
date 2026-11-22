@@ -126,6 +126,7 @@ function dasPlays(item, activity, isTemplate) {
 function onWorkflowStart(data, animation) {
   // Un châtiment que ce module confie lui-même à AA (runtime/smites.mjs) : AA joue.
   if ( data?.[SMITE_MARK] || !animation ) return;
+  if ( data?.activeEffect ) return onEffectStart(data);
   const item = data?.item;
   if ( item?.documentName !== "Item" ) return;
   const activity = data.activity ?? null;
@@ -143,6 +144,31 @@ function onWorkflowStart(data, animation) {
   if ( !dasPlays(item, activity, isTemplate) ) return;
   data.stopWorkflow = true;
   log(`Automated Animations: ${item.name} (default entry) left to ${blfxPlays(item) ? "BLFX" : "DAS · Animations"}`);
+}
+
+/**
+ * L'objet d'où vient un effet actif : celui qui le porte, sinon celui que nomme son `origin` (un sort lancé sur soi ou sur une
+ * cible ; l'origine peut aussi être l'activité de l'objet). null : introuvable.
+ */
+function effectOriginItem(effect) {
+  if ( effect?.parent?.documentName === "Item" ) return effect.parent;
+  let origin = null;
+  try { origin = effect?.origin ? fromUuidSync(effect.origin, { strict: false }) : null; } catch { origin = null; }
+  if ( origin?.documentName === "Item" ) return origin;
+  if ( origin?.item?.documentName === "Item" ) return origin.item;
+  return (origin?.parent?.documentName === "Item") ? origin.parent : null;
+}
+
+/**
+ * Une animation d'**effet actif** d'AA (son menu « Active Effects », `createActiveEffect`) : AA passe l'effet lui-même, pas l'objet,
+ * à `AutomatedAnimations-WorkflowStart`. Quand BLFX joue l'objet d'où vient l'effet (Détection de la magie, issue #16, SPEC §32), AA se tait,
+ * livrée ou personnalisée : BLFX est toujours en tête (SPEC §23).
+ */
+function onEffectStart(data) {
+  const item = effectOriginItem(data.item);
+  if ( !item || !blfxPlays(item) ) return;
+  data.stopWorkflow = true;
+  log(`Automated Animations: effect ${data.item?.name ?? "?"} of ${item.name} left to BLFX`);
 }
 
 /** Ce qu'AA jouera : "custom", "default" ou null (core/aa.mjs, `aaWhich`). */

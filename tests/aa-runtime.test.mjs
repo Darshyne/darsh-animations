@@ -102,3 +102,55 @@ describe("l'apparition d'une créature invoquée devant une animation personnali
     expect(played).toEqual(["summon"]);
   });
 });
+
+describe("l'animation d'effet actif d'AA devant BLFX (issue #16)", () => {
+  const BLFX = "boss-loot-assets-premium";
+  /** Les documents que `fromUuidSync` retrouve. */
+  let docs;
+
+  beforeEach(async () => {
+    modules.set(BLFX, { active: true });
+    docs = {};
+    globalThis.fromUuidSync = uuid => docs[uuid] ?? null;
+    const { fileURLToPath, pathToFileURL } = await import("node:url");
+    const map = pathToFileURL(fileURLToPath(new URL("./fixtures/blfx-animation-map.mjs", import.meta.url))).href;
+    globalThis.foundry = { utils: { getRoute: () => map } };
+    const { loadBlfxMap } = await import("../module/scripts/runtime/blfxmap.mjs");
+    await loadBlfxMap();
+  });
+
+  /** Un sort sur la fiche d'un acteur, et l'effet qu'il pose sur cet acteur (origine : l'uuid du sort). */
+  function spellAndEffect(name, identifier) {
+    const item = { documentName: "Item", uuid: `Actor.a.Item.${identifier}`, type: "spell", name, flags: {}, system: { identifier, activities: [] } };
+    docs[item.uuid] = item;
+    const effect = { documentName: "ActiveEffect", name, origin: item.uuid, parent: { documentName: "Actor" } };
+    return { item, effect };
+  }
+
+  it("Détection de la magie : BLFX joue le sort, l'effet qu'AA animerait se tait", () => {
+    const { effect } = spellAndEffect("Detect Magic", "detect-magic");
+    expect(workflowStart({ item: effect, activeEffect: true }).stopWorkflow).toBe(true);
+  });
+
+  it("effet porté par l'objet lui-même (parent Item) : la même règle", () => {
+    const { item } = spellAndEffect("Detect Magic", "detect-magic");
+    const effect = { documentName: "ActiveEffect", name: "Detect Magic", origin: null, parent: item };
+    expect(workflowStart({ item: effect, activeEffect: true }).stopWorkflow).toBe(true);
+  });
+
+  it("sort que BLFX ne connaît pas : l'animation d'effet d'AA joue", () => {
+    const { effect } = spellAndEffect("Bless", "bless");
+    expect(workflowStart({ item: effect, activeEffect: true }).stopWorkflow).toBeUndefined();
+  });
+
+  it("BLFX absent : l'animation d'effet d'AA joue", () => {
+    modules.delete(BLFX);
+    const { effect } = spellAndEffect("Detect Magic", "detect-magic");
+    expect(workflowStart({ item: effect, activeEffect: true }).stopWorkflow).toBeUndefined();
+  });
+
+  it("effet sans origine retrouvable : AA joue", () => {
+    const effect = { documentName: "ActiveEffect", name: "Detect Magic", origin: "Actor.x.Item.gone", parent: { documentName: "Actor" } };
+    expect(workflowStart({ item: effect, activeEffect: true }).stopWorkflow).toBeUndefined();
+  });
+});
