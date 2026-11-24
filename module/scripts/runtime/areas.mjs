@@ -130,7 +130,9 @@ function companionData(region, plan) {
       [MODULE_ID]: { areaFx: region.id, key: plan.key },
       tokenmagic: { options: { tmfxPreset: plan.preset, ...(plan.tint ? { tmfxTint: plan.tint } : {}), tmfxRegionOpacity: plan.opacity } }
     } };
-  for ( const key of ["elevation", "levels", "highlightMode", "restriction"] ) if ( key in source ) data[key] = source[key];
+  // The companion follows the area's visibility (DAS · Core's `areaVisibility` setting, or a hand-made choice): an area hidden
+  // from the players does not show its look to them either.
+  for ( const key of ["elevation", "levels", "highlightMode", "restriction", "visibility"] ) if ( key in source ) data[key] = source[key];
   return data;
 }
 
