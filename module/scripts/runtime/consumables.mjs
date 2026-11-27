@@ -1,3 +1,5 @@
+import { soundVariant } from "./psfx-presets.mjs";
+import { chain as psfxSourceChain } from "./sources.mjs";
 /**
  * Les effets des potions et des consommables (SPEC §13–§14, table data/consumables.mjs). Exception assumée à « BLFX déclenche,
  * pas nous », comme les pièges et les murs : BLFX ne reconnaît aucune potion, et l'effet doit exister sans lui. Une seule entrée
@@ -132,7 +134,11 @@ function playSequencer(plan, library) {
       const animation = part.animation ? fill(part.animation, { color, damage: plan.damage }) : null;
       if ( animation && known(animation) ) { addEffect(sequence, animation, place, { ...part, tint }); played.push(animation); }
     }
-    if ( part.sound && addSound(sequence, part.sound, { delay: (part.delay && !part.throw) ? part.delay : 0 }) ) played.push(part.sound);
+    const branch = part.sound?.match(/^(psfx\.consumables\..+)\.\d{3}$/)?.[1];
+    const discover = library === "jb2a"
+      && psfxSourceChain("consumables").find(id => id === "presets" || id === "jb2a") === "presets";
+    const sound = (branch && discover ? soundVariant(branch) : null) ?? part.sound;
+    if (sound && addSound(sequence, sound, { delay: (part.delay && !part.throw) ? part.delay : 0 })) played.push(sound);
   }
   const signature = lib.signature(plan);
   if ( signature && known(signature.animation) ) {

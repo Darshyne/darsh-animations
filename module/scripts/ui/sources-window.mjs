@@ -16,7 +16,8 @@ const esc = s => foundry.utils.escapeHTML(String(s ?? ""));
 /** Les modules derrière chaque source, pour la ligne de détection : des groupes de versions (Patreon, gratuite). */
 const SOURCE_MODULES = Object.freeze({
   blfx: [["boss-loot-assets-premium"]],
-  aa: [["autoanimations"]],
+  aa: [["autoanimations"], ["psfx-patreon", "psfx"]],
+  presets: [["jb2a_patreon", "JB2A_DnD5e"], ["psfx-patreon", "psfx"]],
   jb2a: [["jb2a_patreon", "JB2A_DnD5e"], ["psfx-patreon", "psfx"]],
   tokenmagic: [["tokenmagic"]],
   native: []
@@ -198,8 +199,7 @@ function renderBody(value, det) {
   return `<style>${STYLE}</style>
   <div class="das-sources">
     <p class="hint">${esc(t("Intro"))}</p>
-    <h3>${esc(t("Detection"))}</h3>
-    ${noteItems ? `<ul class="notes">${noteItems}</ul>` : `<p class="hint">${esc(t("AllGood"))}</p>`}
+    ${noteItems ? `<h3>${esc(t("Detection"))}</h3><ul class="notes">${noteItems}</ul>` : ""}
     <h3>${esc(t("Order"))}</h3>
     <p class="hint">${esc(t("OrderHint"))}</p>
     <ol class="order">${rows}</ol>

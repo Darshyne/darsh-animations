@@ -40,13 +40,12 @@ const fxName = regionId => `${MODULE_ID}.area.${regionId}`;
  * Le rendu des zones : JB2A + PSFX ou Token Magic FX, le premier des deux dans l'ordre de la fenêtre « Sources d'animation »
  * (runtime/sources.mjs). BLFX joue de lui-même les sorts qu'il reconnaît ; le rendu autonome n'anime pas les zones.
  */
+import { spellSound } from "./psfx-presets.mjs";
+
 function areaBackend() {
-  const backend = pick("areas");
-  if ( backend !== "blfx" ) return backend;
   // BLFX en tête : pour les sorts qu'il ne reconnaît pas, la source suivante.
-  return ["jb2a", "tokenmagic"].find(s => chainHas(s)) ?? null;
+  return chain("areas").find(s => ["presets", "jb2a", "tokenmagic"].includes(s)) ?? null;
 }
-const chainHas = s => chain("areas").includes(s);
 
 /** Ce qu'une zone montrerait : `{ backend, key, item, … }` (préréglage Token Magic, ou entrée JB2A), ou `{ skipped }`. */
 export function areaPlan(region) {
@@ -54,7 +53,9 @@ export function areaPlan(region) {
   const activity = fromUuidSync(region.flags?.dnd5e?.activity ?? "", { strict: false });
   const item = activity?.item ?? fromUuidSync(region.flags?.dnd5e?.item ?? "", { strict: false });
   if ( !item ) return { skipped: "not an activity area" };
-  const draw = areaBackend();
+  const backend = areaBackend();
+  const mapped = backend === "presets" ? spellSound(item) : null;
+  const draw = backend === "presets" ? (mapped ? "jb2a" : chain("areas").find(s => ["jb2a", "tokenmagic"].includes(s))) : backend;
   if ( !draw ) return { skipped: `areas: no source (${pick("areas") ?? "turned off"})` };
   // Un mur de sort est dessiné par runtime/walls.mjs.
   if ( wallTable()[item.system?.identifier] ) return { skipped: "wall drawn by runtime/walls.mjs" };
@@ -67,7 +68,7 @@ export function areaPlan(region) {
     : { byIdentifier: BY_IDENTIFIER, byDamage: BY_DAMAGE };
   const preset = areaPreset({ identifier: item.system?.identifier, damageTypes, healing }, tables);
   if ( !preset ) return { skipped: "no effect for this area" };
-  return { ...preset, backend: draw, item: item.name, damageTypes };
+  return { ...preset, ...(mapped ? { sound: mapped } : {}), backend: draw, item: item.name, damageTypes };
 }
 
 /* -------------------------------------------- */
@@ -164,7 +165,9 @@ export async function drawArea(region) {
  * feu. Le moteur n'est ni requis ni appelé — on lit seulement ce qu'il écrit sur la région.
  */
 async function drawBurning(region) {
-  const draw = areaBackend();
+  const backend = areaBackend();
+  const mapped = backend === "presets" ? spellSound(item) : null;
+  const draw = backend === "presets" ? (mapped ? "jb2a" : chain("areas").find(s => ["jb2a", "tokenmagic"].includes(s))) : backend;
   if ( draw === "jb2a" ) {
     await stopJb2aArea(region.id);
     const played = await playJb2aArea(region, JB2A.BURNING, { persist: true });

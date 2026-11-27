@@ -16,7 +16,7 @@ const read = key => { try { return game.settings.get(MODULE_ID, key); } catch { 
 
 /** Ce qui est là pour jouer, par source. */
 export function available() {
-  return { blfx: blfxActive(), aa: aaActive(), jb2a: jb2aActive(), tokenmagic: tokenMagicOn(), native: true };
+  return { blfx: blfxActive(), aa: aaActive(), presets: jb2aActive() && PSFX.some(id => game.modules.get(id)?.active), jb2a: jb2aActive(), tokenmagic: tokenMagicOn(), native: true };
 }
 
 /** La valeur en vigueur (complétée), enregistrée ou tirée des anciens réglages. */
