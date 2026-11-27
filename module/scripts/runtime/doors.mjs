@@ -1,3 +1,4 @@
+import { selectAudio } from "./audio-sources.mjs";
 /**
  * Les animations des serrures de porte (data/doors.mjs). Exception à « BLFX déclenche, pas nous », comme les pièges (SPEC §7) : une
  * porte n'a ni objet ni activité. On écoute les hooks publics de DAS · Core, émis chez le MJ actif après les dés (le moteur attend la
@@ -38,14 +39,21 @@ export function playDoor(moment, { point=null, scene=null }={}) {
   const size = canvas.grid?.size ?? 100;
   const sequence = new Sequence({ moduleName: MODULE_ID });
   const played = [];
-  for ( const part of parts ) {
+  for ( const [index, part] of parts.entries() ) {
     if ( !known(part.animation) ) continue;
     const side = size * (part.scale ?? 1);
     const effect = sequence.effect().file(part.animation).atLocation(point).size({ width: side, height: side });
     if ( part.delay ) effect.delay(part.delay);
     if ( part.below ) effect.belowTokens();
     played.push(part.animation);
-    if ( part.sound && addSound(sequence, part.sound, { delay: part.delay ?? 0 }) ) played.push(part.sound);
+    const candidates = {
+      blfx: TABLES.blfx?.[moment]?.[index]?.sound,
+      psfx: TABLES.jb2a?.[moment]?.[index]?.sound,
+      foundry: index === 0 ? { unlock: "sounds/doors/metal/unlock.ogg",
+        force: "sounds/doors/wood/lock.ogg", burst: "sounds/doors/wood/open-heavy.ogg" }[moment] : null
+    };
+    const sound = selectAudio(candidates, path => path.startsWith("sounds/") || known(path));
+    if (sound && addSound(sequence, candidates, { delay: part.delay ?? 0 })) played.push(sound);
   }
   if ( !played.length ) return { skipped: "animations unknown to Sequencer" };
   sequence.play();

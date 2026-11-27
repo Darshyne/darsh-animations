@@ -11,6 +11,7 @@
   "DARSHANIM.Settings.Renderer.Native": "Anel integrado (dispensa outros módulos)",
   "DARSHANIM.Settings.Renderer.None": "Nenhum",
   "DARSHANIM": {
+    "Audio": {"sources":"Fontes de FX","sourcesHint":"Ative e reordene as fontes de audio.","general":"Geral","sound":"Som","audioEnabled":"Ativar sons","audioOrder":"Prioridade das fontes de áudio","audio_blfx":"BLFX","audio_psfx":"PSFX","audio_das":"DAS Animations","audio_foundry":"Foundry","orderHint":"Informe a ordem das fontes, por exemplo blfx, psfx, das, foundry."},
     "Settings": {
       "Renderer": {
         "Jb2a": "Animações JB2A + sons PSFX"
@@ -73,6 +74,7 @@
         "native": "Sempre disponível, sem necessidade de módulos."
       },
       "Source": {
+        "presets": "PSFX (+ JB2A)",
         "blfx": "BLFX (Boss Loot)",
         "aa": "Automated Animations + JB2A + PSFX",
         "jb2a": "DAS · Animations + JB2A + PSFX",
@@ -80,6 +82,7 @@
         "native": "Renderização integrada"
       },
       "Role": {
+        "presets": "Usa as macros do PSFX como referência e reproduz os efeitos visuais disponíveis no JB2A.",
         "blfx": "Sempre primeiro quando ativo: reproduz por conta própria tudo o que seu Auto-Rec reconhece, e as outras fontes dão prioridade a ele nesses itens. A caixa de seleção controla apenas o que o DAS · Animations solicita a ele (consumíveis, armadilhas, muralhas, portas e magias de Destruição).",
         "aa": "Somente as animações que você personalizou no Automated Animations; as animações fornecidas com ele sempre dão prioridade ao DAS · Animations. Se estiver depois de uma fonte na lista, dá prioridade a ela; desmarcado, cede prioridade em todos os casos.",
         "jb2a": "Renderização do próprio DAS · Animations: ataques, magias, curas, condições e demais efeitos. O JB2A Premium tem preferência sobre o gratuito; sem PSFX, não há som.",
@@ -87,6 +90,7 @@
         "native": "Um anel colorido no token: consumíveis e armadilhas, como último recurso."
       },
       "Short": {
+        "presets": "PSFX (+ JB2A)",
         "blfx": "BLFX",
         "aa": "AA + JB2A (personalizadas)",
         "jb2a": "DAS · Animations + JB2A",

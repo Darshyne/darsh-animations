@@ -1,3 +1,6 @@
+import { openAudioSources } from "./ui/audio-sources-window.mjs";
+import { registerAudioSettings } from "./runtime/audio-sources.mjs";
+import { psfxMacroIndex } from "./runtime/psfx-presets.mjs";
 /**
  * darsh-dnd · Animations : la table d'animations (data/animations.mjs, plus celles que d'autres modules enregistrent —
  * runtime/registry.mjs) versée dans l'Auto-Rec personnalisée de BLFX. Le module ne joue rien lui-même en partie : c'est BLFX
@@ -58,6 +61,7 @@ Hooks.once("init", () => {
     // Serrures de porte de DAS · Core (hooks `noise` et `doorUnlocked`) : `previewDoor({ wallId, moment })` pour vérifier.
     playDoor, previewDoor,
     // Attaques d'arme jouées par ce module (JB2A + PSFX, SPEC §21) : `previewStrike({ item, source, targets, miss, critical, attackMode })`.
+    psfxMacroIndex,
     previewStrike, playStrike,
     // États : une boucle JB2A tant que l'état dure (SPEC §21, lot 3 bis). `previewCondition({ token, status })` bascule l'état et rend ce qui tourne.
     previewCondition, reconcileConditions,
@@ -77,6 +81,7 @@ Hooks.once("init", () => {
   // Fenêtre « Sources d'animation » (SPEC §23) : ordre des sources et domaines ; le bouton se range avant les autres réglages.
   registerSources(() => reconcileConditionScene().catch(err => console.error(`${MODULE_ID} | condition animations`, err)));
   registerSourcesMenu();
+  registerAudioSettings();
   registerRenderer();
   registerNative();
   registerTraps();
@@ -99,4 +104,19 @@ Hooks.once("setup", collectRegistrations);
 Hooks.once("ready", () => {
   // BLFX enregistre ses écouteurs au `init` : à `ready`, il entend notre hook.
   sync().catch(err => console.error(`${MODULE_ID} | sync failed`, err));
+});
+
+Hooks.once("setup", () => {
+  game.modules.get("dnd5e-combat")?.api?.settings?.registerWindow?.({
+    namespace: MODULE_ID,
+    tabs: [
+      { id: "general", icon: "fa-solid fa-wand-sparkles", label: "DARSHANIM.Audio.general",
+        keys: ["renderer", "strikes", "conditions", "aaNames", "summonArt", "summonArtAsk"],
+        tools: [{ id: "sources", icon: "fa-solid fa-layer-group", name: "DARSHANIM.Sources.Menu.Name",
+          hint: "DARSHANIM.Sources.Menu.Hint", button: "DARSHANIM.Sources.Menu.Label", open: openSources }] },
+      { id: "sound", icon: "fa-solid fa-volume-high", label: "DARSHANIM.Audio.sound", keys: ["audioEnabled"],
+        tools: [{ id: "audioSources", icon: "fa-solid fa-layer-group", name: "DARSHANIM.Audio.sources",
+          hint: "DARSHANIM.Audio.sourcesHint", button: "DARSHANIM.Audio.sources", open: openAudioSources }] }
+    ]
+  });
 });

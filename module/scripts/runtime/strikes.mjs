@@ -1,3 +1,4 @@
+import { audioAllowed, selectAudio } from "./audio-sources.mjs";
 /**
  * SPEC §21 : les attaques d'arme (lot 1), les sorts ciblés et les soins (lot 2) joués par ce module (JB2A gratuit ou Premium + sons
  * PSFX), pour se passer d'Automated Animations. Recettes : data/strikes.mjs ; choix : core/strikes.mjs.
@@ -14,6 +15,7 @@
  */
 import { MODULE_ID, jb2aActive, log } from "./shared.mjs";
 import { addSound, known } from "./sequencer.mjs";
+import { featureSound, instrumentSound, laughterPreset, meleeWeaponSound, spellSound } from "./psfx-presets.mjs";
 import { blfxPlays } from "./blfxmap.mjs";
 import { aaPlays, englishKeysOf } from "./aa.mjs";
 import { strikes as registeredStrikes } from "./registry.mjs";
@@ -75,7 +77,7 @@ function sourceTokenOf(actor, speaker=null) {
 /* -------------------------------------------- */
 
 /** Un coup, un tir ou un lancer d'arme (lot 1). */
-function playWeapon(sequence, choice, source, live) {
+function playWeapon(sequence, choice, source, live, { impactSound=null }={}) {
   const file = firstKnown(choice.animation);
   if ( !file ) return { skipped: `no known animation for ${choice.family}`, tried: choice.animation };
   const back = firstKnown(choice.back);
@@ -102,8 +104,8 @@ function playWeapon(sequence, choice, source, live) {
       const impact = sequence.effect().file(impactFile).atLocation(target).scaleToObject((choice.impact.scale ?? 1) * scale)
         .delay(step.delay + at);
       if ( step.critical ) impact.repeats(2, 180);
-      if ( addSound(sequence, choice.impact.sound, { delay: step.delay + at, volume: step.critical ? 1 : 0.7 }) ) {
-        sounds.push(choice.impact.sound);
+      if ( addSound(sequence, impactSound ?? choice.impact.sound, { delay: step.delay + at, volume: step.critical ? 1 : 0.7 }) ) {
+        sounds.push(impactSound ?? choice.impact.sound);
       }
     }
   }
@@ -111,7 +113,8 @@ function playWeapon(sequence, choice, source, live) {
 }
 
 /** Un sort ciblé ou un soin (lot 2) : incantation sur le lanceur, projectile ou effet sur la cible, impact du type de dégâts. */
-function playSpell(sequence, choice, source, live, { skipCast=false }={}) {
+function playSpell(sequence, choice, source, live, { skipCast=false, detected=null }={}) {
+  const soundCandidates = { psfx: detected, das: choice.sound };
   const file = firstKnown(choice.animation);
   const castFile = skipCast ? null : firstKnown(choice.cast);
   const impactFile = firstKnown(choice.impact?.animation);
@@ -120,7 +123,7 @@ function playSpell(sequence, choice, source, live, { skipCast=false }={}) {
   // Téléportation : on disparaît sur place ; la réapparition se joue quand le token arrive (updateToken).
   if ( choice.kind === "teleport" ) {
     if ( file ) sequence.effect().file(file).atLocation(source).scaleToObject(1.6);
-    if ( choice.sound && addSound(sequence, choice.sound) ) sounds.push(choice.sound);
+    if ( (detected || choice.sound) && addSound(sequence, soundCandidates) ) sounds.push(selectAudio(soundCandidates, known));
     teleports.set(source.document.id, { arrive: firstKnown(choice.arrive), sound: choice.arriveSound, until: Date.now() + 20000 });
     return { played: file, sounds, teleport: true };
   }
@@ -142,17 +145,17 @@ function playSpell(sequence, choice, source, live, { skipCast=false }={}) {
       else fx.atLocation(target).scaleToObject(1.5 * scale);
     }
     // Le son du sort à chaque projectile (Projectile magique), une fois sinon.
-    if ( choice.sound && (first || (choice.kind === "shot")) && addSound(sequence, choice.sound, { delay: start,
-      volume: step.saved ? SAVED_IMPACT.volume : null }) ) sounds.push(choice.sound);
+    if ( !step.saved && (detected || choice.sound) && (first || (choice.kind === "shot")) && addSound(sequence, soundCandidates, { delay: start,
+      volume: step.saved ? SAVED_IMPACT.volume : null }) ) sounds.push(selectAudio(soundCandidates, known));
     if ( step.impact && impactFile ) {
       const impact = sequence.effect().file(impactFile).atLocation(target).scaleToObject((choice.impact.scale ?? 1) * scale)
         .delay(start + at);
       if ( choice.impact.tint ) impact.tint(choice.impact.tint);
       if ( step.critical ) impact.repeats(2, 180);
-      if ( addSound(sequence, choice.impact.sound, { delay: start + at,
+      if ( !step.saved && addSound(sequence, choice.impact.sound, { delay: start + at,
         volume: step.saved ? SAVED_IMPACT.volume : (step.critical ? 1 : 0.7) }) ) sounds.push(choice.impact.sound);
     }
-    first = false;
+    if ( !step.saved ) first = false;
   }
   return { played: file ?? castFile ?? impactFile, cast: castFile, impact: impactFile, sounds };
 }
@@ -163,7 +166,8 @@ function playSpell(sequence, choice, source, live, { skipCast=false }={}) {
  * @param {{ item: Item, activity?: object, source: Token, targets: object[], attackMode?: string }} action
  */
 /** JB2A est-il une source utilisable des attaques (présent, pas coupé dans la fenêtre « Sources d'animation ») ? */
-const ownOn = () => chain("strikes").includes("jb2a");
+const ownOn = () => chain("strikes").some(id => id === "jb2a" || id === "presets");
+const preferPreset = () => chain("strikes").find(id => id === "presets" || id === "jb2a") === "presets";
 /** BLFX joue-t-il cet objet de lui-même, placé avant JB2A ? (Placé après : les deux jouent.) */
 const blfxFirst = item => yieldBlfx("strikes", "jb2a") && blfxPlays(item);
 
@@ -205,6 +209,13 @@ export function playCast({ item, activity=null, source }, { force=false }={}) {
 export function playStrike({ item, activity=null, source, targets=[], attackMode=null }, { force=false, skipCast=false }={}) {
   const stop = gate({ item, activity, source }, force);
   if ( stop ) return stop;
+  const instrument = preferPreset() ? instrumentSound(item, activity) : null;
+  if ( instrument && audioAllowed("psfx") ) {
+    const sequence = new Sequence({ moduleName: MODULE_ID });
+    sequence.sound().file(instrument).atLocation(source).globalSound();
+    sequence.play();
+    return { played: true, action: "instrument", sounds: [instrument] };
+  }
   const choice = chooseAction(strikeSummary(item, activity, { attackMode }));
   if ( !choice ) return { skipped: "nothing to animate for this activity" };
   const live = targets.filter(t => t.token);
@@ -213,8 +224,11 @@ export function playStrike({ item, activity=null, source, targets=[], attackMode
     && ["utility", "heal", "teleport", "enchant", "transform", "check"].includes(activity?.type) ) live.push({ token: source });
   if ( !live.length ) return { skipped: "no target on the viewed scene" };
   const sequence = new Sequence({ moduleName: MODULE_ID });
-  const result = (choice.action === "weapon") ? playWeapon(sequence, choice, source, live)
-    : playSpell(sequence, choice, source, live, { skipCast });
+  const preset = preferPreset();
+  const detected = preset ? (spellSound(item) ?? featureSound(item)) : null;
+  const result = (preset && laughterPreset(sequence, item, source, live, { skipCast })) ||
+    ((choice.action === "weapon") ? playWeapon(sequence, choice, source, live, { impactSound: preset ? meleeWeaponSound(item, choice) : null })
+      : playSpell(sequence, choice, source, live, { skipCast, detected }));
   if ( result.skipped ) return result;
   sequence.play();
   log(`${choice.action} (${choice.family}): ${item.name} → ${live.map(t => `${t.token.name}${t.hit === false ? " (miss)"

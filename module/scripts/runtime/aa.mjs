@@ -15,6 +15,7 @@
 import { AA, MODULE_ID, aaActive, blfxActive, log } from "./shared.mjs";
 import { blfxPlays } from "./blfxmap.mjs";
 import { MENUS, englishKeys, normalize, resolveLabel, aaWhich } from "../core/aa.mjs";
+import { featureSound, instrumentSound, spellSound } from "./psfx-presets.mjs";
 import { renderer } from "./renderer.mjs";
 import { before, chain, domainOf, pick } from "./sources.mjs";
 import { summonsWouldPlay } from "./summons.mjs";
@@ -199,7 +200,11 @@ export function aaPlays(item, { activity=null, isTemplate=false, ignoreBlfx=fals
   if ( !chain(d).includes("aa") ) return false;
   if ( !ignoreBlfx && blfxActive() && before("blfx", "aa") && blfxPlays(item) ) return false;
   if ( aaKind(item, { activity, isTemplate }) !== "custom" ) return false;
-  const own = pick(d);
+  const own = chain(d).find(source => {
+    if (source === "blfx" || source === "aa") return false;
+    if (source !== "presets") return true;
+    return !!(spellSound(item) || (d === "strikes" && (featureSound(item) || instrumentSound(item, activity))));
+  });
   return !(own && (own !== "blfx") && before(own, "aa"));
 }
 

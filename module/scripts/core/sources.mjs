@@ -12,19 +12,19 @@
 
 /** Les sources, dans l'ordre par défaut. BLFX est toujours la première (`PINNED`) ; une animation personnalisée d'AA passe devant le
  * rendu propre de ce module (SPEC §21.5, D2). */
-export const SOURCES = Object.freeze(["blfx", "aa", "jb2a", "tokenmagic", "native"]);
+export const SOURCES = Object.freeze(["blfx", "presets", "aa", "jb2a", "tokenmagic", "native"]);
 
 /** La source fixée en tête de l'ordre : elle ne se déplace pas. */
 export const PINNED = "blfx";
 
 /** Les domaines de la fenêtre, et les sources qui savent les jouer (dans l'ordre par défaut). */
 export const DOMAINS = Object.freeze({
-  strikes: ["aa", "blfx", "jb2a"],
+  strikes: ["aa", "blfx", "presets", "jb2a"],
   conditions: ["blfx", "jb2a"],
-  consumables: ["aa", "blfx", "jb2a", "tokenmagic", "native"],
+  consumables: ["aa", "blfx", "presets", "jb2a", "tokenmagic", "native"],
   traps: ["blfx", "jb2a", "tokenmagic", "native"],
   walls: ["aa", "blfx", "jb2a"],
-  areas: ["aa", "blfx", "jb2a", "tokenmagic"],
+  areas: ["aa", "blfx", "presets", "jb2a", "tokenmagic"],
   doors: ["blfx", "jb2a"],
   summons: ["blfx", "jb2a"]
 });
@@ -108,7 +108,7 @@ export function sourceChain(domain, value, available={}) {
  * joue que ses animations personnalisées, objet par objet). null : rien.
  */
 export function pickSource(domain, value, available={}) {
-  return sourceChain(domain, value, available).find(s => s !== "aa") ?? null;
+  return sourceChain(domain, value, available).find(s => s !== "aa" && !(domain === "consumables" && s === "presets")) ?? null;
 }
 
 /**
@@ -130,7 +130,7 @@ export function sourceTable(value, available={}) {
     const capable = DOMAINS[domain];
     if ( v.domains[domain] === false ) return { domain, on: false, source: null, capable, notes: ["off"] };
     const chain = sourceChain(domain, v, available);
-    const source = chain.find(s => s !== "aa") ?? null;
+    const source = chain.find(s => s !== "aa" && !(domain === "consumables" && s === "presets")) ?? null;
     const notes = [];
     if ( !source ) notes.push("nothing");
     if ( available.blfx && source && (source !== PINNED) && yieldsToBlfx(domain, v, source) ) notes.push("blfxFirst");
