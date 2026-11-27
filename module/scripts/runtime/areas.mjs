@@ -165,9 +165,7 @@ export async function drawArea(region) {
  * feu. Le moteur n'est ni requis ni appelé — on lit seulement ce qu'il écrit sur la région.
  */
 async function drawBurning(region) {
-  const backend = areaBackend();
-  const mapped = backend === "presets" ? spellSound(item) : null;
-  const draw = backend === "presets" ? (mapped ? "jb2a" : chain("areas").find(s => ["jb2a", "tokenmagic"].includes(s))) : backend;
+  const draw = chain("areas").find(source => source === "jb2a" || source === "tokenmagic");
   if ( draw === "jb2a" ) {
     await stopJb2aArea(region.id);
     const played = await playJb2aArea(region, JB2A.BURNING, { persist: true });

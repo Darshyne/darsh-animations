@@ -1,3 +1,5 @@
+import { audioAllowed } from "./audio-sources.mjs";
+import { chain } from "./sources.mjs";
 import { known, addSound } from "./sequencer.mjs";
 
 const aliases = {
@@ -5,6 +7,23 @@ const aliases = {
   "shield": "shield-spell"
 };
 const cache = new Map();
+
+/** Inventory for diagnostics. Indexing never runs a macro or grants it priority. */
+export async function psfxMacroIndex() {
+  if (!["strikes", "areas", "consumables"].some(domain => chain(domain).includes("presets"))) return [];
+  const packs = ["psfx-patreon", "psfx"]
+    .filter(id => game.modules.get(id)?.active)
+    .map(id => game.packs.get(id + ".psfx-macros"))
+    .filter(Boolean);
+  const indexes = await Promise.all(packs.map(async pack => {
+    const entries = await pack.getIndex();
+    return Array.from(entries, entry => ({
+      name: entry.name,
+      uuid: `Compendium.${pack.collection}.Macro.${entry._id}`
+    }));
+  }));
+  return indexes.flat();
+}
 
 Hooks.on("sequencer.ready", () => cache.clear());
 
@@ -67,7 +86,7 @@ export function laughterPreset(sequence, item, source, targets, { skipCast }) {
   }
   for (const { token, save } of targets) {
     sequence.effect().file(strands).atLocation(source).stretchTo(token);
-    if (save?.success !== true) {
+    if (save?.success !== true && audioAllowed("psfx")) {
       sounds.forEach((sound, index) => {
         const laugh = sequence.sound().file(sound).atLocation(source).toLocation(token)
           .baseEffect({ type: "reverb", intensity: 100 })

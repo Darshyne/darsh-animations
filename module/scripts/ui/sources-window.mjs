@@ -16,14 +16,14 @@ const esc = s => foundry.utils.escapeHTML(String(s ?? ""));
 /** Les modules derrière chaque source, pour la ligne de détection : des groupes de versions (Patreon, gratuite). */
 const SOURCE_MODULES = Object.freeze({
   blfx: [["boss-loot-assets-premium"]],
-  aa: [["autoanimations"], ["psfx-patreon", "psfx"]],
+  aa: [["autoanimations"], ["jb2a_patreon", "JB2A_DnD5e"], ["psfx-patreon", "psfx"]],
   presets: [["jb2a_patreon", "JB2A_DnD5e"], ["psfx-patreon", "psfx"]],
   jb2a: [["jb2a_patreon", "JB2A_DnD5e"], ["psfx-patreon", "psfx"]],
   tokenmagic: [["tokenmagic"]],
   native: []
 });
 
-const STYLE = `
+export const SOURCES_STYLE = `
 .das-sources { display: flex; flex-direction: column; gap: 0.75rem; }
 .das-sources h3 { margin: 0.25rem 0 0; border-bottom: 1px solid var(--color-border, #7a7971); font-size: 1.05em; }
 .das-sources .hint { font-size: 0.85em; opacity: 0.8; margin: 0; }
@@ -196,7 +196,7 @@ function renderBody(value, det) {
       <td>${esc(capable)}${remarks}</td>
     </tr>`;
   }).join("");
-  return `<style>${STYLE}</style>
+  return `<style>${SOURCES_STYLE}</style>
   <div class="das-sources">
     <p class="hint">${esc(t("Intro"))}</p>
     ${noteItems ? `<h3>${esc(t("Detection"))}</h3><ul class="notes">${noteItems}</ul>` : ""}

@@ -1,3 +1,4 @@
+import { audioProvider, selectAudio } from "./audio-sources.mjs";
 /**
  * Petits outils Sequencer partagés par les rendus « BLFX » et « JB2A + PSFX » (consommables, pièges, murs, zones) : tous deux jouent
  * des noms de la base de Sequencer, avec les mêmes options.
@@ -24,7 +25,9 @@ export function addEffect(sequence, name, place, { scale=1.5, delay=0, duration=
 
 /** Ajoute un son s'il est connu (sans PSFX, les sons JB2A se taisent). Rend vrai s'il a été ajouté. */
 export function addSound(sequence, name, { delay=0, volume=null }={}) {
-  if ( !known(name) ) return false;
+  const candidates = typeof name === "string" ? { [audioProvider(name)]: name } : name ?? {};
+  name = selectAudio(candidates, path => path.startsWith("sounds/") || known(path));
+  if ( !name ) return false;
   const sound = sequence.sound().file(name);
   if ( delay ) sound.delay(delay);
   if ( volume !== null ) sound.volume(volume);

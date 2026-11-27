@@ -1,3 +1,4 @@
+import { audioAllowed, selectAudio } from "./audio-sources.mjs";
 /**
  * SPEC §21 : les attaques d'arme (lot 1), les sorts ciblés et les soins (lot 2) joués par ce module (JB2A gratuit ou Premium + sons
  * PSFX), pour se passer d'Automated Animations. Recettes : data/strikes.mjs ; choix : core/strikes.mjs.
@@ -112,7 +113,8 @@ function playWeapon(sequence, choice, source, live, { impactSound=null }={}) {
 }
 
 /** Un sort ciblé ou un soin (lot 2) : incantation sur le lanceur, projectile ou effet sur la cible, impact du type de dégâts. */
-function playSpell(sequence, choice, source, live, { skipCast=false }={}) {
+function playSpell(sequence, choice, source, live, { skipCast=false, detected=null }={}) {
+  const soundCandidates = { psfx: detected, das: choice.sound };
   const file = firstKnown(choice.animation);
   const castFile = skipCast ? null : firstKnown(choice.cast);
   const impactFile = firstKnown(choice.impact?.animation);
@@ -121,7 +123,7 @@ function playSpell(sequence, choice, source, live, { skipCast=false }={}) {
   // Téléportation : on disparaît sur place ; la réapparition se joue quand le token arrive (updateToken).
   if ( choice.kind === "teleport" ) {
     if ( file ) sequence.effect().file(file).atLocation(source).scaleToObject(1.6);
-    if ( choice.sound && addSound(sequence, choice.sound) ) sounds.push(choice.sound);
+    if ( (detected || choice.sound) && addSound(sequence, soundCandidates) ) sounds.push(selectAudio(soundCandidates, known));
     teleports.set(source.document.id, { arrive: firstKnown(choice.arrive), sound: choice.arriveSound, until: Date.now() + 20000 });
     return { played: file, sounds, teleport: true };
   }
@@ -143,8 +145,8 @@ function playSpell(sequence, choice, source, live, { skipCast=false }={}) {
       else fx.atLocation(target).scaleToObject(1.5 * scale);
     }
     // Le son du sort à chaque projectile (Projectile magique), une fois sinon.
-    if ( !step.saved && choice.sound && (first || (choice.kind === "shot")) && addSound(sequence, choice.sound, { delay: start,
-      volume: step.saved ? SAVED_IMPACT.volume : null }) ) sounds.push(choice.sound);
+    if ( !step.saved && (detected || choice.sound) && (first || (choice.kind === "shot")) && addSound(sequence, soundCandidates, { delay: start,
+      volume: step.saved ? SAVED_IMPACT.volume : null }) ) sounds.push(selectAudio(soundCandidates, known));
     if ( step.impact && impactFile ) {
       const impact = sequence.effect().file(impactFile).atLocation(target).scaleToObject((choice.impact.scale ?? 1) * scale)
         .delay(start + at);
@@ -208,7 +210,7 @@ export function playStrike({ item, activity=null, source, targets=[], attackMode
   const stop = gate({ item, activity, source }, force);
   if ( stop ) return stop;
   const instrument = preferPreset() ? instrumentSound(item, activity) : null;
-  if ( instrument ) {
+  if ( instrument && audioAllowed("psfx") ) {
     const sequence = new Sequence({ moduleName: MODULE_ID });
     sequence.sound().file(instrument).atLocation(source).globalSound();
     sequence.play();
@@ -223,10 +225,10 @@ export function playStrike({ item, activity=null, source, targets=[], attackMode
   if ( !live.length ) return { skipped: "no target on the viewed scene" };
   const sequence = new Sequence({ moduleName: MODULE_ID });
   const preset = preferPreset();
-  const mapped = preset ? (spellSound(item) ?? featureSound(item)) : null;
+  const detected = preset ? (spellSound(item) ?? featureSound(item)) : null;
   const result = (preset && laughterPreset(sequence, item, source, live, { skipCast })) ||
     ((choice.action === "weapon") ? playWeapon(sequence, choice, source, live, { impactSound: preset ? meleeWeaponSound(item, choice) : null })
-      : playSpell(sequence, mapped ? { ...choice, sound: mapped } : choice, source, live, { skipCast }));
+      : playSpell(sequence, choice, source, live, { skipCast, detected }));
   if ( result.skipped ) return result;
   sequence.play();
   log(`${choice.action} (${choice.family}): ${item.name} → ${live.map(t => `${t.token.name}${t.hit === false ? " (miss)"
