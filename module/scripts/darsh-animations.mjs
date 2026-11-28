@@ -1,3 +1,5 @@
+import { areaKeys, registerAreaSettings } from "./runtime/area-settings.mjs";
+import { registerPaintedCoverage } from "./runtime/painted-coverage.mjs";
 /**
  * darsh-dnd · Animations : la table d'animations (data/animations.mjs, plus celles que d'autres modules enregistrent —
  * runtime/registry.mjs) versée dans l'Auto-Rec personnalisée de BLFX. Le module ne joue rien lui-même en partie : c'est BLFX
@@ -82,6 +84,8 @@ Hooks.once("init", () => {
   registerTraps();
   registerWalls();
   registerConsumables();
+  registerAreaSettings();
+  registerPaintedCoverage();
   registerAreas();
   registerCasting();
   registerAA({ strikesWouldPlay });
@@ -99,4 +103,17 @@ Hooks.once("setup", collectRegistrations);
 Hooks.once("ready", () => {
   // BLFX enregistre ses écouteurs au `init` : à `ready`, il entend notre hook.
   sync().catch(err => console.error(`${MODULE_ID} | sync failed`, err));
+});
+
+Hooks.once("setup", () => {
+  game.modules.get("dnd5e-combat")?.api?.settings?.registerWindow?.({
+    namespace: MODULE_ID,
+    tabs: [
+      { id: "general", icon: "fa-solid fa-wand-sparkles", label: "DARSHANIM.Area.general",
+        keys: ["renderer", "strikes", "conditions", "aaNames", "summonArt", "summonArtAsk"],
+        tools: [{ id: "sources", icon: "fa-solid fa-layer-group", name: "DARSHANIM.Sources.Menu.Name",
+          hint: "DARSHANIM.Sources.Menu.Hint", button: "DARSHANIM.Sources.Menu.Label", open: openSources }] },
+      { id: "persistentAreas", icon: "fa-solid fa-draw-polygon", label: "DARSHANIM.Area.tab", keys: areaKeys }
+    ]
+  });
 });

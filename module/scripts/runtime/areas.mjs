@@ -1,3 +1,4 @@
+import { areaOpacity, paintedEnabled, persistentRegion } from "./area-settings.mjs";
 /**
  * Les effets de zone sans BLFX (SPEC §15, §17) : quand BLFX n'est pas là, ou qu'il ne reconnaît pas le sort, et qu'Automated
  * Animations ne le joue pas non plus, une zone posée par une activité dnd5e (région qui porte `flags.dnd5e.activity` : Mains
@@ -54,6 +55,7 @@ export function areaPlan(region) {
   const activity = fromUuidSync(region.flags?.dnd5e?.activity ?? "", { strict: false });
   const item = activity?.item ?? fromUuidSync(region.flags?.dnd5e?.item ?? "", { strict: false });
   if ( !item ) return { skipped: "not an activity area" };
+  if ( paintedEnabled() && persistentRegion(region) ) return { skipped: "persistent area reserved for Painted FX" };
   const draw = areaBackend();
   if ( !draw ) return { skipped: `areas: no source (${pick("areas") ?? "turned off"})` };
   // Un mur de sort est dessiné par runtime/walls.mjs.
@@ -103,6 +105,7 @@ async function playJb2aArea(region, entry, { persist=entry.persist }={}) {
     const box = region.bounds;
     effect.atLocation({ x: box.x + (box.width / 2), y: box.y + (box.height / 2) }).size({ width: box.width, height: box.height });
   }
+  if ( persist && !paintedEnabled() ) effect.opacity(areaOpacity());
   if ( entry.tint ) effect.tint(entry.tint);
   if ( entry.below ) effect.belowTokens();
   if ( persist ) effect.persist().name(fxName(region.id)).fadeIn(500).fadeOut(500);
@@ -128,7 +131,7 @@ function companionData(region, plan) {
     visibility: CONST.REGION_VISIBILITY.ALWAYS, locked: true, behaviors: [],
     flags: {
       [MODULE_ID]: { areaFx: region.id, key: plan.key },
-      tokenmagic: { options: { tmfxPreset: plan.preset, ...(plan.tint ? { tmfxTint: plan.tint } : {}), tmfxRegionOpacity: plan.opacity } }
+      tokenmagic: { options: { tmfxPreset: plan.preset, ...(plan.tint ? { tmfxTint: plan.tint } : {}), tmfxRegionOpacity: persistentRegion(region) && !paintedEnabled() ? areaOpacity() : plan.opacity } }
     } };
   // The companion follows the area's visibility (DAS · Core's `areaVisibility` setting, or a hand-made choice): an area hidden
   // from the players does not show its look to them either.
@@ -164,6 +167,7 @@ export async function drawArea(region) {
  * feu. Le moteur n'est ni requis ni appelé — on lit seulement ce qu'il écrit sur la région.
  */
 async function drawBurning(region) {
+  if (paintedEnabled() && persistentRegion(region)) return;
   const draw = areaBackend();
   if ( draw === "jb2a" ) {
     await stopJb2aArea(region.id);
@@ -205,12 +209,19 @@ async function sweep(scene) {
   try { effects = globalThis.Sequencer?.EffectManager?.getEffects?.({ sceneId: scene.id }) ?? []; } catch { effects = []; }
   for ( const effect of effects ) {
     const name = effect?.data?.name ?? "";
-    if ( name.startsWith(prefix) && !scene.regions.has(name.slice(prefix.length)) ) await stopJb2aArea(name.slice(prefix.length));
+    if (!name.startsWith(prefix)) continue;
+    const id = name.slice(prefix.length);
+    const region = scene.regions.get(id);
+    if (!region || (paintedEnabled() && persistentRegion(region))) {
+      await stopJb2aArea(id);
+      if (region) companions.delete(id);
+    }
   }
 }
 
 export function registerAreas() {
   Hooks.once("ready", () => { loadBlfxMap(); if ( isExecutor() ) sweep(canvas.scene); });
+  Hooks.on("darsh-animations.areaRendererChanged", () => { if (isExecutor()) sweep(canvas.scene); });
   Hooks.on("canvasReady", () => { if ( isExecutor() ) sweep(canvas.scene); });
   Hooks.on("createRegion", region => {
     if ( !isExecutor() || isFx(region) || !region.flags?.dnd5e?.activity ) return;
