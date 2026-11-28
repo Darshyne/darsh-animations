@@ -1,4 +1,10 @@
 {
+  "DARSHANIM.Area.general": "General",
+  "DARSHANIM.Area.tab": "Zones persistantes",
+  "DARSHANIM.Area.areaPainted": "Animer avec Painted FX",
+  "DARSHANIM.Area.areaOpacity": "Opacité de l’effet",
+  "DARSHANIM.Area.areaHighlight": "Afficher le surlignage après le lancer",
+  "DARSHANIM.Area.areaColor": "Couleur du surlignage (#RRGGBB, vide pour conserver la couleur existante)",
   "DARSHANIM.Sync.Interdit": "DAS · Animations : cochez le réglage BLFX « BLFX Custom Auto-Rec Updates » (Paramètres du module Boss Loot), puis rechargez. Il permet à ce module d'ajouter ses animations à l'Auto-Rec personnalisée ; les vôtres sont conservées.",
   "DARSHANIM.Sync.Problemes": "DAS · Animations : {n} animation(s) non versée(s) dans BLFX — détail dans la console.",
   "DARSHANIM.Sync.Echec": "DAS · Animations : BLFX n'a pas confirmé l'import de l'Auto-Rec — détail dans la console.",

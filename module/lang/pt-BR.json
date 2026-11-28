@@ -11,6 +11,7 @@
   "DARSHANIM.Settings.Renderer.Native": "Anel integrado (dispensa outros módulos)",
   "DARSHANIM.Settings.Renderer.None": "Nenhum",
   "DARSHANIM": {
+    "Area": {"general":"Geral","tab":"Áreas persistentes","areaPainted":"Animar com Painted FX","areaOpacity":"Opacidade do efeito","areaHighlight":"Mostrar o destaque após o lançamento","areaColor":"Cor do destaque (#RRGGBB, vazio para manter a cor)"},
     "Settings": {
       "Renderer": {
         "Jb2a": "Animações JB2A + sons PSFX"

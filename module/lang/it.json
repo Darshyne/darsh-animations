@@ -1,4 +1,10 @@
 {
+  "DARSHANIM.Area.general": "Generale",
+  "DARSHANIM.Area.tab": "Aree persistenti",
+  "DARSHANIM.Area.areaPainted": "Anima con Painted FX",
+  "DARSHANIM.Area.areaOpacity": "Opacità dell’effetto",
+  "DARSHANIM.Area.areaHighlight": "Mostra l’evidenziazione dopo il lancio",
+  "DARSHANIM.Area.areaColor": "Colore dell’evidenziazione (#RRGGBB, vuoto per mantenere il colore)",
   "DARSHANIM.Sync.Interdit": "DAS · Animations: attiva l'impostazione di BLFX «BLFX Custom Auto-Rec Updates» (impostazioni del modulo Boss Loot), poi ricarica. Permette a questo modulo di aggiungere le proprie animazioni all'Auto-Rec personalizzato; le tue voci vengono conservate.",
   "DARSHANIM.Sync.Problemes": "DAS · Animations: {n} animazione/i non inviata/e a BLFX — dettagli nella console.",
   "DARSHANIM.Sync.Echec": "DAS · Animations: BLFX non ha confermato l'importazione dell'Auto-Rec personalizzato — dettagli nella console.",
